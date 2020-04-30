@@ -1,4 +1,3 @@
-<p align="center"><img src="https://i.imgur.com/fC0agkK.png" width="150px" height="150px"></p>
 <h1 align="center">Tabloid</h1>
 
 <p align="center">Tab synchronization software, available for Mozilla Firefox and Google Chrome</p>
