@@ -1,4 +1,6 @@
-<h1 align="center">Tabloid</h1>
+<p align="center">
+ <img src="./resources/logos/tabloid.png" width="150px">
+</p>
 
 <p align="center">Tab synchronization software, available for Mozilla Firefox and Google Chrome</p>
 
