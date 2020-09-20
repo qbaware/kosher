@@ -1,5 +1,6 @@
 <p align="center">
  <img src="./resources/logos/kosher-clean.png" width="150px">
+ <h1 align="center">Kosher</h1>
 </p>
 
 <p align="center">Tab synchronization software, available for Mozilla Firefox and Google Chrome</p>
