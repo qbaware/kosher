@@ -1,5 +1,5 @@
 <p align="center">
- <img src="./resources/logos/tabloid.png" width="150px">
+ <img src="./resources/logos/kosher-clean.png" width="150px">
 </p>
 
 <p align="center">Tab synchronization software, available for Mozilla Firefox and Google Chrome</p>
@@ -19,9 +19,9 @@ Do you
 - :unamused: get annoyed of the duplication of tabs on both browsers, when you do manage to open the same tab in the other browser?
 - :sweat: experience another issue caused by using multiple browsers?
 
-Tabloid aims to resolve all of those issues by providing users a unified way to sync all of their tabs in a single place.
+Kosher aims to resolve all of those issues by providing users a unified way to sync all of their tabs in a single place.
 
 ## Support
-If you find Tabloid useful and you want to support it, you can consider making a donation via [PayPal](https://www.paypal.me/danielgospodinow/2) or [Patreon](https://www.patreon.com/danielgospodinow). 
+If you find Kosher useful and you want to support it, you can consider making a donation via [PayPal](https://www.paypal.me/danielgospodinow/2) or [Patreon](https://www.patreon.com/danielgospodinow). 
 
 Thank you! :heart:

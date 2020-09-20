@@ -1,4 +1,4 @@
-module github.com/danielgospodinow/tabloid
+module github.com/danielgospodinow/kosher
 
 go 1.14
 
