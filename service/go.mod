@@ -1,4 +1,4 @@
-module github.com/danielgospodinow/kosher
+module github.com/qbaware/kosher
 
 go 1.14
 
