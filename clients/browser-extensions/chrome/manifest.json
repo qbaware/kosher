@@ -1,24 +1,16 @@
 {
     "name": "Kosher",
     "version": "0.0.1",
+    "author": "Qbaware",
     "description": "Synchronize and use tabs from all of your browsers into a single unified storage.",
     "manifest_version": 2,
     "browser_action": {
-        "default_icon": "logo.png"
+        "default_icon": "./resources/logo.png",
+        "default_popup": "popup/index.html"
     },
-    "content_scripts": [
-        {
-            "matches": [
-                "<all_urls>"
-            ],
-            "js": [
-                "content.js"
-            ]
-        }
-    ],
     "background": {
         "scripts": [
-            "background.js"
+            "./scripts/background.js"
         ]
     },
     "permissions": [

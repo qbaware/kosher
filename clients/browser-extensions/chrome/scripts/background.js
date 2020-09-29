@@ -1,7 +1,7 @@
 const tabBackupAction = "tabs_backup"
 
 chrome.alarms.create(tabBackupAction, {
-    periodInMinutes: 5
+    periodInMinutes: 1
 })
 
 chrome.alarms.onAlarm.addListener((alarm) => {
