@@ -1,5 +1,8 @@
 module github.com/qbaware/kosher
 
-go 1.14
+go 1.17
 
-require github.com/gorilla/mux v1.7.4
+require (
+	github.com/google/uuid v1.3.0
+	github.com/gorilla/mux v1.8.0
+)
