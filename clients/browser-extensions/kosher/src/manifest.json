@@ -3,18 +3,16 @@
   "version": "0.0.1",
   "author": "Qbaware",
   "description": "Synchronize and use tabs from all of your browsers into a single unified storage.",
-  "manifest_version": 2,
-  "browser_action": {
-      "default_icon": "./resources/logo.png",
-      "default_popup": "./index.html"
+  "manifest_version": 3,
+  "action": {
+    "default_icon": "./resources/logo.png",
+    "default_popup": "./index.html"
   },
   "background": {
-      "scripts": [
-          "./scripts/background.js"
-      ]
+    "service_worker": "./scripts/background.js"
   },
   "permissions": [
-      "tabs",
-      "alarms"
+    "tabs",
+    "alarms"
   ]
 }
