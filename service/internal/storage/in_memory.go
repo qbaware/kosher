@@ -12,6 +12,8 @@ type InMemoryStorage struct {
 	capacity int
 }
 
+var _ Storage = &InMemoryStorage{}
+
 // NewInMemoryStorage creates an in-memory tabs storage.
 func NewInMemoryStorage(capacity int) *InMemoryStorage {
 	return &InMemoryStorage{
