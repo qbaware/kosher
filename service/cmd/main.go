@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 	"net/http"
+	"os"
 
 	"github.com/gorilla/mux"
 	"github.com/qbaware/kosher/internal/api"
@@ -11,6 +12,10 @@ import (
 
 const (
 	maxTabs = 1000
+)
+
+var (
+	port = os.Getenv("PORT")
 )
 
 func main() {
@@ -26,5 +31,5 @@ func main() {
 	router.HandleFunc("/tabs/{id}", api.RemoveTabHandler(storage)).Methods(http.MethodDelete)
 
 	http.Handle("/", router)
-	log.Fatal(http.ListenAndServe(":8080", router))
+	log.Fatal(http.ListenAndServe(":"+port, router))
 }
