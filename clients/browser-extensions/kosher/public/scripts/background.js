@@ -11,8 +11,10 @@ chrome.alarms.create(tabBackupAction, {
 chrome.alarms.onAlarm.addListener((alarm) => {
   if (alarm.name === tabBackupAction) {
     chrome.tabs.query({}, (tabs) => {
+      console.log("Found %d tabs.", tabs.length)
+
       tabs.forEach(tab => {
-        console.log(tab.favIconUrl + " " + tab.title + " " + tab.url)
+        const tabInfo = tab.favIconUrl + " " + tab.title + " " + tab.url
       })
     })
   }
