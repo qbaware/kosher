@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import './Header.css';
-
 import logo from '../../resources/logo.png';
 import NormalText from '../text/NormalText';
 import KosherText from '../text/KosherText';
