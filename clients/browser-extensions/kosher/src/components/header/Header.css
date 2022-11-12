@@ -1,0 +1,21 @@
+.Header {
+  background-color: #fafafa;
+  display: flex;
+  flex-direction: row;
+  justify-content: start;
+  font-size: calc(6px + 2vmin);
+  color: rgb(0, 0, 0);
+  border-bottom-left-radius: 15px;
+  border-bottom-right-radius: 15px;
+}
+
+.Container {
+  display: flex;
+  align-items: center;
+}
+
+.Logo {
+  padding: 10px;
+  height: 12vmin;
+  pointer-events: none;
+}
