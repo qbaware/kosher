@@ -9,6 +9,7 @@ import Button from '@mui/material/Button';
 import GoogleIcon from '@mui/icons-material/Google';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import './Login.css';
+import App from '../../App';
 
 class Login extends NamedNavigationalComponent {
   constructor(props) {
@@ -24,7 +25,7 @@ class Login extends NamedNavigationalComponent {
         console.log("User is not logged in.");
       } else {
         console.log("User has already logged in.");
-        this.setActiveScreen("tabs");
+        this.setActiveScreen(App.tabsScreen);
       }
     });
   }

@@ -6,10 +6,13 @@ import Tabs from './screens/tabs/Tabs';
 import SwitchComponents from './utils/navigation/ComponentSwitcher';
 
 class App extends Component {
+  static loginScreen = "login";
+  static tabsScreen = "tabs";
+
   constructor(props) {
     super(props);
 
-    const initialScreen = "tabs";
+    const initialScreen = App.loginScreen;
 
     this.state = {
       activeScreen: initialScreen
@@ -27,8 +30,8 @@ class App extends Component {
       <div className="App">
         <Header></Header>
         <SwitchComponents active={this.state.activeScreen}>
-          <Login name="login" setActiveScreen={this.setActiveScreen}></Login>
-          <Tabs name="tabs" setActiveScreen={this.setActiveScreen}></Tabs>
+          <Login name="login" setActiveScreen={this.setActiveScreen.bind(this)}></Login>
+          <Tabs name="tabs" setActiveScreen={this.setActiveScreen.bind(this)}></Tabs>
         </SwitchComponents>
       </div>
     );
