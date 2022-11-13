@@ -1,5 +1,5 @@
 /*global chrome*/
-import * as React from 'react';
+import NamedNavigationalComponent from '../../utils/navigation/NamedNavigationalComponent';
 import Avatar from '@mui/material/Avatar';
 import CssBaseline from '@mui/material/CssBaseline';
 import Box from '@mui/material/Box';
@@ -10,7 +10,11 @@ import GoogleIcon from '@mui/icons-material/Google';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import './Login.css';
 
-class Login extends React.Component {
+class Login extends NamedNavigationalComponent {
+  constructor(props) {
+    super(props);
+  }
+
   componentDidMount() {
     console.log("Login component loaded.");
 
@@ -20,6 +24,7 @@ class Login extends React.Component {
         console.log("User is not logged in.");
       } else {
         console.log("User has already logged in.");
+        this.setActiveScreen("tabs");
       }
     });
   }
