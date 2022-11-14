@@ -19,7 +19,7 @@ class Login extends NamedNavigationalComponent {
   componentDidMount() {
     console.log("Login component loaded.");
 
-    console.log("Checking the user is already logged in...");
+    console.log("Checking if the user is already logged in...");
     chrome.identity.getAuthToken({ interactive: false }, token => {
       if (token === undefined) {
         console.log("User is not logged in.");
