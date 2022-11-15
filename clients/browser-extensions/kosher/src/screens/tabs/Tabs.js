@@ -13,10 +13,48 @@ class Tabs extends NamedNavigationalComponent {
     super(props);
   }
 
+  componentDidMount() {
+    // TODO: Setup alarm listener that receives all tabs from the background worker and sends them to the backend.
+  }
+
+  clearAllLocalTokensAsync() {
+    return new Promise(function (resolve, _reject) {
+      chrome.identity.clearAllCachedAuthTokens(() => {
+        resolve();
+      });
+    });
+  }
+
+  clearTokenOnRemoteAsync(token) {
+    return fetch(`https://accounts.google.com/o/oauth2/revoke?token=${token}`);
+  }
+
   signOut() {
-    chrome.identity.clearAllCachedAuthTokens(() => {
-      console.log("Purged all cached tokens.")
-      this.setActiveScreen(App.loginScreen);
+    // Fetch token if it exists.
+    chrome.identity.getAuthToken({ interactive: false }, token => {
+      if (!token && chrome.runtime.lastError) {
+        console.log("No token is present on sign out.");
+        console.log(`Exception: ${chrome.runtime.lastError}`);
+        return;
+      }
+
+      // Clears token from the client.
+      let localTokenClear = this.clearAllLocalTokensAsync();
+
+      // Clears token from the server.
+      let remoteTokenClear = this.clearTokenOnRemoteAsync(token);
+
+      // Wait for both promises to complete.
+      Promise.all([localTokenClear, remoteTokenClear])
+        .then(() => {
+          console.log("Token cleared both locally and remotely.");
+
+          // Transition to the sign in screen.
+          this.setActiveScreen(App.loginScreen);
+        })
+        .catch(err => {
+          console.log("An exception occured while deleting token locally and remotely.", err);
+        });
     });
   }
 

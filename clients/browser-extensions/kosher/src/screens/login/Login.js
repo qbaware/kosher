@@ -21,8 +21,9 @@ class Login extends NamedNavigationalComponent {
 
     console.log("Checking if the user is already logged in...");
     chrome.identity.getAuthToken({ interactive: false }, token => {
-      if (token === undefined) {
+      if (!token && chrome.runtime.lastError) {
         console.log("User is not logged in.");
+        console.log(`Exception: ${JSON.stringify(chrome.runtime.lastError)}`);
       } else {
         console.log("User has already logged in.");
         this.setActiveScreen(App.tabsScreen);
@@ -33,8 +34,9 @@ class Login extends NamedNavigationalComponent {
   handleGoogleLogin() {
     console.log("Signing in to Google...");
 
-    chrome.identity.getAuthToken({ interactive: true }, token => {
+    chrome.identity.getAuthToken({ interactive: true }, _token => {
       console.log("Received new token.");
+      this.setActiveScreen(App.tabsScreen);
     });
   };
 
@@ -69,7 +71,7 @@ class Login extends NamedNavigationalComponent {
             padding: "30px"
           }}>
             <ThemeProvider theme={theme}>
-              <Button onClick={this.handleGoogleLogin} variant="contained" color='primary' startIcon={<GoogleIcon />}>
+              <Button onClick={this.handleGoogleLogin.bind(this)} variant="contained" color='primary' startIcon={<GoogleIcon />}>
                 Continue with Google
               </Button>
             </ThemeProvider>
