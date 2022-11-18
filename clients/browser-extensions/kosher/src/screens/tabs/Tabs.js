@@ -15,7 +15,6 @@ class Tabs extends NamedNavigationalComponent {
 
   componentDidMount() {
     // TODO: Setup alarm listener that receives all tabs from the background worker and sends them to the backend.
-    // Save me.
   }
 
   clearAllLocalTokensAsync() {
