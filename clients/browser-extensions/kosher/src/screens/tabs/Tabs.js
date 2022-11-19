@@ -9,6 +9,7 @@ import Avatar from '@mui/material/Avatar';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import ListItemIcon from '@mui/material/ListItemIcon';
+import Person from '@mui/icons-material/Person';
 import Settings from '@mui/icons-material/Settings';
 import Logout from '@mui/icons-material/Logout';
 import Divider from '@mui/material/Divider';
@@ -147,9 +148,9 @@ class Tabs extends NamedNavigationalComponent {
                   onClick={this.profileMenuOpen.bind(this)}
                   size="small"
                   sx={{ ml: 2 }}
-                  aria-controls={true ? 'account-menu' : undefined} //TODO: Check those three props here.
+                  aria-controls={this.state.profileMenuOpen ? 'account-menu' : undefined}
                   aria-haspopup="true"
-                  aria-expanded={true ? 'true' : undefined}
+                  aria-expanded={this.state.profileMenuOpen ? 'true' : undefined}
                 >
                   <Avatar src={"https://lh3.googleusercontent.com/a/ALm5wu0wpDkpjwOjSlJd8Z30QKDdNhIKOj7p3dblxLzcoQ=s500-c"} sx={{ width: 32, height: 32 }}></Avatar>
                 </IconButton>
@@ -191,7 +192,9 @@ class Tabs extends NamedNavigationalComponent {
               anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
             >
               <MenuItem>
-                <Avatar />
+                <ListItemIcon>
+                  <Person fontSize="small" />
+                </ListItemIcon>
                 Profile
               </MenuItem>
               <Divider />
