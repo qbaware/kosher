@@ -34,9 +34,15 @@ class Login extends NamedNavigationalComponent {
   handleGoogleLogin() {
     console.log("Signing in to Google...");
 
-    chrome.identity.getAuthToken({ interactive: true }, _token => {
-      console.log("Received new token.");
-      this.setActiveScreen(App.tabsScreen);
+    chrome.identity.getAuthToken({ interactive: true }, token => {
+      if (!token && chrome.runtime.lastError) {
+        console.log("User didn't complete signing in with Google.")
+        console.log(`Exception: ${JSON.stringify(chrome.runtime.lastError)}`);
+      }
+      else {
+        console.log("Received new token.");
+        this.setActiveScreen(App.tabsScreen);
+      }
     });
   };
 
