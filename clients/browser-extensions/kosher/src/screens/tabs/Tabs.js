@@ -16,6 +16,8 @@ import Divider from '@mui/material/Divider';
 import Container from '@mui/material/Container';
 import './Tabs.css';
 import App from '../../App';
+import { Typography } from '@mui/material';
+import { createTheme, ThemeProvider } from '@mui/material/styles';
 
 class Tabs extends NamedNavigationalComponent {
   constructor(props) {
@@ -130,8 +132,16 @@ class Tabs extends NamedNavigationalComponent {
   }
 
   render() {
+    const theme = createTheme({
+      palette: {
+        primary: {
+          main: "#000000",
+        },
+      },
+    });
+
     return (
-      <Container className="Tabs" component="main" maxWidth="xs">
+      <ThemeProvider theme={theme}>
         <CssBaseline />
         <Box
           sx={{
@@ -141,8 +151,9 @@ class Tabs extends NamedNavigationalComponent {
             alignItems: 'center'
           }}
         >
+          <Typography>{`Hi, ${this.state.profileName}`}</Typography>
           <Fragment>
-            <Box sx={{ display: 'flex', alignItems: 'center', textAlign: 'center' }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', textAlign: 'center', padding: "3px" }}>
               <Tooltip title="Profile">
                 <IconButton
                   onClick={this.profileMenuOpen.bind(this)}
@@ -212,9 +223,16 @@ class Tabs extends NamedNavigationalComponent {
               </MenuItem>
             </Menu>
           </Fragment>
-          <h2>Under construction.</h2>
+
+          <Container sx={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center'
+          }}>
+            <h2>Under construction.</h2>
+          </Container>
         </Box>
-      </Container>
+      </ThemeProvider>
     );
   }
 }
