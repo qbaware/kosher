@@ -5,6 +5,8 @@ import CssBaseline from '@mui/material/CssBaseline';
 import Box from '@mui/material/Box';
 import Tooltip from '@mui/material/Tooltip';
 import IconButton from '@mui/material/IconButton';
+import Button from '@mui/material/Button';
+import ButtonGroup from '@mui/material/ButtonGroup';
 import Avatar from '@mui/material/Avatar';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
@@ -145,91 +147,93 @@ class Tabs extends NamedNavigationalComponent {
         <CssBaseline />
         <Box
           sx={{
-            paddingTop: "20px",
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center'
           }}
         >
-          <Typography>{`Hi, ${this.state.profileName}`}</Typography>
-          <Fragment>
-            <Box sx={{ display: 'flex', alignItems: 'center', textAlign: 'center', padding: "3px" }}>
-              <Tooltip title="Profile">
-                <IconButton
-                  onClick={this.profileMenuOpen.bind(this)}
-                  size="small"
-                  sx={{ ml: 2 }}
-                  aria-controls={this.state.profileMenuOpen ? 'account-menu' : undefined}
-                  aria-haspopup="true"
-                  aria-expanded={this.state.profileMenuOpen ? 'true' : undefined}
-                >
-                  <Avatar src={"https://lh3.googleusercontent.com/a/ALm5wu0wpDkpjwOjSlJd8Z30QKDdNhIKOj7p3dblxLzcoQ=s500-c"} sx={{ width: 32, height: 32 }}></Avatar>
-                </IconButton>
-              </Tooltip>
-            </Box>
-            <Menu
-              anchorEl={this.state.profileMenuAnchor}
-              id="account-menu"
-              open={this.state.profileMenuOpen}
-              onClose={this.profileMenuClose.bind(this)}
-              onClick={() => { }}
-              PaperProps={{
-                elevation: 0,
-                sx: {
-                  overflow: 'visible',
-                  filter: 'drop-shadow(0px 2px 8px rgba(0,0,0,0.32))',
-                  mt: 1.5,
-                  '& .MuiAvatar-root': {
-                    width: 32,
-                    height: 32,
-                    ml: -0.5,
-                    mr: 1,
+          <ButtonGroup variant="contained" aria-label="outlined primary button group" fullWidth="true">
+            <Button sx={{ borderRadius: 0 }}>Tabs</Button>
+            <Button sx={{ borderRadius: 0 }}>Groups</Button>
+            <Fragment>
+              <Box sx={{ display: 'flex', alignItems: 'center', textAlign: 'center', padding: "3px", backgroundColor: "#ffc038" }}>
+                <Tooltip title="Profile">
+                  <IconButton
+                    onClick={this.profileMenuOpen.bind(this)}
+                    size="small"
+                    aria-controls={this.state.profileMenuOpen ? 'account-menu' : undefined}
+                    aria-haspopup="true"
+                    aria-expanded={this.state.profileMenuOpen ? 'true' : undefined}
+                  >
+                    <Avatar variant="circle" src={"https://lh3.googleusercontent.com/a/ALm5wu0wpDkpjwOjSlJd8Z30QKDdNhIKOj7p3dblxLzcoQ=s500-c"} sx={{ width: 32, height: 32 }}></Avatar>
+                  </IconButton>
+                </Tooltip>
+              </Box>
+              <Menu
+                anchorEl={this.state.profileMenuAnchor}
+                id="account-menu"
+                open={this.state.profileMenuOpen}
+                onClose={this.profileMenuClose.bind(this)}
+                onClick={() => { }}
+                PaperProps={{
+                  elevation: 0,
+                  sx: {
+                    overflow: 'visible',
+                    filter: 'drop-shadow(0px 2px 8px rgba(0,0,0,0.32))',
+                    mt: 1.5,
+                    '& .MuiAvatar-root': {
+                      width: 32,
+                      height: 32,
+                      ml: -0.5,
+                      mr: 1,
+                    },
+                    '&:before': {
+                      content: '""',
+                      display: 'block',
+                      position: 'absolute',
+                      top: 0,
+                      right: 14,
+                      width: 10,
+                      height: 10,
+                      bgcolor: 'background.paper',
+                      transform: 'translateY(-50%) rotate(45deg)',
+                      zIndex: 0,
+                    },
                   },
-                  '&:before': {
-                    content: '""',
-                    display: 'block',
-                    position: 'absolute',
-                    top: 0,
-                    right: 14,
-                    width: 10,
-                    height: 10,
-                    bgcolor: 'background.paper',
-                    transform: 'translateY(-50%) rotate(45deg)',
-                    zIndex: 0,
-                  },
-                },
-              }}
-              transformOrigin={{ horizontal: 'right', vertical: 'top' }}
-              anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
-            >
-              <MenuItem>
-                <ListItemIcon>
-                  <Person fontSize="small" />
-                </ListItemIcon>
-                Profile
-              </MenuItem>
-              <Divider />
-              <MenuItem>
-                <ListItemIcon>
-                  <Settings fontSize="small" />
-                </ListItemIcon>
-                Settings
-              </MenuItem>
-              <MenuItem onClick={this.signOut.bind(this)}>
-                <ListItemIcon>
-                  <Logout fontSize="small" />
-                </ListItemIcon>
-                Sign out
-              </MenuItem>
-            </Menu>
-          </Fragment>
-
+                }}
+                transformOrigin={{ horizontal: 'right', vertical: 'top' }}
+                anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
+              >
+                <MenuItem>
+                  <ListItemIcon>
+                    <Person fontSize="small" />
+                  </ListItemIcon>
+                  Profile
+                </MenuItem>
+                <Divider />
+                <MenuItem>
+                  <ListItemIcon>
+                    <Settings fontSize="small" />
+                  </ListItemIcon>
+                  Settings
+                </MenuItem>
+                <MenuItem onClick={this.signOut.bind(this)}>
+                  <ListItemIcon>
+                    <Logout fontSize="small" />
+                  </ListItemIcon>
+                  Sign out
+                </MenuItem>
+              </Menu>
+            </Fragment>
+          </ButtonGroup>
+          <h4>{`Hi, ${this.state.profileName}`}</h4>
           <Container sx={{
+            paddingTop: '10px',
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center'
           }}>
-            <h2>Under construction.</h2>
+            {/* Put items here */}
           </Container>
         </Box>
       </ThemeProvider>
