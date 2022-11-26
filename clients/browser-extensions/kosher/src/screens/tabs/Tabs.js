@@ -10,16 +10,26 @@ import ButtonGroup from '@mui/material/ButtonGroup';
 import Avatar from '@mui/material/Avatar';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
+import List from '@mui/material/List';
+import ListItem from '@mui/material/ListItem';
 import ListItemIcon from '@mui/material/ListItemIcon';
+import ListSubheader from '@mui/material/ListSubheader';
+import ListItemButton from '@mui/material/ListItemButton';
+import ListItemText from '@mui/material/ListItemText';
+import Collapse from '@mui/material/Collapse';
+import DevicesIcon from '@mui/icons-material/Devices';
+import ExpandLess from '@mui/icons-material/ExpandLess';
+import ExpandMore from '@mui/icons-material/ExpandMore';
+import TabIcon from '@mui/icons-material/Tab';
+import Typography from '@mui/material/Typography';
 import Person from '@mui/icons-material/Person';
 import Settings from '@mui/icons-material/Settings';
 import Logout from '@mui/icons-material/Logout';
 import Divider from '@mui/material/Divider';
 import Container from '@mui/material/Container';
+import { createTheme, ThemeProvider } from '@mui/material/styles';
 import './Tabs.css';
 import App from '../../App';
-import { Typography } from '@mui/material';
-import { createTheme, ThemeProvider } from '@mui/material/styles';
 
 class Tabs extends NamedNavigationalComponent {
   constructor(props) {
@@ -30,7 +40,10 @@ class Tabs extends NamedNavigationalComponent {
       profilePicUrl: "",
 
       profileMenuAnchor: null,
-      profileMenuOpen: false
+      profileMenuOpen: false,
+
+      devicesWithTabs: [],
+      devicesItemListCollapsed: {}
     };
   }
 
@@ -38,7 +51,7 @@ class Tabs extends NamedNavigationalComponent {
     this.checkIfUserIsSignedIn(
       (token) => {
         this.loadProfile(token);
-
+        this.loadUserTabs(token);
         // TODO: Setup alarm listener that receives all tabs from the background worker and sends them to the backend.
       },
       () => {
@@ -76,6 +89,50 @@ class Tabs extends NamedNavigationalComponent {
       .catch(err => {
         console.log("Failed retrieving user info from Google APIs", err);
       });
+  }
+
+  loadUserTabs(token) {
+    // Start of mock data.
+    const mockDeviceWithTabs1 = {
+      id: "1",
+      name: "Chrome (MacOS - C02GN16Z1PG2)",
+      tabs: [
+        { id: "1", name: "reactjs - How to make dynamic state for multiple Collapse items", url: "URL1" },
+        { id: "2", name: "НЕЩАТА, КОИТО РАЗВАЛИХА СВЕТА", url: "URL2" },
+        { id: "3", name: "FYRE - Всекиму своето (prod. Vitezz)", url: "URL3" },
+        { id: "4", name: "Ицо Хазарта - Депутата Христо", url: "URL3" }
+      ]
+    };
+
+    const mockDeviceWithTabs2 = {
+      id: "2",
+      name: "Chrome (iOS - Dancho's iPhone)",
+      tabs: [
+        { id: "3", name: "Launching an Infrastructure Saas Product", url: "URL1" }
+      ]
+    };
+    // End of mocks.
+
+    // TODO: Implement real call to backend to retrieve devices with their corresponding tabs.
+
+    const devices = [
+      mockDeviceWithTabs1,
+      mockDeviceWithTabs2
+    ]
+
+    const deviceListItemsCollapsed = this.state.devicesItemListCollapsed;
+
+    devices.map(device => {
+      deviceListItemsCollapsed[device.name] = deviceListItemsCollapsed[device.name] || false;
+    });
+
+    console.log(JSON.stringify(devices));
+    console.log(JSON.stringify(deviceListItemsCollapsed));
+
+    this.setState({
+      devicesWithTabs: devices,
+      devicesItemListCollapsed: deviceListItemsCollapsed
+    });
   }
 
   signOut() {
@@ -154,10 +211,9 @@ class Tabs extends NamedNavigationalComponent {
         >
           <ButtonGroup variant="contained" aria-label="outlined primary button group" fullWidth="true">
             <Button sx={{ borderRadius: 0 }}>Tabs</Button>
-            <Button sx={{ borderRadius: 0 }}>Groups</Button>
             <Button sx={{ borderRadius: 0 }}>Sync</Button>
             <Fragment>
-              <Box sx={{ display: 'flex', alignItems: 'center', textAlign: 'center', padding: "8px", backgroundColor: "#000000" }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', textAlign: 'center', padding: "6px", backgroundColor: "#000000" }}>
                 <Tooltip title="Profile">
                   <IconButton
                     onClick={this.profileMenuOpen.bind(this)}
@@ -205,6 +261,10 @@ class Tabs extends NamedNavigationalComponent {
                 transformOrigin={{ horizontal: 'right', vertical: 'top' }}
                 anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
               >
+                <Box sx={{ display: 'flex', alignItems: 'center', textAlign: 'center' }}>
+                  <Typography sx={{ padding: "10px" }}>{`Hi, ${this.state.profileName}`}</Typography>
+                </Box>
+                <Divider />
                 <MenuItem>
                   <ListItemIcon>
                     <Person fontSize="small" />
@@ -218,7 +278,12 @@ class Tabs extends NamedNavigationalComponent {
                   </ListItemIcon>
                   Settings
                 </MenuItem>
-                <MenuItem onClick={this.signOut.bind(this)}>
+                <MenuItem onClick={(() => {
+                  this.setState({
+                    profileMenuOpen: false
+                  });
+                  this.signOut();
+                })}>
                   <ListItemIcon>
                     <Logout fontSize="small" />
                   </ListItemIcon>
@@ -227,14 +292,60 @@ class Tabs extends NamedNavigationalComponent {
               </Menu>
             </Fragment>
           </ButtonGroup>
-          <h4>{`Hi, ${this.state.profileName}`}</h4>
+        </Box>
+        <Box sx={{
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center'
+        }}>
           <Container sx={{
-            paddingTop: '10px',
+            backgroundColor: '#ffffff',
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center'
           }}>
-            {/* Put items here */}
+            <List
+              sx={{ width: '100%', bgcolor: 'background.paper' }}
+              component="nav"
+              aria-labelledby="nested-list-subheader"
+              subheader={
+                <ListSubheader component="div" id="nested-list-subheader">
+                  Devices
+                </ListSubheader>
+              }
+            >
+              {this.state.devicesWithTabs.map(device => {
+                return (
+                  <div>
+                    <ListItemButton onClick={() => {
+                      const devicesItemListCollapsed = this.state.devicesItemListCollapsed;
+                      devicesItemListCollapsed[device.name] = !devicesItemListCollapsed[device.name];
+                      this.setState({ devicesItemListCollapsed: devicesItemListCollapsed });
+                    }}>
+                      <ListItemIcon>
+                        <DevicesIcon />
+                      </ListItemIcon>
+                      <ListItemText primary={device.name} />
+                      {this.state.devicesItemListCollapsed[device.name] ? <ExpandLess /> : <ExpandMore />}
+                    </ListItemButton>
+                    <Collapse in={this.state.devicesItemListCollapsed[device.name]} timeout="auto" unmountOnExit>
+                      {device.tabs.map(tab => {
+                        return (
+                          <List component="div" disablePadding>
+                            <ListItemButton sx={{ pl: 4 }} onclick={() => { console.log(`Should open tab: ${JSON.stringify(tab)}`) }}>
+                              <ListItemIcon>
+                                <TabIcon />
+                              </ListItemIcon>
+                              <ListItemText primary={tab.name} />
+                            </ListItemButton>
+                          </List>
+                        )
+                      })}
+                    </Collapse>
+                  </div>
+                )
+              })}
+            </List>
           </Container>
         </Box>
       </ThemeProvider>
