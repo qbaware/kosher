@@ -155,8 +155,9 @@ class Tabs extends NamedNavigationalComponent {
           <ButtonGroup variant="contained" aria-label="outlined primary button group" fullWidth="true">
             <Button sx={{ borderRadius: 0 }}>Tabs</Button>
             <Button sx={{ borderRadius: 0 }}>Groups</Button>
+            <Button sx={{ borderRadius: 0 }}>Sync</Button>
             <Fragment>
-              <Box sx={{ display: 'flex', alignItems: 'center', textAlign: 'center', padding: "3px", backgroundColor: "#ffc038" }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', textAlign: 'center', padding: "8px", backgroundColor: "#000000" }}>
                 <Tooltip title="Profile">
                   <IconButton
                     onClick={this.profileMenuOpen.bind(this)}
