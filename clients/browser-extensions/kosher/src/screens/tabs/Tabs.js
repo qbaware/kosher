@@ -28,6 +28,8 @@ import Divider from '@mui/material/Divider';
 import Container from '@mui/material/Container';
 import OpenInBrowserIcon from '@mui/icons-material/OpenInBrowser';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
+import Snackbar from '@mui/material/Snackbar';
+import Alert from '@mui/material/Alert';
 import './Tabs.css';
 import App from '../../App';
 
@@ -43,7 +45,12 @@ class Tabs extends NamedNavigationalComponent {
       profileMenuOpen: false,
 
       devicesWithTabs: [],
-      devicesItemListCollapsed: {}
+      devicesItemListCollapsed: {},
+
+      snackbarShow: false,
+      snackbarMessage: "",
+      snackbarType: "",
+      snackbarAutohideDuration: 2500
     };
   }
 
@@ -106,7 +113,7 @@ class Tabs extends NamedNavigationalComponent {
 
     const mockDeviceWithTabs2 = {
       id: "2",
-      name: "Chrome (MacOS - Dancho's Macbook)",
+      name: "Firefox (MacOS - Dancho's Macbook)",
       tabs: [
         { id: "1", name: "Launching an Infrastructure SaaS Product, An Example Walkthrough", url: "https://www.thenile.dev/blog/launch-infra-saas" },
         { id: "2", name: "Future - MASSAGING ME (Official Music Video)", url: "https://www.youtube.com/watch?v=TrR1wVxj1_Y&ab_channel=FutureVEVO" }
@@ -188,6 +195,46 @@ class Tabs extends NamedNavigationalComponent {
     });
   }
 
+  showSuccessSnackbar(message) {
+    this.closeSnackbar();
+
+    setTimeout(() => {
+      this.setState({
+        snackbarShow: true,
+        snackbarMessage: message,
+        snackbarType: "success",
+      });
+    }, 10);
+  }
+
+  showErrorSnackbar(message) {
+    this.closeSnackbar();
+
+    setTimeout(() => {
+      this.setState({
+        snackbarShow: true,
+        snackbarMessage: message,
+        snackbarType: "error",
+      });
+    }, 10);
+  }
+
+  showInfoSnackbar(message) {
+    this.closeSnackbar();
+
+    setTimeout(() => {
+      this.setState({
+        snackbarShow: true,
+        snackbarMessage: message,
+        snackbarType: "info",
+      });
+    }, 10);
+  }
+
+  closeSnackbar() {
+    this.setState({ snackbarShow: false });
+  }
+
   render() {
     const theme = createTheme({
       palette: {
@@ -208,8 +255,8 @@ class Tabs extends NamedNavigationalComponent {
           }}
         >
           <ButtonGroup variant="contained" aria-label="outlined primary button group" fullWidth="true">
-            <Button sx={{ borderRadius: 0 }}>Tabs</Button>
-            <Button sx={{ borderRadius: 0 }}>Sync</Button>
+            <Button onClick={() => { this.showInfoSnackbar("You're already here, lol") }} sx={{ borderRadius: 0 }}>Tabs</Button>
+            <Button onClick={() => { this.showSuccessSnackbar("Successfully synced tabs") }} sx={{ borderRadius: 0 }}>Sync</Button>
             <Fragment>
               <Box sx={{ display: 'flex', alignItems: 'center', textAlign: 'center', padding: "6px", paddingRight: "10px", backgroundColor: "#000000" }}>
                 <Tooltip title="Profile">
@@ -378,7 +425,12 @@ class Tabs extends NamedNavigationalComponent {
             </List>
           </Container>
         </Box>
-      </ThemeProvider>
+        <Snackbar open={this.state.snackbarShow} autoHideDuration={this.state.snackbarAutohideDuration} onClose={this.closeSnackbar.bind(this)}>
+          <Alert onClose={this.closeSnackbar.bind(this)} severity={this.state.snackbarType} sx={{ width: "100%" }}>
+            {this.state.snackbarMessage}
+          </Alert>
+        </Snackbar>
+      </ThemeProvider >
     );
   }
 }
