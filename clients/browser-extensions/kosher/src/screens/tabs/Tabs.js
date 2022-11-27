@@ -11,7 +11,6 @@ import Avatar from '@mui/material/Avatar';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import List from '@mui/material/List';
-import ListItem from '@mui/material/ListItem';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListSubheader from '@mui/material/ListSubheader';
 import ListItemButton from '@mui/material/ListItemButton';
@@ -27,6 +26,7 @@ import Settings from '@mui/icons-material/Settings';
 import Logout from '@mui/icons-material/Logout';
 import Divider from '@mui/material/Divider';
 import Container from '@mui/material/Container';
+import OpenInBrowserIcon from '@mui/icons-material/OpenInBrowser';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import './Tabs.css';
 import App from '../../App';
@@ -92,23 +92,24 @@ class Tabs extends NamedNavigationalComponent {
   }
 
   loadUserTabs(token) {
-    // Start of mock data.
+    // Define mock data.
     const mockDeviceWithTabs1 = {
       id: "1",
       name: "Chrome (MacOS - C02GN16Z1PG2)",
       tabs: [
-        { id: "1", name: "reactjs - How to make dynamic state for multiple Collapse items", url: "URL1" },
-        { id: "2", name: "НЕЩАТА, КОИТО РАЗВАЛИХА СВЕТА", url: "URL2" },
-        { id: "3", name: "FYRE - Всекиму своето (prod. Vitezz)", url: "URL3" },
-        { id: "4", name: "Ицо Хазарта - Депутата Христо", url: "URL3" }
+        { id: "1", name: "reactjs - How to make dynamic state for multiple Collapse items", url: "https://google.com" },
+        { id: "2", name: "React grid component - Material UI", url: "https://mui.com/material-ui/react-grid/" },
+        { id: "3", name: "FYRE - Момче От Народа (prod. by VITEZZ)(Official 4K Video)", url: "https://www.youtube.com/watch?v=wD_uSekJwVA&ab_channel=FyreHateCity" },
+        { id: "4", name: "qbaware/kosher: Tab synchronization software", url: "https://github.com/qbaware/kosher" }
       ]
     };
 
     const mockDeviceWithTabs2 = {
       id: "2",
-      name: "Chrome (iOS - Dancho's iPhone)",
+      name: "Chrome (MacOS - Dancho's Macbook)",
       tabs: [
-        { id: "3", name: "Launching an Infrastructure Saas Product", url: "URL1" }
+        { id: "1", name: "Launching an Infrastructure SaaS Product, An Example Walkthrough", url: "https://www.thenile.dev/blog/launch-infra-saas" },
+        { id: "2", name: "Future - MASSAGING ME (Official Music Video)", url: "https://www.youtube.com/watch?v=TrR1wVxj1_Y&ab_channel=FutureVEVO" }
       ]
     };
     // End of mocks.
@@ -125,9 +126,6 @@ class Tabs extends NamedNavigationalComponent {
     devices.map(device => {
       deviceListItemsCollapsed[device.name] = deviceListItemsCollapsed[device.name] || false;
     });
-
-    console.log(JSON.stringify(devices));
-    console.log(JSON.stringify(deviceListItemsCollapsed));
 
     this.setState({
       devicesWithTabs: devices,
@@ -213,7 +211,7 @@ class Tabs extends NamedNavigationalComponent {
             <Button sx={{ borderRadius: 0 }}>Tabs</Button>
             <Button sx={{ borderRadius: 0 }}>Sync</Button>
             <Fragment>
-              <Box sx={{ display: 'flex', alignItems: 'center', textAlign: 'center', padding: "6px", backgroundColor: "#000000" }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', textAlign: 'center', padding: "6px", paddingRight: "10px", backgroundColor: "#000000" }}>
                 <Tooltip title="Profile">
                   <IconButton
                     onClick={this.profileMenuOpen.bind(this)}
@@ -222,7 +220,7 @@ class Tabs extends NamedNavigationalComponent {
                     aria-haspopup="true"
                     aria-expanded={this.state.profileMenuOpen ? 'true' : undefined}
                   >
-                    <Avatar variant="circle" src={"https://lh3.googleusercontent.com/a/ALm5wu0wpDkpjwOjSlJd8Z30QKDdNhIKOj7p3dblxLzcoQ=s500-c"} sx={{ width: 32, height: 32 }}></Avatar>
+                    <Avatar variant="circle" src={this.state.profilePicUrl} sx={{ width: 32, height: 32 }}></Avatar>
                   </IconButton>
                 </Tooltip>
               </Box>
@@ -317,24 +315,56 @@ class Tabs extends NamedNavigationalComponent {
               {this.state.devicesWithTabs.map(device => {
                 return (
                   <div>
-                    <ListItemButton onClick={() => {
-                      const devicesItemListCollapsed = this.state.devicesItemListCollapsed;
-                      devicesItemListCollapsed[device.name] = !devicesItemListCollapsed[device.name];
-                      this.setState({ devicesItemListCollapsed: devicesItemListCollapsed });
+                    <Box sx={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      textAlign: 'center'
                     }}>
-                      <ListItemIcon>
-                        <DevicesIcon />
-                      </ListItemIcon>
-                      <ListItemText primary={device.name} />
-                      {this.state.devicesItemListCollapsed[device.name] ? <ExpandLess /> : <ExpandMore />}
-                    </ListItemButton>
+                      <ListItemButton
+                        onClick={() => {
+                          const devicesItemListCollapsed = this.state.devicesItemListCollapsed;
+                          devicesItemListCollapsed[device.name] = !devicesItemListCollapsed[device.name];
+                          this.setState({ devicesItemListCollapsed: devicesItemListCollapsed });
+                        }}
+                      >
+                        <ListItemIcon>
+                          <DevicesIcon color="primary" />
+                        </ListItemIcon>
+                        <ListItemText primary={device.name} />
+                        {this.state.devicesItemListCollapsed[device.name] ? <ExpandLess /> : <ExpandMore />}
+                      </ListItemButton>
+                      <Tooltip placement="left" title="Open missing tabs">
+                        <IconButton color="primary" aria-label="openinbrowser"
+                          onClick={() => {
+                            console.log(`Should open all tabs: ${JSON.stringify(device.tabs)}`);
+                            chrome.tabs.query({}, (tabs) => {
+                              let currentTabUrls = tabs.map(tab => tab.url);
+                              let tabsToOpen = device.tabs.filter(tab => {
+                                return !currentTabUrls.includes(tab.url);
+                              });
+
+                              tabsToOpen.forEach(tab => {
+                                chrome.tabs.create({ url: tab.url, active: false });
+                              });
+                            });
+                          }}>
+                          <OpenInBrowserIcon color="primary" />
+                        </IconButton>
+                      </Tooltip>
+                    </Box>
                     <Collapse in={this.state.devicesItemListCollapsed[device.name]} timeout="auto" unmountOnExit>
                       {device.tabs.map(tab => {
                         return (
                           <List component="div" disablePadding>
-                            <ListItemButton sx={{ pl: 4 }} onclick={() => { console.log(`Should open tab: ${JSON.stringify(tab)}`) }}>
+                            <ListItemButton
+                              sx={{ pl: 4 }}
+                              onClick={() => {
+                                console.log(`Should open tab: ${JSON.stringify(tab)}`);
+                                chrome.tabs.create({ url: tab.url, active: false });
+                              }}
+                            >
                               <ListItemIcon>
-                                <TabIcon />
+                                <TabIcon color="primary" />
                               </ListItemIcon>
                               <ListItemText primary={tab.name} />
                             </ListItemButton>
