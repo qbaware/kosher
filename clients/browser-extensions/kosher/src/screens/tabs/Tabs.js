@@ -255,7 +255,6 @@ class Tabs extends NamedNavigationalComponent {
           }}
         >
           <ButtonGroup variant="contained" aria-label="outlined primary button group" fullWidth="true">
-            <Button onClick={() => { this.showInfoSnackbar("You're already here, lol") }} sx={{ borderRadius: 0 }}>Tabs</Button>
             <Button onClick={() => { this.showSuccessSnackbar("Successfully synced tabs") }} sx={{ borderRadius: 0 }}>Sync</Button>
             <Fragment>
               <Box sx={{ display: 'flex', alignItems: 'center', textAlign: 'center', padding: "6px", paddingRight: "10px", backgroundColor: "#000000" }}>
