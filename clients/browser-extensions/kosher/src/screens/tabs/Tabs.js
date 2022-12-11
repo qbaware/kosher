@@ -21,8 +21,7 @@ import ExpandLess from '@mui/icons-material/ExpandLess';
 import ExpandMore from '@mui/icons-material/ExpandMore';
 import TabIcon from '@mui/icons-material/Tab';
 import Typography from '@mui/material/Typography';
-import Person from '@mui/icons-material/Person';
-import Settings from '@mui/icons-material/Settings';
+import Sync from '@mui/icons-material/Sync';
 import Logout from '@mui/icons-material/Logout';
 import Divider from '@mui/material/Divider';
 import Container from '@mui/material/Container';
@@ -256,7 +255,8 @@ class Tabs extends NamedNavigationalComponent {
           }}
         >
           <ButtonGroup variant="contained" aria-label="outlined primary button group" fullWidth="true">
-            <Button onClick={() => { this.showSuccessSnackbar("Successfully synced tabs"); }} sx={{ borderRadius: 0 }}>Sync</Button>
+            <Button onClick={() => { }} sx={{ borderRadius: 0 }}>Tabs</Button>
+            <Button onClick={() => { }} sx={{ borderRadius: 0 }}>Settings</Button>
             <Fragment>
               <Box sx={{ display: 'flex', alignItems: 'center', textAlign: 'center', padding: "6px", paddingRight: "10px", backgroundColor: "#000000" }}>
                 <Tooltip title="Profile">
@@ -310,25 +310,20 @@ class Tabs extends NamedNavigationalComponent {
                   <Typography sx={{ padding: "10px" }}>{`Hi, ${this.state.profileName}`}</Typography>
                 </Box>
                 <Divider />
-                <MenuItem>
+                <MenuItem onClick={() => {
+                  this.showSuccessSnackbar("Successfully synced tabs");
+                }}>
                   <ListItemIcon>
-                    <Person fontSize="small" />
+                    <Sync fontSize="small" />
                   </ListItemIcon>
-                  Profile
+                  Sync
                 </MenuItem>
-                <Divider />
-                <MenuItem>
-                  <ListItemIcon>
-                    <Settings fontSize="small" />
-                  </ListItemIcon>
-                  Settings
-                </MenuItem>
-                <MenuItem onClick={(() => {
+                <MenuItem onClick={() => {
                   this.setState({
                     profileMenuOpen: false
                   });
                   this.signOut();
-                })}>
+                }}>
                   <ListItemIcon>
                     <Logout fontSize="small" />
                   </ListItemIcon>
@@ -383,7 +378,6 @@ class Tabs extends NamedNavigationalComponent {
                       <Tooltip placement="left" title="Open missing tabs">
                         <IconButton color="primary" aria-label="openinbrowser"
                           onClick={() => {
-                            console.log(`Should open all tabs: ${JSON.stringify(device.tabs)}`);
                             chrome.tabs.query({}, (tabs) => {
                               let currentTabUrls = tabs.map(tab => tab.url);
                               let tabsToOpen = device.tabs.filter(tab => {
