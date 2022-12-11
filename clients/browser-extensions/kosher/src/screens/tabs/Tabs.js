@@ -164,6 +164,7 @@ class Tabs extends NamedNavigationalComponent {
           this.setActiveScreen(App.loginScreen);
         })
         .catch(err => {
+          this.showErrorSnackbar("Failed to sign out");
           console.log("An exception occured while deleting token locally and remotely.", err);
         });
     });
@@ -255,7 +256,7 @@ class Tabs extends NamedNavigationalComponent {
           }}
         >
           <ButtonGroup variant="contained" aria-label="outlined primary button group" fullWidth="true">
-            <Button onClick={() => { this.showSuccessSnackbar("Successfully synced tabs") }} sx={{ borderRadius: 0 }}>Sync</Button>
+            <Button onClick={() => { this.showSuccessSnackbar("Successfully synced tabs"); }} sx={{ borderRadius: 0 }}>Sync</Button>
             <Fragment>
               <Box sx={{ display: 'flex', alignItems: 'center', textAlign: 'center', padding: "6px", paddingRight: "10px", backgroundColor: "#000000" }}>
                 <Tooltip title="Profile">
@@ -388,10 +389,13 @@ class Tabs extends NamedNavigationalComponent {
                               let tabsToOpen = device.tabs.filter(tab => {
                                 return !currentTabUrls.includes(tab.url);
                               });
-
-                              tabsToOpen.forEach(tab => {
-                                chrome.tabs.create({ url: tab.url, active: false });
+                              let tabCreationPromises = tabsToOpen.map(tab => {
+                                return chrome.tabs.create({ url: tab.url, active: false });
                               });
+
+                              Promise.all(tabCreationPromises)
+                                .then(() => { this.showSuccessSnackbar("Opened all tabs"); })
+                                .catch(err => { this.showErrorSnackbar("Error: " + err); });
                             });
                           }}>
                           <OpenInBrowserIcon color="primary" />
@@ -405,8 +409,9 @@ class Tabs extends NamedNavigationalComponent {
                             <ListItemButton
                               sx={{ pl: 4 }}
                               onClick={() => {
-                                console.log(`Should open tab: ${JSON.stringify(tab)}`);
-                                chrome.tabs.create({ url: tab.url, active: false });
+                                chrome.tabs.create({ url: tab.url, active: false })
+                                  .then(() => { this.showSuccessSnackbar("Opened tab"); },
+                                    (rejectedReason) => { this.showErrorSnackbar("Error: " + rejectedReason); });
                               }}
                             >
                               <ListItemIcon>
