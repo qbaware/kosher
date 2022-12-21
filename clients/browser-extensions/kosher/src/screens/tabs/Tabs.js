@@ -29,12 +29,17 @@ import OpenInBrowserIcon from '@mui/icons-material/OpenInBrowser';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import Snackbar from '@mui/material/Snackbar';
 import Alert from '@mui/material/Alert';
-import './Tabs.css';
+import { Slider } from '@mui/material';
+import Switch from '@mui/material/Switch';
+import SwitchComponents from '../../utils/navigation/ComponentSwitcher';
 import App from '../../App';
+import './Tabs.css';
 
 class Tabs extends NamedNavigationalComponent {
   constructor(props) {
     super(props);
+
+    const initialScreen = "tabs";
 
     this.state = {
       profileName: "",
@@ -49,7 +54,13 @@ class Tabs extends NamedNavigationalComponent {
       snackbarShow: false,
       snackbarMessage: "",
       snackbarType: "",
-      snackbarAutohideDuration: 2500
+      snackbarAutohideDuration: 2500,
+
+      selectedTab: initialScreen,
+
+      syncEnabled: true, // TODO: Load this state from storage when app is loaded.
+      localSyncInterval: 3,
+      cloudSyncInterval: 30
     };
   }
 
@@ -235,6 +246,12 @@ class Tabs extends NamedNavigationalComponent {
     this.setState({ snackbarShow: false });
   }
 
+  setActiveTab(tab) {
+    this.setState({
+      selectedTab: tab
+    });
+  }
+
   render() {
     const theme = createTheme({
       palette: {
@@ -255,8 +272,8 @@ class Tabs extends NamedNavigationalComponent {
           }}
         >
           <ButtonGroup variant="contained" aria-label="outlined primary button group" fullWidth="true">
-            <Button onClick={() => { }} sx={{ borderRadius: 0 }}>Tabs</Button>
-            <Button onClick={() => { }} sx={{ borderRadius: 0 }}>Settings</Button>
+            <Button onClick={() => { this.setActiveTab("tabs"); }} sx={{ borderRadius: 0 }}>Tabs</Button>
+            <Button onClick={() => { this.setActiveTab("settings"); }} sx={{ borderRadius: 0 }}>Settings</Button>
             <Fragment>
               <Box sx={{ display: 'flex', alignItems: 'center', textAlign: 'center', padding: "6px", paddingRight: "10px", backgroundColor: "#000000" }}>
                 <Tooltip title="Profile">
@@ -312,6 +329,9 @@ class Tabs extends NamedNavigationalComponent {
                 <Divider />
                 <MenuItem onClick={() => {
                   this.showSuccessSnackbar("Successfully synced tabs");
+                  this.setState({
+                    profileMenuOpen: false
+                  });
                 }}>
                   <ListItemIcon>
                     <Sync fontSize="small" />
@@ -344,83 +364,254 @@ class Tabs extends NamedNavigationalComponent {
             flexDirection: 'column',
             alignItems: 'center'
           }}>
-            <List
-              sx={{ width: '100%', bgcolor: 'background.paper' }}
-              component="nav"
-              aria-labelledby="nested-list-subheader"
-              subheader={
-                <ListSubheader component="div" id="nested-list-subheader">
-                  Devices
-                </ListSubheader>
-              }
-            >
-              {this.state.devicesWithTabs.map(device => {
-                return (
-                  <div>
-                    <Box sx={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      textAlign: 'center'
-                    }}>
-                      <ListItemButton
-                        onClick={() => {
-                          const devicesItemListCollapsed = this.state.devicesItemListCollapsed;
-                          devicesItemListCollapsed[device.name] = !devicesItemListCollapsed[device.name];
-                          this.setState({ devicesItemListCollapsed: devicesItemListCollapsed });
-                        }}
-                      >
-                        <ListItemIcon>
-                          <DevicesIcon color="primary" />
-                        </ListItemIcon>
-                        <ListItemText primary={device.name} />
-                        {this.state.devicesItemListCollapsed[device.name] ? <ExpandLess /> : <ExpandMore />}
-                      </ListItemButton>
-                      <Tooltip placement="left" title="Open missing tabs">
-                        <IconButton color="primary" aria-label="openinbrowser"
+            <SwitchComponents active={this.state.selectedTab}>
+              <List
+                name="tabs"
+                sx={{ width: '100%', bgcolor: 'background.paper' }}
+                component="nav"
+                aria-labelledby="nested-list-subheader"
+                subheader={
+                  <ListSubheader component="div" id="nested-list-subheader">
+                    Devices
+                  </ListSubheader>
+                }
+              >
+                {this.state.devicesWithTabs.map(device => {
+                  return (
+                    <div>
+                      <Box sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        textAlign: 'center'
+                      }}>
+                        <ListItemButton
                           onClick={() => {
-                            chrome.tabs.query({}, (tabs) => {
-                              let currentTabUrls = tabs.map(tab => tab.url);
-                              let tabsToOpen = device.tabs.filter(tab => {
-                                return !currentTabUrls.includes(tab.url);
-                              });
-                              let tabCreationPromises = tabsToOpen.map(tab => {
-                                return chrome.tabs.create({ url: tab.url, active: false });
-                              });
+                            const devicesItemListCollapsed = this.state.devicesItemListCollapsed;
+                            devicesItemListCollapsed[device.name] = !devicesItemListCollapsed[device.name];
+                            this.setState({ devicesItemListCollapsed: devicesItemListCollapsed });
+                          }}
+                        >
+                          <ListItemIcon>
+                            <DevicesIcon color="primary" />
+                          </ListItemIcon>
+                          <ListItemText primary={device.name} />
+                          {this.state.devicesItemListCollapsed[device.name] ? <ExpandLess /> : <ExpandMore />}
+                        </ListItemButton>
+                        <Tooltip placement="left" title="Open missing tabs">
+                          <IconButton color="primary" aria-label="openinbrowser"
+                            onClick={() => {
+                              chrome.tabs.query({}, (tabs) => {
+                                let currentTabUrls = tabs.map(tab => tab.url);
+                                let tabsToOpen = device.tabs.filter(tab => {
+                                  return !currentTabUrls.includes(tab.url);
+                                });
+                                let tabCreationPromises = tabsToOpen.map(tab => {
+                                  return chrome.tabs.create({ url: tab.url, active: false });
+                                });
 
-                              Promise.all(tabCreationPromises)
-                                .then(() => { this.showSuccessSnackbar("Opened all tabs"); })
-                                .catch(err => { this.showErrorSnackbar("Error: " + err); });
-                            });
-                          }}>
-                          <OpenInBrowserIcon color="primary" />
-                        </IconButton>
-                      </Tooltip>
-                    </Box>
-                    <Collapse in={this.state.devicesItemListCollapsed[device.name]} timeout="auto" unmountOnExit>
-                      {device.tabs.map(tab => {
-                        return (
-                          <List component="div" disablePadding>
-                            <ListItemButton
-                              sx={{ pl: 4 }}
-                              onClick={() => {
-                                chrome.tabs.create({ url: tab.url, active: false })
-                                  .then(() => { this.showSuccessSnackbar("Opened tab"); },
-                                    (rejectedReason) => { this.showErrorSnackbar("Error: " + rejectedReason); });
-                              }}
-                            >
-                              <ListItemIcon>
-                                <TabIcon color="primary" />
-                              </ListItemIcon>
-                              <ListItemText primary={tab.name} />
-                            </ListItemButton>
-                          </List>
-                        )
-                      })}
-                    </Collapse>
-                  </div>
-                )
-              })}
-            </List>
+                                Promise.all(tabCreationPromises)
+                                  .then(() => { this.showSuccessSnackbar("Opened all tabs"); })
+                                  .catch(err => { this.showErrorSnackbar("Error: " + err); });
+                              });
+                            }}>
+                            <OpenInBrowserIcon color="primary" />
+                          </IconButton>
+                        </Tooltip>
+                      </Box>
+                      <Collapse in={this.state.devicesItemListCollapsed[device.name]} timeout="auto" unmountOnExit>
+                        {device.tabs.map(tab => {
+                          return (
+                            <List component="div" disablePadding>
+                              <ListItemButton
+                                sx={{ pl: 4 }}
+                                onClick={() => {
+                                  chrome.tabs.create({ url: tab.url, active: false })
+                                    .then(() => { this.showSuccessSnackbar("Opened tab"); },
+                                      (rejectedReason) => { this.showErrorSnackbar("Error: " + rejectedReason); });
+                                }}
+                              >
+                                <ListItemIcon>
+                                  <TabIcon color="primary" />
+                                </ListItemIcon>
+                                <ListItemText primary={tab.name} />
+                              </ListItemButton>
+                            </List>
+                          )
+                        })}
+                      </Collapse>
+                    </div>
+                  )
+                })}
+              </List>
+              <Container
+                name="settings"
+                sx={{
+                  backgroundColor: '#ffffff',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  marginTop: '20px'
+                }}>
+                <Box width="100%" maxWidth={true} alignItems="start" sx={{ paddingBottom: "10px" }}>
+                  <Typography sx={{ paddingBottom: "5px" }}>Sync enabled</Typography>
+                  <Switch
+                    checked={this.state.syncEnabled}
+                    onChange={(event) => { this.setState({ syncEnabled: event.target.checked }); }}
+                    disableRipple
+                    defaultChecked
+                    sx={{
+                      width: 48,
+                      height: 30,
+                      padding: 0,
+                      '& .MuiSwitch-switchBase': {
+                        transitionDuration: '300ms',
+                        padding: 0,
+                        margin: "3px",
+                        '&.Mui-checked': {
+                          transform: 'translateX(18px)',
+                          color: '#fff',
+                          '& + .MuiSwitch-track': {
+                            backgroundColor: '#ffc038',
+                            opacity: 1,
+                            border: 0,
+                          },
+                          '&.Mui-disabled + .MuiSwitch-track': {
+                            opacity: 0.5,
+                          },
+                        },
+                        '&.Mui-disabled .MuiSwitch-thumb': {
+                          color: "black",
+                        },
+                        '&.Mui-disabled + .MuiSwitch-track': {
+                          opacity: 0.3,
+                        },
+                      },
+                      '& .MuiSwitch-thumb': {
+                        boxSizing: 'border-box',
+                        width: 24,
+                        height: 24,
+                        border: '2px solid currentColor'
+                      },
+                      '& .MuiSwitch-track': {
+                        borderRadius: 30 / 2,
+                        backgroundColor: "#bdbdbd",
+                        opacity: 1,
+                        transition: theme.transitions.create(['background-color'], {
+                          duration: 500,
+                        }),
+                      },
+                    }}
+                  >
+                  </Switch>
+                </Box>
+                <Box width="100%" maxWidth={true}>
+                  <Typography gutterBottom>Local sync interval</Typography>
+                  <Slider disabled={!this.state.syncEnabled} sx={
+                    {
+                      color: '#ffc038',
+                      height: 8,
+                      '& .MuiSlider-track': {
+                        border: 'none',
+                      },
+                      '& .MuiSlider-thumb': {
+                        height: 24,
+                        width: 24,
+                        backgroundColor: '#fff',
+                        border: '2px solid currentColor',
+                        '&:focus, &:hover, &.Mui-active, &.Mui-focusVisible': {
+                          boxShadow: 'inherit',
+                        },
+                        '&:before': {
+                          display: 'none',
+                        },
+                      },
+                      '& .MuiSlider-valueLabel': {
+                        lineHeight: 1.2,
+                        fontSize: 13,
+                        background: 'unset',
+                        padding: 0,
+                        width: 32,
+                        height: 32,
+                        borderRadius: '50% 50% 50% 0',
+                        backgroundColor: '#ffc038',
+                        transformOrigin: 'bottom left',
+                        transform: 'translate(50%, -100%) rotate(-45deg) scale(0)',
+                        '&:before': { display: 'none' },
+                        '&.MuiSlider-valueLabelOpen': {
+                          transform: 'translate(50%, -100%) rotate(-45deg) scale(1)',
+                        },
+                        '& > *': {
+                          transform: 'rotate(45deg)',
+                        },
+                      },
+                    }
+                  }
+                    valueLabelDisplay="auto"
+                    aria-label="local-sync-slider"
+                    defaultValue={3}
+                    step={1}
+                    marks
+                    min={1}
+                    max={15}
+                    value={this.state.localSyncInterval}
+                    onChange={(_event, value) => { this.setState({ localSyncInterval: value }); }}
+                  />
+                </Box>
+                <Box width="100%" maxWidth={true}>
+                  <Typography gutterBottom>Cloud sync interval</Typography>
+                  <Slider disabled={!this.state.syncEnabled} sx={
+                    {
+                      color: '#ffc038',
+                      height: 8,
+                      '& .MuiSlider-track': {
+                        border: 'none',
+                      },
+                      '& .MuiSlider-thumb': {
+                        height: 24,
+                        width: 24,
+                        backgroundColor: '#fff',
+                        border: '2px solid currentColor',
+                        '&:focus, &:hover, &.Mui-active, &.Mui-focusVisible': {
+                          boxShadow: 'inherit',
+                        },
+                        '&:before': {
+                          display: 'none',
+                        },
+                      },
+                      '& .MuiSlider-valueLabel': {
+                        lineHeight: 1.2,
+                        fontSize: 13,
+                        background: 'unset',
+                        padding: 0,
+                        width: 32,
+                        height: 32,
+                        borderRadius: '50% 50% 50% 0',
+                        backgroundColor: '#ffc038',
+                        transformOrigin: 'bottom left',
+                        transform: 'translate(50%, -100%) rotate(-45deg) scale(0)',
+                        '&:before': { display: 'none' },
+                        '&.MuiSlider-valueLabelOpen': {
+                          transform: 'translate(50%, -100%) rotate(-45deg) scale(1)',
+                        },
+                        '& > *': {
+                          transform: 'rotate(45deg)',
+                        },
+                      },
+                    }
+                  }
+                    valueLabelDisplay="auto"
+                    aria-label="cloud-sync-slider"
+                    defaultValue={30}
+                    step={15}
+                    marks
+                    min={15}
+                    max={60}
+                    value={this.state.cloudSyncInterval}
+                    onChange={(_event, value) => { this.setState({ cloudSyncInterval: value }); }}
+                  />
+                </Box>
+              </Container>
+            </SwitchComponents>
           </Container>
         </Box>
         <Snackbar open={this.state.snackbarShow} autoHideDuration={this.state.snackbarAutohideDuration} onClose={this.closeSnackbar.bind(this)}>
