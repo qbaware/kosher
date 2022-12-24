@@ -1,4 +1,5 @@
 const tabBackupAction = "tabs_backup";
+const localStorageTabsKey = "tabs";
 
 chrome.runtime.onInstalled.addListener(() => {
   console.log("Extension starting ...");
@@ -11,11 +12,8 @@ chrome.alarms.create(tabBackupAction, {
 chrome.alarms.onAlarm.addListener((alarm) => {
   if (alarm.name === tabBackupAction) {
     chrome.tabs.query({}, (tabs) => {
-      console.log("Found %d tabs.", tabs.length);
-
-      tabs.forEach(tab => {
-        const tabInfo = tab.favIconUrl + " " + tab.title + " " + tab.url;
-      });
+      console.log("Found %d tabs. Putting them to local storage.", tabs.length);
+      chrome.storage.local.set({ localStorageTabsKey: tabs });
     });
   }
 });

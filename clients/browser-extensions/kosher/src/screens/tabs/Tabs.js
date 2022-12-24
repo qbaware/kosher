@@ -59,7 +59,6 @@ class Tabs extends NamedNavigationalComponent {
       selectedTab: initialScreen,
 
       syncEnabled: true, // TODO: Load this state from storage when app is loaded.
-      localSyncInterval: 3,
       cloudSyncInterval: 30
     };
   }
@@ -69,6 +68,7 @@ class Tabs extends NamedNavigationalComponent {
       (token) => {
         this.loadProfile(token);
         this.loadUserTabs(token);
+        this.loadLocalStorageSettings();
         // TODO: Setup alarm listener that receives all tabs from the background worker and sends them to the backend.
       },
       () => {
@@ -87,6 +87,21 @@ class Tabs extends NamedNavigationalComponent {
         signedInCallback(userToken);
       }
     });
+  }
+
+  loadLocalStorageSettings() {
+    // TODO: Define those variables in constants in a global file.
+    this.loadLocalStorageVariable("syncEnabled", this.state.syncEnabled);
+    this.loadLocalStorageVariable("cloudSyncInterval", this.state.cloudSyncInterval);
+  }
+
+  async loadLocalStorageVariable(variableName, defaultValue) {
+    const storageResult = await chrome.storage.local.get([variableName]);
+    const value = storageResult[variableName] !== undefined ? storageResult[variableName] : defaultValue;
+
+    let state = {};
+    state[variableName] = value;
+    this.setState(state);
   }
 
   loadProfile(token) {
@@ -327,7 +342,13 @@ class Tabs extends NamedNavigationalComponent {
                   <Typography sx={{ padding: "10px" }}>{`Hi, ${this.state.profileName}`}</Typography>
                 </Box>
                 <Divider />
-                <MenuItem onClick={() => {
+                <MenuItem onClick={async () => {
+                  const tabsResult = await chrome.storage.local.get("tabs");
+                  const tabs = tabsResult["tabs"];
+
+                  // TODO: Replace log with backend call.
+                  console.log("Sending tabs to backend. %s", JSON.stringify(tabs));
+
                   this.showSuccessSnackbar("Successfully synced tabs");
                   this.setState({
                     profileMenuOpen: false
@@ -456,7 +477,10 @@ class Tabs extends NamedNavigationalComponent {
                   <Typography sx={{ paddingBottom: "5px" }}>Sync enabled</Typography>
                   <Switch
                     checked={this.state.syncEnabled}
-                    onChange={(event) => { this.setState({ syncEnabled: event.target.checked }); }}
+                    onChange={(event) => {
+                      chrome.storage.local.set({ "syncEnabled": event.target.checked });
+                      this.setState({ syncEnabled: event.target.checked });
+                    }}
                     disableRipple
                     defaultChecked
                     sx={{
@@ -505,60 +529,7 @@ class Tabs extends NamedNavigationalComponent {
                   </Switch>
                 </Box>
                 <Box width="100%" maxWidth={true}>
-                  <Typography gutterBottom>Local sync interval</Typography>
-                  <Slider disabled={!this.state.syncEnabled} sx={
-                    {
-                      color: '#ffc038',
-                      height: 8,
-                      '& .MuiSlider-track': {
-                        border: 'none',
-                      },
-                      '& .MuiSlider-thumb': {
-                        height: 24,
-                        width: 24,
-                        backgroundColor: '#fff',
-                        border: '2px solid currentColor',
-                        '&:focus, &:hover, &.Mui-active, &.Mui-focusVisible': {
-                          boxShadow: 'inherit',
-                        },
-                        '&:before': {
-                          display: 'none',
-                        },
-                      },
-                      '& .MuiSlider-valueLabel': {
-                        lineHeight: 1.2,
-                        fontSize: 13,
-                        background: 'unset',
-                        padding: 0,
-                        width: 32,
-                        height: 32,
-                        borderRadius: '50% 50% 50% 0',
-                        backgroundColor: '#ffc038',
-                        transformOrigin: 'bottom left',
-                        transform: 'translate(50%, -100%) rotate(-45deg) scale(0)',
-                        '&:before': { display: 'none' },
-                        '&.MuiSlider-valueLabelOpen': {
-                          transform: 'translate(50%, -100%) rotate(-45deg) scale(1)',
-                        },
-                        '& > *': {
-                          transform: 'rotate(45deg)',
-                        },
-                      },
-                    }
-                  }
-                    valueLabelDisplay="auto"
-                    aria-label="local-sync-slider"
-                    defaultValue={3}
-                    step={1}
-                    marks
-                    min={1}
-                    max={15}
-                    value={this.state.localSyncInterval}
-                    onChange={(_event, value) => { this.setState({ localSyncInterval: value }); }}
-                  />
-                </Box>
-                <Box width="100%" maxWidth={true}>
-                  <Typography gutterBottom>Cloud sync interval</Typography>
+                  <Typography gutterBottom>{`Sync interval: ${this.state.cloudSyncInterval} mins`}</Typography>
                   <Slider disabled={!this.state.syncEnabled} sx={
                     {
                       color: '#ffc038',
@@ -607,7 +578,10 @@ class Tabs extends NamedNavigationalComponent {
                     min={15}
                     max={60}
                     value={this.state.cloudSyncInterval}
-                    onChange={(_event, value) => { this.setState({ cloudSyncInterval: value }); }}
+                    onChange={(_event, value) => {
+                      chrome.storage.local.set({ "cloudSyncInterval": value });
+                      this.setState({ cloudSyncInterval: value });
+                    }}
                   />
                 </Box>
               </Container>
