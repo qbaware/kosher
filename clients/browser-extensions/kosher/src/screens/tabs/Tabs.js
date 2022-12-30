@@ -29,7 +29,6 @@ import OpenInBrowserIcon from '@mui/icons-material/OpenInBrowser';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import Snackbar from '@mui/material/Snackbar';
 import Alert from '@mui/material/Alert';
-import { Slider } from '@mui/material';
 import Switch from '@mui/material/Switch';
 import SwitchComponents from '../../utils/navigation/ComponentSwitcher';
 import App from '../../App';
@@ -40,6 +39,7 @@ class Tabs extends NamedNavigationalComponent {
     super(props);
 
     const initialScreen = "tabs";
+    const cloudSyncInterval = 15;
 
     this.state = {
       profileName: "",
@@ -58,8 +58,8 @@ class Tabs extends NamedNavigationalComponent {
 
       selectedTab: initialScreen,
 
-      syncEnabled: true, // TODO: Load this state from storage when app is loaded.
-      cloudSyncInterval: 30
+      syncEnabled: true,
+      cloudSyncInterval: cloudSyncInterval
     };
   }
 
@@ -92,7 +92,6 @@ class Tabs extends NamedNavigationalComponent {
   loadLocalStorageSettings() {
     // TODO: Define those variables in constants in a global file.
     this.loadLocalStorageVariable("syncEnabled", this.state.syncEnabled);
-    this.loadLocalStorageVariable("cloudSyncInterval", this.state.cloudSyncInterval);
   }
 
   async loadLocalStorageVariable(variableName, defaultValue) {
@@ -527,62 +526,6 @@ class Tabs extends NamedNavigationalComponent {
                     }}
                   >
                   </Switch>
-                </Box>
-                <Box width="100%" maxWidth={true}>
-                  <Typography gutterBottom>{`Sync interval: ${this.state.cloudSyncInterval} mins`}</Typography>
-                  <Slider disabled={!this.state.syncEnabled} sx={
-                    {
-                      color: '#ffc038',
-                      height: 8,
-                      '& .MuiSlider-track': {
-                        border: 'none',
-                      },
-                      '& .MuiSlider-thumb': {
-                        height: 24,
-                        width: 24,
-                        backgroundColor: '#fff',
-                        border: '2px solid currentColor',
-                        '&:focus, &:hover, &.Mui-active, &.Mui-focusVisible': {
-                          boxShadow: 'inherit',
-                        },
-                        '&:before': {
-                          display: 'none',
-                        },
-                      },
-                      '& .MuiSlider-valueLabel': {
-                        lineHeight: 1.2,
-                        fontSize: 13,
-                        background: 'unset',
-                        padding: 0,
-                        width: 32,
-                        height: 32,
-                        borderRadius: '50% 50% 50% 0',
-                        backgroundColor: '#ffc038',
-                        transformOrigin: 'bottom left',
-                        transform: 'translate(50%, -100%) rotate(-45deg) scale(0)',
-                        '&:before': { display: 'none' },
-                        '&.MuiSlider-valueLabelOpen': {
-                          transform: 'translate(50%, -100%) rotate(-45deg) scale(1)',
-                        },
-                        '& > *': {
-                          transform: 'rotate(45deg)',
-                        },
-                      },
-                    }
-                  }
-                    valueLabelDisplay="auto"
-                    aria-label="cloud-sync-slider"
-                    defaultValue={30}
-                    step={15}
-                    marks
-                    min={15}
-                    max={60}
-                    value={this.state.cloudSyncInterval}
-                    onChange={(_event, value) => {
-                      chrome.storage.local.set({ "cloudSyncInterval": value });
-                      this.setState({ cloudSyncInterval: value });
-                    }}
-                  />
                 </Box>
               </Container>
             </SwitchComponents>
