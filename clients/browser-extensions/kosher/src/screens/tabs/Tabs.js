@@ -473,7 +473,7 @@ class Tabs extends NamedNavigationalComponent {
                   marginTop: '20px'
                 }}>
                 <Box width="100%" maxWidth={true} alignItems="start" sx={{ paddingBottom: "10px" }}>
-                  <Typography sx={{ paddingBottom: "5px" }}>Enable sync</Typography>
+                  <Typography sx={{ paddingBottom: "5px" }}>Sync on</Typography>
                   <Switch
                     checked={this.state.syncEnabled}
                     onChange={(event) => {
