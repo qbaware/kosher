@@ -581,15 +581,19 @@ class Tabs extends NamedNavigationalComponent {
                 <Box width="100%" maxWidth={true} alignItems="start" sx={{ paddingBottom: "10px" }}>
                   <Typography sx={{ paddingBottom: "5px" }}>Device name</Typography>
                   {/* // TODO: Do some name validation of the input. */}
-                  <TextField id="outlined-basic" value={this.state.deviceName} onChange={(event) => {
-                    this.setVariableToStorageAndState("deviceName", event.target.value);
-                  }} variant="outlined" InputProps={{
-                    startAdornment: (
-                      <InputAdornment position="start">
-                        <LaptopMacIcon />
-                      </InputAdornment>
-                    ),
-                  }} />
+                  <TextField id="outlined-basic"
+                    variant="outlined"
+                    value={this.state.deviceName}
+                    onChange={(event) => {
+                      this.setVariableToStorageAndState("deviceName", event.target.value);
+                    }}
+                    InputProps={{
+                      startAdornment: (
+                        <InputAdornment position="start">
+                          <LaptopMacIcon />
+                        </InputAdornment>
+                      ),
+                    }} />
                 </Box>
               </Container>
             </SwitchComponents>
