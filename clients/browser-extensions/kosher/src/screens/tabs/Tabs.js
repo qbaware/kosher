@@ -30,6 +30,9 @@ import { createTheme, ThemeProvider } from '@mui/material/styles';
 import Snackbar from '@mui/material/Snackbar';
 import Alert from '@mui/material/Alert';
 import Switch from '@mui/material/Switch';
+import TextField from '@mui/material/TextField';
+import InputAdornment from '@mui/material/InputAdornment';
+import LaptopMacIcon from '@mui/icons-material/LaptopMac';
 import SwitchComponents from '../../utils/navigation/ComponentSwitcher';
 import App from '../../App';
 import './Tabs.css';
@@ -40,6 +43,7 @@ class Tabs extends NamedNavigationalComponent {
 
     const initialScreen = "tabs";
     const cloudSyncInterval = 15;
+    const deviceName = crypto.randomUUID().substring(0, 6)
 
     this.state = {
       profileName: "",
@@ -59,7 +63,9 @@ class Tabs extends NamedNavigationalComponent {
       selectedTab: initialScreen,
 
       syncEnabled: true,
-      cloudSyncInterval: cloudSyncInterval
+      cloudSyncInterval: cloudSyncInterval,
+
+      deviceName: deviceName
     };
   }
 
@@ -90,8 +96,18 @@ class Tabs extends NamedNavigationalComponent {
   }
 
   loadLocalStorageSettings() {
-    // TODO: Define those variables in constants in a global file.
+    // TODO: Define those variable names in constants in a global file.
     this.loadLocalStorageVariable("syncEnabled", this.state.syncEnabled);
+    this.loadLocalStorageVariable("deviceName", this.state.deviceName);
+  }
+
+  setVariableToStorageAndState(variableName, value) {
+    console.log(`Set storage variable ${variableName} to: ${value}`);
+
+    let state = {};
+    state[variableName] = value;
+    this.setState(state);
+    chrome.storage.local.set(state);
   }
 
   async loadLocalStorageVariable(variableName, defaultValue) {
@@ -122,11 +138,43 @@ class Tabs extends NamedNavigationalComponent {
       });
   }
 
-  loadUserTabs(token) {
+  // TODO: Move this function and the one below into an Utils class or something.
+  async getCurrentOs() {
+    const platformInfo = await chrome.runtime.getPlatformInfo();
+    switch (platformInfo.os) {
+      case "mac":
+        return "MacOS";
+      case "windows":
+        return "Windows";
+      default:
+        return "Unknown";
+    }
+  }
+
+  async getCurrentBrowser() {
+    const redirectUrl = await chrome.identity.getRedirectURL();
+    if (redirectUrl.includes("chromium")) {
+      return "Chrome";
+    } else if (redirectUrl.includes("allizom")) {
+      return "Firefox";
+    } else {
+      return "Unknown";
+    }
+  }
+
+  async loadUserTabs(token) {
+    // TODO: Remove those logs and variables from here.
+    const os = await this.getCurrentOs();
+    const browser = await this.getCurrentBrowser();
+    console.log("OS: " + os);
+    console.log("Browser type: " + browser);
+
     // Define mock data.
     const mockDeviceWithTabs1 = {
       id: "1",
-      name: "Chrome (MacOS - C02GN16Z1PG2)",
+      name: "C02GN", // TODO: Try making `Chrome on MacOS` a separate label with smaller font with a grayed out color.
+      browser: "Chrome",
+      os: "MacOS",
       tabs: [
         { id: "1", name: "reactjs - How to make dynamic state for multiple Collapse items", url: "https://google.com" },
         { id: "2", name: "React grid component - Material UI", url: "https://mui.com/material-ui/react-grid/" },
@@ -137,7 +185,9 @@ class Tabs extends NamedNavigationalComponent {
 
     const mockDeviceWithTabs2 = {
       id: "2",
-      name: "Firefox (MacOS - Dancho's Macbook)",
+      name: "Dancho's Macbook",
+      browser: "Firefox",
+      os: "MacOS",
       tabs: [
         { id: "1", name: "Launching an Infrastructure SaaS Product, An Example Walkthrough", url: "https://www.thenile.dev/blog/launch-infra-saas" },
         { id: "2", name: "Future - MASSAGING ME (Official Music Video)", url: "https://www.youtube.com/watch?v=TrR1wVxj1_Y&ab_channel=FutureVEVO" }
@@ -414,7 +464,8 @@ class Tabs extends NamedNavigationalComponent {
                           <ListItemIcon>
                             <DevicesIcon color="primary" />
                           </ListItemIcon>
-                          <ListItemText primary={device.name} />
+                          <ListItemText primary={device.name} style={{ width: "40%" }} />
+                          <ListItemText secondary={device.browser + " on " + device.os} />
                           {this.state.devicesItemListCollapsed[device.name] ? <ExpandLess /> : <ExpandMore />}
                         </ListItemButton>
                         <Tooltip placement="left" title="Open missing tabs">
@@ -477,8 +528,7 @@ class Tabs extends NamedNavigationalComponent {
                   <Switch
                     checked={this.state.syncEnabled}
                     onChange={(event) => {
-                      chrome.storage.local.set({ "syncEnabled": event.target.checked });
-                      this.setState({ syncEnabled: event.target.checked });
+                      this.setVariableToStorageAndState("syncEnabled", event.target.checked);
                     }}
                     disableRipple
                     defaultChecked
@@ -526,6 +576,20 @@ class Tabs extends NamedNavigationalComponent {
                     }}
                   >
                   </Switch>
+                </Box>
+                <br></br>
+                <Box width="100%" maxWidth={true} alignItems="start" sx={{ paddingBottom: "10px" }}>
+                  <Typography sx={{ paddingBottom: "5px" }}>Device name</Typography>
+                  {/* // TODO: Do some name validation of the input. */}
+                  <TextField id="outlined-basic" value={this.state.deviceName} onChange={(event) => {
+                    this.setVariableToStorageAndState("deviceName", event.target.value);
+                  }} variant="outlined" InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <LaptopMacIcon />
+                      </InputAdornment>
+                    ),
+                  }} />
                 </Box>
               </Container>
             </SwitchComponents>
