@@ -464,8 +464,8 @@ class Tabs extends NamedNavigationalComponent {
                           <ListItemIcon>
                             <DevicesIcon color="primary" />
                           </ListItemIcon>
-                          <ListItemText primary={device.name} style={{ width: "40%" }} />
-                          <ListItemText secondary={device.browser + " on " + device.os} />
+                          <ListItemText primary={device.name} />
+                          <ListItemText secondary={device.browser + " on " + device.os} style={{ textAlign: "right", paddingRight: "10px" }} />
                           {this.state.devicesItemListCollapsed[device.name] ? <ExpandLess /> : <ExpandMore />}
                         </ListItemButton>
                         <Tooltip placement="left" title="Open missing tabs">
