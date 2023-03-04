@@ -12,7 +12,6 @@ import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import List from '@mui/material/List';
 import ListItemIcon from '@mui/material/ListItemIcon';
-import ListSubheader from '@mui/material/ListSubheader';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemText from '@mui/material/ListItemText';
 import Collapse from '@mui/material/Collapse';
@@ -37,13 +36,16 @@ import SwitchComponents from '../../utils/navigation/ComponentSwitcher';
 import App from '../../App';
 import './Tabs.css';
 
+const SYNC_ENABLED_KEY = "syncEnabled";
+const DEVICE_NAME_KEY = "deviceName";
+
 class Tabs extends NamedNavigationalComponent {
   constructor(props) {
     super(props);
 
     const initialScreen = "tabs";
     const cloudSyncInterval = 15;
-    const deviceName = crypto.randomUUID().substring(0, 6)
+    const deviceName = crypto.randomUUID().substring(0, 6).toUpperCase();
 
     this.state = {
       profileName: "",
@@ -62,7 +64,7 @@ class Tabs extends NamedNavigationalComponent {
 
       selectedTab: initialScreen,
 
-      syncEnabled: true,
+      syncEnabled: false,
       cloudSyncInterval: cloudSyncInterval,
 
       deviceName: deviceName
@@ -96,14 +98,11 @@ class Tabs extends NamedNavigationalComponent {
   }
 
   loadLocalStorageSettings() {
-    // TODO: Define those variable names in constants in a global file.
-    this.loadLocalStorageVariable("syncEnabled", this.state.syncEnabled);
-    this.loadLocalStorageVariable("deviceName", this.state.deviceName);
+    this.loadLocalStorageVariable(SYNC_ENABLED_KEY, this.state.syncEnabled);
+    this.loadLocalStorageVariable(DEVICE_NAME_KEY, this.state.deviceName);
   }
 
   setVariableToStorageAndState(variableName, value) {
-    console.log(`Set storage variable ${variableName} to: ${value}`);
-
     let state = {};
     state[variableName] = value;
     this.setState(state);
@@ -114,9 +113,11 @@ class Tabs extends NamedNavigationalComponent {
     const storageResult = await chrome.storage.local.get([variableName]);
     const value = storageResult[variableName] !== undefined ? storageResult[variableName] : defaultValue;
 
-    let state = {};
-    state[variableName] = value;
-    this.setState(state);
+    this.setVariableToStorageAndState(variableName, value);
+  }
+
+  async clearLocalStorage() {
+    await chrome.storage.local.clear();
   }
 
   loadProfile(token) {
@@ -172,7 +173,7 @@ class Tabs extends NamedNavigationalComponent {
     // Define mock data.
     const mockDeviceWithTabs1 = {
       id: "1",
-      name: "C02GN", // TODO: Try making `Chrome on MacOS` a separate label with smaller font with a grayed out color.
+      name: "C02GN16Z1PG2", // TODO: Try making `Chrome on MacOS` a separate label with smaller font with a grayed out color.
       browser: "Chrome",
       os: "MacOS",
       tabs: [
@@ -242,6 +243,8 @@ class Tabs extends NamedNavigationalComponent {
           console.log("An exception occured while deleting token locally and remotely.", err);
         });
     });
+
+    this.clearLocalStorage();
   }
 
   clearAllLocalTokensAsync() {
@@ -437,14 +440,9 @@ class Tabs extends NamedNavigationalComponent {
             <SwitchComponents active={this.state.selectedTab}>
               <List
                 name="tabs"
-                sx={{ width: '100%', bgcolor: 'background.paper' }}
+                sx={{ width: '100%', paddingTop: "20px", bgcolor: 'background.paper' }}
                 component="nav"
                 aria-labelledby="nested-list-subheader"
-                subheader={
-                  <ListSubheader component="div" id="nested-list-subheader">
-                    Devices
-                  </ListSubheader>
-                }
               >
                 {this.state.devicesWithTabs.map(device => {
                   return (
@@ -528,7 +526,7 @@ class Tabs extends NamedNavigationalComponent {
                   <Switch
                     checked={this.state.syncEnabled}
                     onChange={(event) => {
-                      this.setVariableToStorageAndState("syncEnabled", event.target.checked);
+                      this.setVariableToStorageAndState(SYNC_ENABLED_KEY, event.target.checked);
                     }}
                     disableRipple
                     defaultChecked
@@ -585,7 +583,7 @@ class Tabs extends NamedNavigationalComponent {
                     variant="outlined"
                     value={this.state.deviceName}
                     onChange={(event) => {
-                      this.setVariableToStorageAndState("deviceName", event.target.value);
+                      this.setVariableToStorageAndState(DEVICE_NAME_KEY, event.target.value);
                     }}
                     InputProps={{
                       startAdornment: (
