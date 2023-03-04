@@ -521,7 +521,7 @@ class Tabs extends NamedNavigationalComponent {
                   alignItems: 'center',
                   marginTop: '20px'
                 }}>
-                <Box width="100%" maxWidth={true} alignItems="start" sx={{ paddingBottom: "10px" }}>
+                <Box width="100%" maxWidth={true} alignItems="start" sx={{ paddingBottom: "20px" }}>
                   <Typography sx={{ paddingBottom: "5px" }}>Sync on</Typography>
                   <Switch
                     checked={this.state.syncEnabled}
@@ -575,8 +575,7 @@ class Tabs extends NamedNavigationalComponent {
                   >
                   </Switch>
                 </Box>
-                <br></br>
-                <Box width="100%" maxWidth={true} alignItems="start" sx={{ paddingBottom: "10px" }}>
+                <Box width="100%" maxWidth={true} alignItems="start">
                   <Typography sx={{ paddingBottom: "5px" }}>Device name</Typography>
                   {/* // TODO: Do some name validation of the input. */}
                   <TextField id="outlined-basic"
