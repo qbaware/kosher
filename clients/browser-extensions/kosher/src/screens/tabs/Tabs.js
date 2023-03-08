@@ -35,6 +35,7 @@ import LaptopMacIcon from '@mui/icons-material/LaptopMac';
 import SwitchComponents from '../../utils/navigation/ComponentSwitcher';
 import App from '../../App';
 import './Tabs.css';
+import * as utils from '../../utils/navigation/Utils';
 
 const SYNC_ENABLED_KEY = "syncEnabled";
 const DEVICE_NAME_KEY = "deviceName";
@@ -139,34 +140,10 @@ class Tabs extends NamedNavigationalComponent {
       });
   }
 
-  // TODO: Move this function and the one below into an Utils class or something.
-  async getCurrentOs() {
-    const platformInfo = await chrome.runtime.getPlatformInfo();
-    switch (platformInfo.os) {
-      case "mac":
-        return "MacOS";
-      case "windows":
-        return "Windows";
-      default:
-        return "Unknown";
-    }
-  }
-
-  async getCurrentBrowser() {
-    const redirectUrl = await chrome.identity.getRedirectURL();
-    if (redirectUrl.includes("chromium")) {
-      return "Chrome";
-    } else if (redirectUrl.includes("allizom")) {
-      return "Firefox";
-    } else {
-      return "Unknown";
-    }
-  }
-
   async loadUserTabs(token) {
     // TODO: Remove those logs and variables from here.
-    const os = await this.getCurrentOs();
-    const browser = await this.getCurrentBrowser();
+    const os = await utils.getCurrentOs();
+    const browser = await utils.getCurrentBrowser();
     console.log("OS: " + os);
     console.log("Browser type: " + browser);
 
