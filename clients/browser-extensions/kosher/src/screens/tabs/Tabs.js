@@ -39,6 +39,7 @@ import './Tabs.css';
 import * as utils from '../../utils/navigation/Utils';
 
 const SYNC_ENABLED_KEY = "syncEnabled";
+const DEVICE_ID_KEY = "deviceId";
 const DEVICE_NAME_KEY = "deviceName";
 
 class Tabs extends NamedNavigationalComponent {
@@ -47,7 +48,8 @@ class Tabs extends NamedNavigationalComponent {
 
     const initialScreen = "tabs";
     const cloudSyncInterval = 15;
-    const deviceName = crypto.randomUUID().substring(0, 6).toUpperCase();
+    const deviceId = crypto.randomUUID().substring(0, 6).toUpperCase();
+    const deviceName = deviceId;
 
     this.state = {
       profileName: "",
@@ -69,6 +71,7 @@ class Tabs extends NamedNavigationalComponent {
       syncEnabled: false,
       cloudSyncInterval: cloudSyncInterval,
 
+      deviceId: deviceId,
       deviceName: deviceName
     };
   }
@@ -101,6 +104,7 @@ class Tabs extends NamedNavigationalComponent {
 
   loadLocalStorageSettings() {
     this.loadLocalStorageVariable(SYNC_ENABLED_KEY, this.state.syncEnabled);
+    this.loadLocalStorageVariable(DEVICE_ID_KEY, this.state.deviceId);
     this.loadLocalStorageVariable(DEVICE_NAME_KEY, this.state.deviceName);
   }
 
@@ -119,7 +123,9 @@ class Tabs extends NamedNavigationalComponent {
   }
 
   async clearLocalStorage() {
-    await chrome.storage.local.clear();
+    chrome.storage.local.remove([
+      SYNC_ENABLED_KEY
+    ]);
   }
 
   loadProfile(token) {
