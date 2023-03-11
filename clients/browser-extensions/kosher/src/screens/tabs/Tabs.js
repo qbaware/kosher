@@ -33,6 +33,7 @@ import TextField from '@mui/material/TextField';
 import InputAdornment from '@mui/material/InputAdornment';
 import LaptopMacIcon from '@mui/icons-material/LaptopMac';
 import SwitchComponents from '../../utils/navigation/ComponentSwitcher';
+import FavoriteIcon from '@mui/icons-material/Favorite';
 import App from '../../App';
 import './Tabs.css';
 import * as utils from '../../utils/navigation/Utils';
@@ -302,6 +303,9 @@ class Tabs extends NamedNavigationalComponent {
         primary: {
           main: "#000000",
         },
+        warning: {
+          main: "#ffc038"
+        }
       },
     });
 
@@ -318,6 +322,12 @@ class Tabs extends NamedNavigationalComponent {
           <ButtonGroup variant="contained" aria-label="outlined primary button group" fullWidth="true">
             <Button onClick={() => { this.setActiveTab("tabs"); }} sx={{ borderRadius: 0 }}>Tabs</Button>
             <Button onClick={() => { this.setActiveTab("settings"); }} sx={{ borderRadius: 0 }}>Settings</Button>
+            <Button onClick={() => {
+              const newWindow = window.open("https://revolut.me/danielgospodinow", '_blank', 'noopener,noreferrer');
+              if (newWindow) {
+                newWindow.opener = null;
+              }
+            }} sx={{ borderRadius: 0 }} color="warning" endIcon={<FavoriteIcon fontSize="large" />}>Donate</Button>
             <Fragment>
               <Box sx={{ display: 'flex', alignItems: 'center', textAlign: 'center', padding: "6px", paddingRight: "10px", backgroundColor: "#000000" }}>
                 <Tooltip title="Profile">
