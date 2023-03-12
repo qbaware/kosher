@@ -31,7 +31,9 @@ import Snackbar from '@mui/material/Snackbar';
 import Alert from '@mui/material/Alert';
 import Switch from '@mui/material/Switch';
 import TextField from '@mui/material/TextField';
-import InputAdornment from '@mui/material/InputAdornment';
+import Card from '@mui/material/Card';
+import CardActions from '@mui/material/CardActions';
+import CardContent from '@mui/material/CardContent';
 import LaptopMacIcon from '@mui/icons-material/LaptopMac';
 import SwitchComponents from '../../utils/navigation/ComponentSwitcher';
 import FavoriteIcon from '@mui/icons-material/Favorite';
@@ -356,10 +358,7 @@ class Tabs extends NamedNavigationalComponent {
             <Button onClick={() => { this.setActiveTab("settings"); }} sx={{ borderRadius: 0 }}>Settings</Button>
             <Button onClick={() => { this.setActiveTab("plans"); }} sx={{ borderRadius: 0 }}>Plans</Button>
             <Button onClick={() => {
-              const newWindow = window.open("https://donate.stripe.com/bIY9CbfGte6Cgus002", '_blank', 'noopener,noreferrer');
-              if (newWindow) {
-                newWindow.opener = null;
-              }
+              utils.openLink("https://donate.stripe.com/bIY9CbfGte6Cgus002");
             }} sx={{ borderRadius: 0 }} color="warning" endIcon={<FavoriteIcon fontSize="large" />}>Donate</Button>
             <Fragment>
               <Box sx={{ display: 'flex', alignItems: 'center', textAlign: 'center', padding: "6px", paddingRight: "10px", backgroundColor: "#000000" }}>
@@ -447,6 +446,7 @@ class Tabs extends NamedNavigationalComponent {
           </ButtonGroup>
         </Box>
         <Box sx={{
+          height: "100%",
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center'
@@ -643,9 +643,71 @@ class Tabs extends NamedNavigationalComponent {
                   </Stack>
                 </ListItem>
               </List>
-              <List name="plans" sx={{ width: "100%", paddingTop: "20px" }}>
-
-              </List>
+              <Container name="plans">
+                <Stack spacing={2} direction="row" sx={{ width: "100%", height: "100%", paddingTop: "20px" }}>
+                  <Card sx={{ width: "50%", height: "100%" }}>
+                    <CardContent>
+                      <Typography textAlign="center" gutterBottom variant="h5" component="div">
+                        Basic
+                      </Typography>
+                      <Stack justifyContent="center" alignItems="flex-end" direction="row" height="100%">
+                        <Typography textAlign="center" gutterBottom variant="h4" component="div">
+                          $0.00
+                        </Typography>
+                        <Typography textAlign="center" gutterBottom variant="h6" component="div">
+                          / mo
+                        </Typography>
+                      </Stack>
+                      <Typography padding="3px" textAlign="center" variant="body2" color="text.secondary">
+                        2 Browsers
+                      </Typography>
+                      <Typography padding="3px" textAlign="center" variant="body2" color="text.secondary">
+                        Basic Support
+                      </Typography>
+                      <Typography padding="3px" textAlign="center" variant="body2" color="text.secondary">
+                        All Core Features
+                      </Typography>
+                    </CardContent>
+                    <CardActions sx={{ justifyContent: "center" }}>
+                      <Button disabled width="100%" fullWidth variant="contained" color='warning' size="large">Subscribed</Button>
+                    </CardActions>
+                  </Card>
+                  <Card sx={{ width: "50%", height: "100%" }}>
+                    <CardContent sx={{ justifyContent: "center", backgroundColor: "#ffffff" }}>
+                      <Typography textAlign="center" gutterBottom variant="h5" component="div">
+                        Premium
+                      </Typography>
+                      <Stack justifyContent="center" alignItems="flex-end" direction="row" height="100%">
+                        <Typography textAlign="center" gutterBottom variant="h4" component="div">
+                          $1.00
+                        </Typography>
+                        <Typography textAlign="center" gutterBottom variant="h6" component="div">
+                          / mo
+                        </Typography>
+                      </Stack>
+                      <Typography padding="3px" textAlign="center" variant="body2" color="text.secondary">
+                        Unlimited Browsers
+                      </Typography>
+                      <Typography padding="3px" textAlign="center" variant="body2" color="text.secondary">
+                        Premium Support
+                      </Typography>
+                      <Typography padding="3px" textAlign="center" variant="body2" color="text.secondary">
+                        All Core Features
+                      </Typography>
+                    </CardContent>
+                    <CardActions sx={{ width: "100%", justifyContent: "center" }}>
+                      <Button fullWidth variant="contained" color='warning' size="large" onClick={() => {
+                        utils.openLink("https://buy.stripe.com/cN27u38e16EaceceUU");
+                      }}>Subscribe</Button>
+                    </CardActions>
+                  </Card>
+                </Stack>
+                <Stack sx={{ paddingTop: "10px", paddingBottom: "10px" }}>
+                  <Button variant="contained" color='primary' size="large" onClick={() => {
+                    utils.openLink("https://billing.stripe.com/p/login/7sIdTOdFg4hP67m288");
+                  }}>Manage subscriptions</Button>
+                </Stack>
+              </Container>
             </SwitchComponents>
           </Container>
         </Box>
