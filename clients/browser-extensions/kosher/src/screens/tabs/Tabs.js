@@ -39,6 +39,9 @@ import App from '../../App';
 import './Tabs.css';
 import * as utils from '../../utils/navigation/Utils';
 
+const INITIAL_SCREEN = "tabs";
+const CLOUD_SYNC_INTERVAL_IN_MINS = "5";
+const SNACK_AUTOHIDE_DURATION = 2500;
 const SYNC_ENABLED_KEY = "syncEnabled";
 const DEVICE_ID_KEY = "deviceId";
 const DEVICE_NAME_KEY = "deviceName";
@@ -47,8 +50,6 @@ class Tabs extends NamedNavigationalComponent {
   constructor(props) {
     super(props);
 
-    const initialScreen = "tabs";
-    const cloudSyncInterval = 15;
     const deviceId = crypto.randomUUID().substring(0, 6).toUpperCase();
     const deviceName = deviceId;
 
@@ -67,12 +68,12 @@ class Tabs extends NamedNavigationalComponent {
       snackbarButtonText: "",
       snackbarButtonOnClick: () => { },
       snackbarType: "",
-      snackbarAutohideDuration: 2500,
+      snackbarAutohideDuration: SNACK_AUTOHIDE_DURATION,
 
-      selectedTab: initialScreen,
+      selectedTab: INITIAL_SCREEN,
 
       syncEnabled: false,
-      cloudSyncInterval: cloudSyncInterval,
+      cloudSyncIntervalMin: CLOUD_SYNC_INTERVAL_IN_MINS,
 
       deviceId: deviceId,
       deviceName: deviceName
