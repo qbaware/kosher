@@ -356,7 +356,7 @@ class Tabs extends NamedNavigationalComponent {
             <Button onClick={() => { this.setActiveTab("settings"); }} sx={{ borderRadius: 0 }}>Settings</Button>
             <Button onClick={() => { this.setActiveTab("plans"); }} sx={{ borderRadius: 0 }}>Plans</Button>
             <Button onClick={() => {
-              const newWindow = window.open("https://revolut.me/danielgospodinow", '_blank', 'noopener,noreferrer');
+              const newWindow = window.open("https://donate.stripe.com/bIY9CbfGte6Cgus002", '_blank', 'noopener,noreferrer');
               if (newWindow) {
                 newWindow.opener = null;
               }
@@ -554,9 +554,11 @@ class Tabs extends NamedNavigationalComponent {
                     display: 'flex',
                     alignItems: 'center',
                     textAlign: 'center',
+                    paddingTop: '10px',
+                    paddingBottom: '10px'
                   }}
                   secondaryAction={
-                    <Container sx={{ marginBottom: "3px", marginLeft: "30px" }}>
+                    <Container sx={{ marginBottom: "0px", marginLeft: "30px" }}>
                       <Switch
                         checked={this.state.syncEnabled}
                         onChange={(event) => {
@@ -619,7 +621,9 @@ class Tabs extends NamedNavigationalComponent {
                   sx={{
                     display: 'flex',
                     alignItems: 'center',
-                    textAlign: 'center'
+                    textAlign: 'center',
+                    paddingTop: '10px',
+                    paddingBottom: '10px'
                   }}
                   secondaryAction={
                     // TODO: Do some name validation of the input.
