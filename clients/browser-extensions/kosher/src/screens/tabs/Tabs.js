@@ -34,6 +34,7 @@ import InputAdornment from '@mui/material/InputAdornment';
 import LaptopMacIcon from '@mui/icons-material/LaptopMac';
 import SwitchComponents from '../../utils/navigation/ComponentSwitcher';
 import FavoriteIcon from '@mui/icons-material/Favorite';
+import DeleteIcon from '@mui/icons-material/Delete';
 import App from '../../App';
 import './Tabs.css';
 import * as utils from '../../utils/navigation/Utils';
@@ -63,6 +64,8 @@ class Tabs extends NamedNavigationalComponent {
 
       snackbarShow: false,
       snackbarMessage: "",
+      snackbarButtonText: "",
+      snackbarButtonOnClick: () => { },
       snackbarType: "",
       snackbarAutohideDuration: 2500,
 
@@ -265,6 +268,8 @@ class Tabs extends NamedNavigationalComponent {
         snackbarShow: true,
         snackbarMessage: message,
         snackbarType: "success",
+        snackbarButtonText: "",
+        snackbarButtonOnClick: () => { }
       });
     }, 10);
   }
@@ -277,6 +282,8 @@ class Tabs extends NamedNavigationalComponent {
         snackbarShow: true,
         snackbarMessage: message,
         snackbarType: "error",
+        snackbarButtonText: "",
+        snackbarButtonOnClick: () => { }
       });
     }, 10);
   }
@@ -289,6 +296,22 @@ class Tabs extends NamedNavigationalComponent {
         snackbarShow: true,
         snackbarMessage: message,
         snackbarType: "info",
+        snackbarButtonText: "",
+        snackbarButtonOnClick: () => { }
+      });
+    }, 10);
+  }
+
+  showWarnSnackbarWithButton(message, buttonMessage, buttonAction) {
+    this.closeSnackbar();
+
+    setTimeout(() => {
+      this.setState({
+        snackbarShow: true,
+        snackbarMessage: message,
+        snackbarType: "warning",
+        snackbarButtonText: buttonMessage,
+        snackbarButtonOnClick: buttonAction
       });
     }, 10);
   }
@@ -459,7 +482,7 @@ class Tabs extends NamedNavigationalComponent {
                           <ListItemText secondary={device.browser + " on " + device.os} style={{ textAlign: "right", paddingRight: "10px" }} />
                           {this.state.devicesItemListCollapsed[device.name] ? <ExpandLess /> : <ExpandMore />}
                         </ListItemButton>
-                        <Tooltip placement="left" title="Open missing tabs">
+                        <Tooltip placement="top" title="Open missing tabs">
                           <IconButton color="primary" aria-label="openinbrowser"
                             onClick={() => {
                               chrome.tabs.query({}, (tabs) => {
@@ -477,6 +500,22 @@ class Tabs extends NamedNavigationalComponent {
                               });
                             }}>
                             <OpenInBrowserIcon color="primary" />
+                          </IconButton>
+                        </Tooltip>
+                        <Tooltip placement="top" title="Delete browser">
+                          <IconButton color="error" aria-label="deletebrowser"
+                            onClick={() => {
+                              this.showWarnSnackbarWithButton(
+                                `Delete browser '${device.name}'?`,
+                                "Delete",
+                                (() => {
+                                  // TODO: Request to delete browser from backend and remove from React state as well.
+
+                                  this.showSuccessSnackbar(`Successfully deleted browser ${device.name}`);
+                                }).bind(this)
+                              );
+                            }}>
+                            <DeleteIcon color="error" />
                           </IconButton>
                         </Tooltip>
                       </Box>
@@ -577,6 +616,7 @@ class Tabs extends NamedNavigationalComponent {
                     onChange={(event) => {
                       this.setVariableToStorageAndState(DEVICE_NAME_KEY, event.target.value);
                     }}
+                    inputProps={{ maxLength: 20 }}
                     InputProps={{
                       startAdornment: (
                         <InputAdornment position="start">
@@ -590,10 +630,18 @@ class Tabs extends NamedNavigationalComponent {
           </Container>
         </Box>
         <Snackbar open={this.state.snackbarShow} autoHideDuration={this.state.snackbarAutohideDuration} onClose={this.closeSnackbar.bind(this)}>
-          <Alert onClose={this.closeSnackbar.bind(this)} severity={this.state.snackbarType} sx={{ width: "100%" }}>
+          <Alert
+            onClose={this.closeSnackbar.bind(this)}
+            severity={this.state.snackbarType}
+            sx={{ width: "100%" }}
+            action={
+              this.state.snackbarButtonText
+                ? (<Button color="inherit" size="small" onClick={this.state.snackbarButtonOnClick.bind(this)}>{this.state.snackbarButtonText}</Button>)
+                : null
+            }>
             {this.state.snackbarMessage}
           </Alert>
-        </Snackbar>
+        </Snackbar >
       </ThemeProvider >
     );
   }
