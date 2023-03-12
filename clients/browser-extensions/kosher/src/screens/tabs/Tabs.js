@@ -3,6 +3,7 @@ import React, { Fragment } from 'react';
 import NamedNavigationalComponent from '../../utils/navigation/NamedNavigationalComponent';
 import CssBaseline from '@mui/material/CssBaseline';
 import Box from '@mui/material/Box';
+import Stack from '@mui/material/Stack';
 import Tooltip from '@mui/material/Tooltip';
 import IconButton from '@mui/material/IconButton';
 import Button from '@mui/material/Button';
@@ -15,12 +16,12 @@ import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemText from '@mui/material/ListItemText';
 import Collapse from '@mui/material/Collapse';
-import DevicesIcon from '@mui/icons-material/Devices';
 import ExpandLess from '@mui/icons-material/ExpandLess';
 import ExpandMore from '@mui/icons-material/ExpandMore';
 import TabIcon from '@mui/icons-material/Tab';
 import Typography from '@mui/material/Typography';
 import Sync from '@mui/icons-material/Sync';
+import CloudSyncIcon from '@mui/icons-material/CloudSync';
 import Logout from '@mui/icons-material/Logout';
 import Divider from '@mui/material/Divider';
 import Container from '@mui/material/Container';
@@ -38,6 +39,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import App from '../../App';
 import './Tabs.css';
 import * as utils from '../../utils/navigation/Utils';
+import { ListItem } from '@mui/material';
 
 const INITIAL_SCREEN = "tabs";
 const CLOUD_SYNC_INTERVAL_IN_MINS = "5";
@@ -352,6 +354,7 @@ class Tabs extends NamedNavigationalComponent {
           <ButtonGroup variant="contained" aria-label="outlined primary button group" fullWidth="true">
             <Button onClick={() => { this.setActiveTab("tabs"); }} sx={{ borderRadius: 0 }}>Tabs</Button>
             <Button onClick={() => { this.setActiveTab("settings"); }} sx={{ borderRadius: 0 }}>Settings</Button>
+            <Button onClick={() => { this.setActiveTab("plans"); }} sx={{ borderRadius: 0 }}>Plans</Button>
             <Button onClick={() => {
               const newWindow = window.open("https://revolut.me/danielgospodinow", '_blank', 'noopener,noreferrer');
               if (newWindow) {
@@ -477,7 +480,7 @@ class Tabs extends NamedNavigationalComponent {
                           }}
                         >
                           <ListItemIcon>
-                            <DevicesIcon color="primary" />
+                            <LaptopMacIcon color="primary" />
                           </ListItemIcon>
                           <ListItemText primary={device.name} />
                           <ListItemText secondary={device.browser + " on " + device.os} style={{ textAlign: "right", paddingRight: "10px" }} />
@@ -545,88 +548,100 @@ class Tabs extends NamedNavigationalComponent {
                   )
                 })}
               </List>
-              <Container
-                name="settings"
-                sx={{
-                  backgroundColor: '#ffffff',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center',
-                  marginTop: '20px'
-                }}>
-                <Box width="100%" maxWidth={true} alignItems="start" sx={{ paddingBottom: "20px" }}>
-                  <Typography sx={{ paddingBottom: "5px" }}>Sync on</Typography>
-                  <Switch
-                    checked={this.state.syncEnabled}
-                    onChange={(event) => {
-                      this.setVariableToStorageAndState(SYNC_ENABLED_KEY, event.target.checked);
-                    }}
-                    disableRipple
-                    defaultChecked
-                    sx={{
-                      width: 48,
-                      height: 30,
-                      padding: 0,
-                      '& .MuiSwitch-switchBase': {
-                        transitionDuration: '300ms',
-                        padding: 0,
-                        margin: "3px",
-                        '&.Mui-checked': {
-                          transform: 'translateX(18px)',
-                          color: '#fff',
-                          '& + .MuiSwitch-track': {
-                            backgroundColor: '#ffc038',
+              <List name="settings" sx={{ width: "100%", paddingTop: "20px" }}>
+                <ListItem
+                  sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    textAlign: 'center',
+                  }}
+                  secondaryAction={
+                    <Container sx={{ marginBottom: "3px", marginLeft: "30px" }}>
+                      <Switch
+                        checked={this.state.syncEnabled}
+                        onChange={(event) => {
+                          this.setVariableToStorageAndState(SYNC_ENABLED_KEY, event.target.checked);
+                        }}
+                        disableRipple
+                        defaultChecked
+                        sx={{
+                          width: 48,
+                          height: 30,
+                          padding: 0,
+                          '& .MuiSwitch-switchBase': {
+                            transitionDuration: '300ms',
+                            padding: 0,
+                            margin: "3px",
+                            '&.Mui-checked': {
+                              transform: 'translateX(18px)',
+                              color: '#fff',
+                              '& + .MuiSwitch-track': {
+                                backgroundColor: '#ffc038',
+                                opacity: 1,
+                                border: 0,
+                              },
+                              '&.Mui-disabled + .MuiSwitch-track': {
+                                opacity: 0.5,
+                              },
+                            },
+                            '&.Mui-disabled .MuiSwitch-thumb': {
+                              color: "black",
+                            },
+                            '&.Mui-disabled + .MuiSwitch-track': {
+                              opacity: 0.3,
+                            },
+                          },
+                          '& .MuiSwitch-thumb': {
+                            boxSizing: 'border-box',
+                            width: 24,
+                            height: 24,
+                            border: '2px solid currentColor'
+                          },
+                          '& .MuiSwitch-track': {
+                            borderRadius: 30 / 2,
+                            backgroundColor: "#bdbdbd",
                             opacity: 1,
-                            border: 0,
+                            transition: theme.transitions.create(['background-color'], {
+                              duration: 500,
+                            }),
                           },
-                          '&.Mui-disabled + .MuiSwitch-track': {
-                            opacity: 0.5,
-                          },
-                        },
-                        '&.Mui-disabled .MuiSwitch-thumb': {
-                          color: "black",
-                        },
-                        '&.Mui-disabled + .MuiSwitch-track': {
-                          opacity: 0.3,
-                        },
-                      },
-                      '& .MuiSwitch-thumb': {
-                        boxSizing: 'border-box',
-                        width: 24,
-                        height: 24,
-                        border: '2px solid currentColor'
-                      },
-                      '& .MuiSwitch-track': {
-                        borderRadius: 30 / 2,
-                        backgroundColor: "#bdbdbd",
-                        opacity: 1,
-                        transition: theme.transitions.create(['background-color'], {
-                          duration: 500,
-                        }),
-                      },
-                    }}
-                  >
-                  </Switch>
-                </Box>
-                <Box width="100%" maxWidth={true} alignItems="start">
-                  <Typography sx={{ paddingBottom: "5px" }}>Device name</Typography>
-                  {/* // TODO: Do some name validation of the input. */}
-                  <TextField id="outlined-basic"
-                    variant="outlined"
-                    value={this.state.deviceName}
-                    onChange={(event) => {
-                      this.setVariableToStorageAndState(DEVICE_NAME_KEY, event.target.value);
-                    }}
-                    inputProps={{ maxLength: 20 }}
-                    InputProps={{
-                      startAdornment: (
-                        <InputAdornment position="start">
-                          <LaptopMacIcon />
-                        </InputAdornment>
-                      ),
-                    }} />
-                </Box>
-              </Container>
+                        }}
+                      >
+                      </Switch>
+                    </Container>
+                  }>
+                  <Stack direction="row" spacing={2}>
+                    <CloudSyncIcon fontSize="medium" />
+                    <Typography>Sync on</Typography>
+                  </Stack>
+                </ListItem>
+                <ListItem
+                  sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    textAlign: 'center'
+                  }}
+                  secondaryAction={
+                    // TODO: Do some name validation of the input.
+                    <TextField id="outlined-basic"
+                      variant="outlined"
+                      value={this.state.deviceName}
+                      onChange={(event) => {
+                        this.setVariableToStorageAndState(DEVICE_NAME_KEY, event.target.value);
+                      }}
+                      color="warning"
+                      size="small"
+                      inputProps={{ maxLength: 20 }} />
+                  }>
+                  <Stack direction="row" spacing={2}>
+                    <LaptopMacIcon fontSize="medium" />
+                    <Typography>Device name</Typography>
+                  </Stack>
+                </ListItem>
+              </List>
+              <List name="plans" sx={{ width: "100%", paddingTop: "20px" }}>
+
+              </List>
             </SwitchComponents>
           </Container>
         </Box>
