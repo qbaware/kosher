@@ -22,3 +22,10 @@ export const getCurrentBrowser = async () => {
     return "Unknown";
   }
 }
+
+export const openLink = (link) => {
+  const newWindow = window.open(link, '_blank', 'noopener,noreferrer');
+  if (newWindow) {
+    newWindow.opener = null;
+  }
+}
