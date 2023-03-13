@@ -49,6 +49,12 @@ const SNACK_AUTOHIDE_DURATION = 2500;
 const SYNC_ENABLED_KEY = "syncEnabled";
 const DEVICE_ID_KEY = "deviceId";
 const DEVICE_NAME_KEY = "deviceName";
+const FREE_PLAN = "free";
+const PREMIUM_PLAN = "premium";
+
+const STRIPE_DONATIONS_URL = "https://donate.stripe.com/bIY9CbfGte6Cgus002";
+const STRIPE_SUBSCRIBE_PREMIUM_URL = "https://buy.stripe.com/cN215F65Td2ydigeUX";
+const STRIPE_MANAGE_SUBSCRIPTIONS_URL = "https://billing.stripe.com/p/login/7sIdTOdFg4hP67m288";
 
 class Tabs extends NamedNavigationalComponent {
   constructor(props) {
@@ -60,6 +66,7 @@ class Tabs extends NamedNavigationalComponent {
     this.state = {
       profileName: "",
       profilePicUrl: "",
+      profileSubscriptionPlan: FREE_PLAN,
 
       profileMenuAnchor: null,
       profileMenuOpen: false,
@@ -358,7 +365,7 @@ class Tabs extends NamedNavigationalComponent {
             <Button onClick={() => { this.setActiveTab("settings"); }} sx={{ borderRadius: 0 }}>Settings</Button>
             <Button onClick={() => { this.setActiveTab("plans"); }} sx={{ borderRadius: 0 }}>Plans</Button>
             <Button onClick={() => {
-              utils.openLink("https://donate.stripe.com/bIY9CbfGte6Cgus002");
+              utils.openLink(STRIPE_DONATIONS_URL);
             }} sx={{ borderRadius: 0 }} color="warning" endIcon={<FavoriteIcon fontSize="large" />}>Donate</Button>
             <Fragment>
               <Box sx={{ display: 'flex', alignItems: 'center', textAlign: 'center', padding: "6px", paddingRight: "10px", backgroundColor: "#000000" }}>
@@ -648,7 +655,7 @@ class Tabs extends NamedNavigationalComponent {
                   <Card sx={{ width: "50%", height: "100%" }}>
                     <CardContent>
                       <Typography textAlign="center" gutterBottom variant="h5" component="div">
-                        Basic
+                        Free
                       </Typography>
                       <Stack justifyContent="center" alignItems="flex-end" direction="row" height="100%">
                         <Typography textAlign="center" gutterBottom variant="h4" component="div">
@@ -669,7 +676,12 @@ class Tabs extends NamedNavigationalComponent {
                       </Typography>
                     </CardContent>
                     <CardActions sx={{ justifyContent: "center" }}>
-                      <Button disabled width="100%" fullWidth variant="contained" color='warning' size="large">Subscribed</Button>
+                      <Button disabled={this.state.profileSubscriptionPlan === FREE_PLAN} width="100%" fullWidth variant="contained" color='warning' size="large"
+                        onClick={() => {
+                          utils.openLink(STRIPE_MANAGE_SUBSCRIPTIONS_URL);
+                        }}>
+                        {this.state.profileSubscriptionPlan === FREE_PLAN ? ("Subscribed") : ("Subscribe")}
+                      </Button>
                     </CardActions>
                   </Card>
                   <Card sx={{ width: "50%", height: "100%" }}>
@@ -696,15 +708,18 @@ class Tabs extends NamedNavigationalComponent {
                       </Typography>
                     </CardContent>
                     <CardActions sx={{ width: "100%", justifyContent: "center" }}>
-                      <Button fullWidth variant="contained" color='warning' size="large" onClick={() => {
-                        utils.openLink("https://buy.stripe.com/cN27u38e16EaceceUU");
-                      }}>Subscribe</Button>
+                      <Button disabled={this.state.profileSubscriptionPlan === PREMIUM_PLAN} width="100%" fullWidth variant="contained" color='warning' size="large"
+                        onClick={() => {
+                          utils.openLink(STRIPE_SUBSCRIBE_PREMIUM_URL);
+                        }}>
+                        {this.state.profileSubscriptionPlan === PREMIUM_PLAN ? ("Subscribed") : ("Subscribe")}
+                      </Button>
                     </CardActions>
                   </Card>
                 </Stack>
                 <Stack sx={{ paddingTop: "10px", paddingBottom: "10px" }}>
                   <Button variant="contained" color='primary' size="large" onClick={() => {
-                    utils.openLink("https://billing.stripe.com/p/login/7sIdTOdFg4hP67m288");
+                    utils.openLink(STRIPE_MANAGE_SUBSCRIPTIONS_URL);
                   }}>Manage subscriptions</Button>
                 </Stack>
               </Container>
