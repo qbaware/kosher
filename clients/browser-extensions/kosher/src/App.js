@@ -7,14 +7,14 @@ import Initial from './screens/initial/Initial';
 import './App.css';
 
 class App extends Component {
-  static welcomeScreen = "welcome";
+  static initialScreen = "initial";
   static loginScreen = "login";
   static tabsScreen = "tabs";
 
   constructor(props) {
     super(props);
 
-    const initialScreen = App.welcomeScreen;
+    const initialScreen = App.initialScreen;
 
     this.state = {
       activeScreen: initialScreen
@@ -32,7 +32,7 @@ class App extends Component {
       <div className="App">
         <Header></Header>
         <SwitchComponents active={this.state.activeScreen}>
-          <Initial name={App.welcomeScreen} setActiveScreen={this.setActiveScreen.bind(this)}></Initial>
+          <Initial name={App.initialScreen} setActiveScreen={this.setActiveScreen.bind(this)}></Initial>
           <Login name={App.loginScreen} setActiveScreen={this.setActiveScreen.bind(this)}></Login>
           <Tabs name={App.tabsScreen} setActiveScreen={this.setActiveScreen.bind(this)}></Tabs>
         </SwitchComponents>

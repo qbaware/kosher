@@ -40,7 +40,7 @@ import FavoriteIcon from '@mui/icons-material/Favorite';
 import DeleteIcon from '@mui/icons-material/Delete';
 import App from '../../App';
 import './Tabs.css';
-import * as utils from '../../utils/navigation/Utils';
+import * as utils from '../../utils/Utils';
 import { ListItem } from '@mui/material';
 
 const INITIAL_SCREEN = "tabs";
@@ -92,29 +92,22 @@ class Tabs extends NamedNavigationalComponent {
   }
 
   componentDidMount() {
-    this.checkIfUserIsSignedIn(
-      (token) => {
-        this.loadProfile(token);
-        this.loadUserTabs(token);
-        this.loadLocalStorageSettings();
-        // TODO: Setup alarm listener that receives all tabs from the background worker and sends them to the backend.
-      },
-      () => {
-        console.log("User is not logged in.");
-        console.log("Redirecting to Login scene...");
+    utils.checkIfUserIsLoggedIn()
+      .then((token) => {
+        if (token) {
+          this.loadProfile(token);
+          this.loadUserTabs(token);
+          this.loadLocalStorageSettings();
+          // TODO: Setup alarm listener that receives all tabs from the background worker and sends them to the backend.
+        } else {
+          console.log("User is not logged in.");
+          console.log("Redirecting to Login scene...");
+          this.setActiveScreen(App.loginScreen);
+        }
+      }).catch((error) => {
+        console.log("An error occured while checking if user is logged in in the tabs screen, redirecting to login screen: " + error);
         this.setActiveScreen(App.loginScreen);
       });
-  }
-
-  checkIfUserIsSignedIn(signedInCallback, signedOutCallback) {
-    chrome.identity.getAuthToken({ interactive: false }, userToken => {
-      if (!userToken && chrome.runtime.lastError) {
-        console.log(`Exception: ${JSON.stringify(chrome.runtime.lastError)}`);
-        signedOutCallback();
-      } else {
-        signedInCallback(userToken);
-      }
-    });
   }
 
   loadLocalStorageSettings() {
@@ -166,8 +159,6 @@ class Tabs extends NamedNavigationalComponent {
     // TODO: Remove those logs and variables from here.
     const os = await utils.getCurrentOs();
     const browser = await utils.getCurrentBrowser();
-    console.log("OS: " + os);
-    console.log("Browser type: " + browser);
 
     // Define mock data.
     const mockDeviceWithTabs1 = {
@@ -215,47 +206,15 @@ class Tabs extends NamedNavigationalComponent {
   }
 
   signOut() {
-    // Fetch token if it exists.
-    chrome.identity.getAuthToken({ interactive: false }, token => {
-      if (!token && chrome.runtime.lastError) {
-        console.log("No token is present on sign out.");
-        console.log(`Exception: ${JSON.stringify(chrome.runtime.lastError)}`);
-        return;
-      }
-
-      // Clears token from the client.
-      let localTokenClear = this.clearAllLocalTokensAsync();
-
-      // Clears token from the server.
-      let remoteTokenClear = this.clearTokenOnRemoteAsync(token);
-
-      // Wait for both promises to complete.
-      Promise.all([localTokenClear, remoteTokenClear])
-        .then(() => {
-          console.log("Token cleared both locally and remotely.");
-
-          // Transition to the sign in screen.
-          this.setActiveScreen(App.loginScreen);
-        })
-        .catch(err => {
-          this.showErrorSnackbar("Failed to sign out");
-          console.log("An exception occured while deleting token locally and remotely.", err);
-        });
-    });
+    utils.logoutUser()
+      .then(() => {
+        this.setActiveScreen(App.loginScreen);
+      }).catch((error) => {
+        this.showErrorSnackbar("Failed to sign out");
+        console.log("An error occured while logging out the user: " + error);
+      });
 
     this.clearLocalStorage();
-  }
-
-  clearAllLocalTokensAsync() {
-    return new Promise(function (resolve, _reject) {
-      chrome.identity.clearAllCachedAuthTokens(() => {
-        resolve();
-      });
-    });
-  }
-
-  clearTokenOnRemoteAsync(token) {
-    return fetch(`https://accounts.google.com/o/oauth2/revoke?token=${token}`);
   }
 
   profileMenuOpen(event) {

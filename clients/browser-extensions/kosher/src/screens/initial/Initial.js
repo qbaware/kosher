@@ -4,6 +4,7 @@ import { Container } from '@mui/system';
 import React from 'react';
 import App from '../../App';
 import NamedNavigationalComponent from '../../utils/navigation/NamedNavigationalComponent';
+import { checkIfUserIsLoggedIn } from '../../utils/Utils';
 import './Initial.css';
 
 class Initial extends NamedNavigationalComponent {
@@ -13,17 +14,20 @@ class Initial extends NamedNavigationalComponent {
 
   componentDidMount() {
     console.log("Initial screen loaded.")
+
     console.log("Checking if the user is already logged in...");
-    chrome.identity.getAuthToken({ interactive: false }, token => {
-      if (!token && chrome.runtime.lastError) {
-        console.log("User is not logged in.");
-        console.log(`Exception: ${JSON.stringify(chrome.runtime.lastError)}`);
-        this.setActiveScreen(App.loginScreen);
-      } else {
-        console.log("User has already logged in.");
-        this.setActiveScreen(App.tabsScreen);
-      }
-    });
+    checkIfUserIsLoggedIn()
+      .then((token) => {
+        if (token) {
+          console.log("User is already logged in.");
+          this.setActiveScreen(App.tabsScreen);
+        } else {
+          console.log("User is not logged in.");
+          this.setActiveScreen(App.loginScreen);
+        }
+      }).catch((error) => {
+        console.log("Error: " + error);
+      });
   }
 
   render() {

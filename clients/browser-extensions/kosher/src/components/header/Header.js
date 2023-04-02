@@ -3,8 +3,26 @@ import './Header.css';
 import logo from '../../resources/logo.png';
 import NormalText from '../text/NormalText';
 import KosherText from '../text/KosherText';
+import { getCurrentBrowser } from '../../utils/Utils';
 
 class Header extends Component {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      browser: ""
+    };
+  }
+
+  componentDidMount() {
+    getCurrentBrowser()
+      .then((browser) => {
+        this.setState({ browser: browser });
+      }).catch((error) => {
+        console.log("Error while getting current browser: " + error);
+      });
+  }
+
   render() {
     return (
       <div className='HeaderContainer'>
@@ -15,7 +33,7 @@ class Header extends Component {
               <NormalText text="kosher"></NormalText>
             </h3>
             <h3>
-              <KosherText text="for Chrome"></KosherText>
+              <KosherText text={this.state.browser ? "for " + this.state.browser : "Unknown browser"}></KosherText>
             </h3>
           </div>
         </header>

@@ -10,6 +10,7 @@ import GoogleIcon from '@mui/icons-material/Google';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import './Login.css';
 import App from '../../App';
+import { checkIfUserIsLoggedIn, loginUser } from '../../utils/Utils';
 
 class Login extends NamedNavigationalComponent {
   constructor(props) {
@@ -20,30 +21,32 @@ class Login extends NamedNavigationalComponent {
     console.log("Login component loaded.");
 
     console.log("Checking if the user is already logged in...");
-    chrome.identity.getAuthToken({ interactive: false }, token => {
-      if (!token && chrome.runtime.lastError) {
-        console.log("User is not logged in.");
-        console.log(`Exception: ${JSON.stringify(chrome.runtime.lastError)}`);
-      } else {
-        console.log("User has already logged in.");
-        this.setActiveScreen(App.tabsScreen);
-      }
-    });
+    checkIfUserIsLoggedIn()
+      .then((token) => {
+        if (token) {
+          console.log("User is already logged in.");
+          this.setActiveScreen(App.tabsScreen);
+        } else {
+          console.log("User is not logged in.");
+        }
+      }).catch((error) => {
+        console.log("Error while checking if user is logged in the login screen: " + error);
+      });
   }
 
   handleGoogleLogin() {
     console.log("Signing in to Google...");
-
-    chrome.identity.getAuthToken({ interactive: true }, token => {
-      if (!token && chrome.runtime.lastError) {
-        console.log("User didn't complete signing in with Google.")
-        console.log(`Exception: ${JSON.stringify(chrome.runtime.lastError)}`);
-      }
-      else {
-        console.log("Received new token.");
-        this.setActiveScreen(App.tabsScreen);
-      }
-    });
+    loginUser()
+      .then((token) => {
+        if (token) {
+          console.log("User signed in successfully.");
+          this.setActiveScreen(App.tabsScreen);
+        } else {
+          console.log("User didn't complete signing in with Google.");
+        }
+      }).catch((error) => {
+        console.log("Error while signing in to Google: " + error);
+      });
   };
 
   render() {

@@ -11,7 +11,8 @@
     "react-scripts": "5.0.1"
   },
   "scripts": {
-    "build": "cp src/manifest.json public/ && cp -r src/scripts public/ && cp -r src/resources public/ && INLINE_RUNTIME_CHUNK=false react-scripts build"
+    "build-chrome": "cp src/manifests/manifest-chrome.json public/manifest.json && cp -r src/scripts public/ && cp -r src/resources public/ && INLINE_RUNTIME_CHUNK=false react-scripts build",
+    "build-firefox": "cp src/manifests/manifest-firefox.json public/manifest.json && cp -r src/scripts public/ && cp -r src/resources public/ && INLINE_RUNTIME_CHUNK=false react-scripts build"
   },
   "eslintConfig": {
     "extends": "react-app"
