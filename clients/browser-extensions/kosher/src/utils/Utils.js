@@ -11,8 +11,7 @@ console.log(redirectUrl);
 export const checkIfUserIsLoggedIn = async () => {
   switch (await getCurrentBrowser()) {
     case "Chrome":
-      // return await checkIfUserIsLoggedInChrome();
-      return await checkIfUserIsLoggedInFirefox(clientId, scopes, redirectUrl);
+      return await checkIfUserIsLoggedInChrome();
     case "Firefox":
       return await checkIfUserIsLoggedInFirefox(clientId, scopes, redirectUrl);
     default:
@@ -61,8 +60,7 @@ const checkIfUserIsLoggedInFirefox = async (clientId, scopes, redirectUrl) => {
 export const loginUser = async () => {
   switch (await getCurrentBrowser()) {
     case "Chrome":
-      // return await loginUserChrome();
-      return await loginUserFirefox(clientId, scopes, redirectUrl);
+      return await loginUserChrome();
     case "Firefox":
       return await loginUserFirefox(clientId, scopes, redirectUrl);
     default:
@@ -103,12 +101,12 @@ const loginUserFirefox = async (clientId, scopes, redirectUrl) => {
   });
 }
 
-export const logoutUser = async (token) => {
+export const logoutUser = async () => {
   switch (await getCurrentBrowser()) {
     case "Chrome":
-      return await logoutUserChrome(token);
+      return await logoutUserChrome();
     case "Firefox":
-      return await logoutUserFirefox(token);
+      return await logoutUserFirefox();
     default:
       throw new Error("Unknown browser");
   }
@@ -150,7 +148,7 @@ const logoutUserChrome = async () => {
   });
 }
 
-const logoutUserFirefox = async (token) => {
+const logoutUserFirefox = async () => {
   return new Promise((resolve, reject) => {
     checkIfUserIsLoggedIn()
       .then(token => {
