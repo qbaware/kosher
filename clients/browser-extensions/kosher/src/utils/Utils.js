@@ -13,6 +13,7 @@ export const checkIfUserIsLoggedIn = async () => {
     case "Chrome":
       return await checkIfUserIsLoggedInChrome();
     case "Firefox":
+    case "Edge":
       return await checkIfUserIsLoggedInFirefox(clientId, scopes, redirectUrl);
     default:
       throw new Error("Unknown browser");
@@ -62,6 +63,7 @@ export const loginUser = async () => {
     case "Chrome":
       return await loginUserChrome();
     case "Firefox":
+    case "Edge":
       return await loginUserFirefox(clientId, scopes, redirectUrl);
     default:
       throw new Error("Unknown browser");
@@ -192,6 +194,9 @@ export const getCurrentOs = async () => {
 export const getCurrentBrowser = async () => {
   const redirectUrl = await chrome.identity.getRedirectURL();
   if (redirectUrl.includes("chromium")) {
+    if (navigator.userAgent.includes("Edg")) {
+      return "Edge";
+    }
     return "Chrome";
   } else if (redirectUrl.includes("allizom")) {
     return "Firefox";
