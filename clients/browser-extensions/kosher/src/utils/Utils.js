@@ -63,6 +63,7 @@ export const logoutUser = async () => {
       if (!token) {
         console.log("No token was present on user logout");
         resolve();
+        return;
       }
 
       await revokeToken(token);
