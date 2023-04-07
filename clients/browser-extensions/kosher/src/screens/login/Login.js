@@ -31,7 +31,7 @@ class Login extends NamedNavigationalComponent {
   async handleGoogleLogin() {
     console.log("Signing in to Google...");
     try {
-      let token = await loginUser();
+      let token = await loginUser(true);
       if (token) {
         console.log("User signed in successfully");
         this.setActiveScreen(App.tabsScreen);

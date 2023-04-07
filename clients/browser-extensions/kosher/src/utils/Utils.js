@@ -26,16 +26,16 @@ export const checkUserLogin = () => {
   });
 }
 
-export const loginUser = () => {
-  return loginUserWithClientCreds(clientId, scopes, redirectUrl);
+export const loginUser = (interactive) => {
+  return loginUserWithClientCreds(clientId, scopes, redirectUrl, interactive);
 }
 
-const loginUserWithClientCreds = async (clientId, scopes, redirectUrl) => {
+const loginUserWithClientCreds = async (clientId, scopes, redirectUrl, interactive) => {
   return new Promise(async (resolve, reject) => {
     try {
       const response = await chrome.identity.launchWebAuthFlow({
         url: `https://accounts.google.com/o/oauth2/auth?client_id=${clientId}&redirect_uri=${redirectUrl}&response_type=token&scope=${scopes}`,
-        interactive: true
+        interactive: interactive
       });
       const urlParams = new URLSearchParams(response.substring(response.indexOf("#") + 1));
       const error = urlParams.get("error");
