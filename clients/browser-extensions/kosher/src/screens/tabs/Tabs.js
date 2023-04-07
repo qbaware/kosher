@@ -92,7 +92,7 @@ class Tabs extends NamedNavigationalComponent {
   }
 
   componentDidMount() {
-    utils.checkIfUserIsLoggedIn()
+    utils.checkUserLogin()
       .then((token) => {
         if (token) {
           this.loadProfile(token);
@@ -205,16 +205,15 @@ class Tabs extends NamedNavigationalComponent {
     });
   }
 
-  signOut() {
-    utils.logoutUser()
-      .then(() => {
-        this.setActiveScreen(App.loginScreen);
-      }).catch((error) => {
-        this.showErrorSnackbar("Failed to sign out");
-        console.log("An error occured while logging out the user: " + error);
-      });
-
-    this.clearLocalStorage();
+  async signOut() {
+    try {
+      await utils.logoutUser()
+      await this.clearLocalStorage();
+      this.setActiveScreen(App.loginScreen);
+    } catch (error) {
+      this.showErrorSnackbar("Failed to sign out");
+      console.log("An error occured while logging out the user: " + error);
+    }
   }
 
   profileMenuOpen(event) {
@@ -396,11 +395,11 @@ class Tabs extends NamedNavigationalComponent {
                   </ListItemIcon>
                   Sync
                 </MenuItem>
-                <MenuItem onClick={() => {
+                <MenuItem onClick={async () => {
                   this.setState({
                     profileMenuOpen: false
                   });
-                  this.signOut();
+                  await this.signOut();
                 }}>
                   <ListItemIcon>
                     <Logout fontSize="small" />

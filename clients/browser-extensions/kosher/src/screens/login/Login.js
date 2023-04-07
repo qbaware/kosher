@@ -10,7 +10,7 @@ import GoogleIcon from '@mui/icons-material/Google';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import './Login.css';
 import App from '../../App';
-import { checkIfUserIsLoggedIn, loginUser } from '../../utils/Utils';
+import { checkUserLogin, loginUser } from '../../utils/Utils';
 
 class Login extends NamedNavigationalComponent {
   constructor(props) {
@@ -18,35 +18,29 @@ class Login extends NamedNavigationalComponent {
   }
 
   componentDidMount() {
-    console.log("Login component loaded.");
-
-    console.log("Checking if the user is already logged in...");
-    checkIfUserIsLoggedIn()
+    console.log("Login component loaded");
+    checkUserLogin()
       .then((token) => {
         if (token) {
-          console.log("User is already logged in.");
+          console.log("User is already logged in, redirecting to tabs screen...")
           this.setActiveScreen(App.tabsScreen);
-        } else {
-          console.log("User is not logged in.");
         }
-      }).catch((error) => {
-        console.log("Error while checking if user is logged in the login screen: " + error);
       });
   }
 
-  handleGoogleLogin() {
+  async handleGoogleLogin() {
     console.log("Signing in to Google...");
-    loginUser()
-      .then((token) => {
-        if (token) {
-          console.log("User signed in successfully.");
-          this.setActiveScreen(App.tabsScreen);
-        } else {
-          console.log("User didn't complete signing in with Google.");
-        }
-      }).catch((error) => {
-        console.log("Error while signing in to Google: " + error);
-      });
+    try {
+      let token = await loginUser();
+      if (token) {
+        console.log("User signed in successfully");
+        this.setActiveScreen(App.tabsScreen);
+      } else {
+        console.log("User didn't complete signing in with Google");
+      }
+    } catch (error) {
+      console.log("Error while signing in to Google: " + error);
+    }
   };
 
   render() {

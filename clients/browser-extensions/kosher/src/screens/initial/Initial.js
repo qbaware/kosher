@@ -4,7 +4,7 @@ import { Container } from '@mui/system';
 import React from 'react';
 import App from '../../App';
 import NamedNavigationalComponent from '../../utils/navigation/NamedNavigationalComponent';
-import { checkIfUserIsLoggedIn } from '../../utils/Utils';
+import { checkUserLogin } from '../../utils/Utils';
 import './Initial.css';
 
 class Initial extends NamedNavigationalComponent {
@@ -16,17 +16,17 @@ class Initial extends NamedNavigationalComponent {
     console.log("Initial screen loaded.")
 
     console.log("Checking if the user is already logged in...");
-    checkIfUserIsLoggedIn()
+    checkUserLogin()
       .then((token) => {
         if (token) {
-          console.log("User is already logged in.");
+          console.log("User is already logged in, redirecting to tabs screen...");
           this.setActiveScreen(App.tabsScreen);
         } else {
-          console.log("User is not logged in.");
+          console.log("User is not logged in, redirecting to login screen...");
           this.setActiveScreen(App.loginScreen);
         }
       }).catch((error) => {
-        console.log("Error: " + error);
+        console.log("Error during initial check for user login: " + error);
       });
   }
 

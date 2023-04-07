@@ -8,172 +8,77 @@ const redirectUrl = chrome.identity.getRedirectURL();
 // TODO: Remove this at some point.
 console.log(redirectUrl);
 
-export const checkIfUserIsLoggedIn = async () => {
-  switch (await getCurrentBrowser()) {
-    case "Chrome":
-      return await checkIfUserIsLoggedInChrome();
-    case "Firefox":
-    case "Edge":
-      return await checkIfUserIsLoggedInFirefox(clientId, scopes, redirectUrl);
-    default:
-      throw new Error("Unknown browser");
-  }
-}
-
-const checkIfUserIsLoggedInChrome = async () => {
-  return new Promise((resolve, reject) => {
-    chrome.identity.getAuthToken({ interactive: false }, token => {
-      if (!token && chrome.runtime.lastError) {
-        console.log("User is not logged in.");
-        console.log(`Exception: ${JSON.stringify(chrome.runtime.lastError)}`);
+export const checkUserLogin = () => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      let tokenResult = await chrome.storage.local.get("token");
+      let token = tokenResult.token;
+      if (!token) {
         resolve(null);
-      } else {
-        console.log("User has already logged in.");
-        resolve(token);
+        return;
       }
-    });
-  });
-}
-
-const checkIfUserIsLoggedInFirefox = async (clientId, scopes, redirectUrl) => {
-  return new Promise((resolve, reject) => {
-    chrome.identity.launchWebAuthFlow({
-      url: `https://accounts.google.com/o/oauth2/auth?client_id=${clientId}&redirect_uri=${redirectUrl}&response_type=token&scope=${scopes}&prompt=none`,
-      interactive: false
-    }).then((response) => {
-      const urlParams = new URLSearchParams(response.substring(response.indexOf("#") + 1));
-
-      const error = urlParams.get("error");
-      if (!error) {
-        console.log("User has already logged in.");
-        const token = urlParams.get("access_token");
-        console.log("Access token: " + token)
-        resolve(token);
-      } else {
-        resolve(null);
-      }
-    }).catch((error) => {
+      console.log("Found token in storage:" + token);
+      resolve(token);
+    } catch (error) {
+      console.log("Error while checking for token in storage: " + error);
       reject(error);
-    });
+    }
   });
 }
 
-export const loginUser = async () => {
-  switch (await getCurrentBrowser()) {
-    case "Chrome":
-      return await loginUserChrome();
-    case "Firefox":
-    case "Edge":
-      return await loginUserFirefox(clientId, scopes, redirectUrl);
-    default:
-      throw new Error("Unknown browser");
-  }
+export const loginUser = () => {
+  return loginUserWithClientCreds(clientId, scopes, redirectUrl);
 }
 
-const loginUserChrome = async () => {
-  return new Promise((resolve, reject) => {
-    chrome.identity.getAuthToken({ interactive: true }, (token) => {
-      if (chrome.runtime.lastError) {
-        reject(chrome.runtime.lastError);
-      } else {
-        resolve(token);
-      }
-    });
-  });
-}
-
-const loginUserFirefox = async (clientId, scopes, redirectUrl) => {
-  return new Promise((resolve, reject) => {
-    chrome.identity.launchWebAuthFlow({
-      url: `https://accounts.google.com/o/oauth2/auth?client_id=${clientId}&redirect_uri=${redirectUrl}&response_type=token&scope=${scopes}`,
-      interactive: true
-    }).then((response) => {
+const loginUserWithClientCreds = async (clientId, scopes, redirectUrl) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const response = await chrome.identity.launchWebAuthFlow({
+        url: `https://accounts.google.com/o/oauth2/auth?client_id=${clientId}&redirect_uri=${redirectUrl}&response_type=token&scope=${scopes}`,
+        interactive: true
+      });
       const urlParams = new URLSearchParams(response.substring(response.indexOf("#") + 1));
-
       const error = urlParams.get("error");
       if (!error) {
         const token = urlParams.get("access_token");
+        await chrome.storage.local.set({ token: token });
+        console.log("Saved token into storage");
+        console.log("Received token: " + token);
         resolve(token);
       } else {
+        console.log("Error while logging in with Google: " + error);
         reject(error);
       }
-    }).catch((error) => {
+    } catch (error) {
+      console.log("Error while logging in: " + error);
       reject(error);
-    });
+    }
   });
 }
 
 export const logoutUser = async () => {
-  switch (await getCurrentBrowser()) {
-    case "Chrome":
-      return await logoutUserChrome();
-    case "Firefox":
-      return await logoutUserFirefox();
-    default:
-      throw new Error("Unknown browser");
-  }
-}
+  return new Promise(async (resolve, reject) => {
+    try {
+      let token = await checkUserLogin();
+      if (!token) {
+        console.log("No token was present on user logout");
+        resolve();
+      }
 
-const logoutUserChrome = async () => {
-  return new Promise((resolve, reject) => {
-    // Check if user is logged in.
-    checkIfUserIsLoggedIn()
-      .then(token => {
-        if (token) {
-          // Clears token from the client.
-          let localTokenClear = new Promise(function (resolve, _reject) {
-            chrome.identity.clearAllCachedAuthTokens(() => {
-              resolve();
-            });
-          });
+      await revokeToken(token);
+      console.log("Revoked token successfully");
 
-          // Clears token from the server.
-          let remoteTokenClear = revokeToken(token);
+      await chrome.storage.local.remove("token");
+      console.log("Token cleaned from storage");
 
-          // Wait for both promises to complete.
-          Promise.all([localTokenClear, remoteTokenClear])
-            .then(() => {
-              console.log("Token cleared both locally and remotely.");
-              resolve();
-            })
-            .catch(err => {
-              console.log("An exception occured while deleting token locally and remotely.", err);
-              reject(err);
-            });
-        } else {
-          resolve();
-        }
-      }).catch(err => {
-        console.log("An exception occured while trying to log out user.", err);
-        reject(err);
-      });
+      console.log("User logged out successfully");
+      resolve();
+    } catch (error) {
+      console.log("An exception occured while trying to log out user", error);
+      reject(error);
+    }
   });
-}
-
-const logoutUserFirefox = async () => {
-  return new Promise((resolve, reject) => {
-    checkIfUserIsLoggedIn()
-      .then(token => {
-        if (token) {
-          revokeToken(token)
-            .then(() => {
-              console.log("Revoked token successfully.");
-              resolve();
-            })
-            .catch(err => {
-              console.log("An exception occured while deleting token locally and remotely.", err);
-              reject(err);
-            });
-        } else {
-          console.log("No token was present on user logout.");
-          resolve();
-        }
-      }).catch(err => {
-        console.log("An exception occured while trying to log out user.", err);
-        reject(err);
-      });
-  });
-}
+};
 
 export const revokeToken = async (token) => {
   fetch(`https://accounts.google.com/o/oauth2/revoke?token=${token}`);
