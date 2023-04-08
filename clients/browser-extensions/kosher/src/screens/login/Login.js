@@ -1,4 +1,5 @@
 /*global chrome*/
+
 import NamedNavigationalComponent from '../../utils/navigation/NamedNavigationalComponent';
 import Avatar from '@mui/material/Avatar';
 import CssBaseline from '@mui/material/CssBaseline';

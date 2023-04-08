@@ -1,4 +1,5 @@
 /*global chrome*/
+
 import React, { Fragment } from 'react';
 import NamedNavigationalComponent from '../../utils/navigation/NamedNavigationalComponent';
 import CssBaseline from '@mui/material/CssBaseline';
