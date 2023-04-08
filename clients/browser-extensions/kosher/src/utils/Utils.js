@@ -1,12 +1,8 @@
 /*global chrome*/
 
-// TODO: Get those from a config file.
-const clientId = "537590887046-6c985s5fp4qnph99vtsvmqgs07061gj5.apps.googleusercontent.com";
-const scopes = "https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile";
-const redirectUrl = chrome.identity.getRedirectURL();
-
-// TODO: Remove this at some point.
-console.log(redirectUrl);
+const CLIENT_ID = process.env.REACT_APP_GOOGLE_OAUTH2_CLIENT_ID;
+const SCOPES = process.env.REACT_APP_GOOGLE_OAUTH2_SCOPES;
+const REDIRECT_URL = chrome.identity.getRedirectURL();
 
 export const checkUserLogin = () => {
   return new Promise(async (resolve, reject) => {
@@ -27,7 +23,7 @@ export const checkUserLogin = () => {
 }
 
 export const loginUser = (interactive) => {
-  return loginUserWithClientCreds(clientId, scopes, redirectUrl, interactive);
+  return loginUserWithClientCreds(CLIENT_ID, SCOPES, REDIRECT_URL, interactive);
 }
 
 const loginUserWithClientCreds = async (clientId, scopes, redirectUrl, interactive) => {
