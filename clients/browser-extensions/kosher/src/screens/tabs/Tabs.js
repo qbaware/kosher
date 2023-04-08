@@ -140,8 +140,7 @@ class Tabs extends NamedNavigationalComponent {
     fetch(`https://www.googleapis.com/oauth2/v1/userinfo?access_token=${token}`)
       .then(response => {
         return response.json();
-      })
-      .then(info => {
+      }).then(info => {
         const hardcodedGoogleApiSize = "s96";
         const targetProfilePicSize = 128;
 
@@ -149,9 +148,17 @@ class Tabs extends NamedNavigationalComponent {
           profileName: info.given_name,
           profilePicUrl: info.picture.replace(hardcodedGoogleApiSize, `s${targetProfilePicSize}`)
         });
-      })
-      .catch(err => {
-        console.log("Failed retrieving user info from Google APIs", err);
+      }).catch(error => {
+        console.log("Failed retrieving user info from Google APIs", error);
+        chrome.storage.local.remove("token")
+          .then(() => {
+            console.log("Removed expired token from local storage and redirecting to initial screen...");
+            this.setActiveScreen(App.initialScreen);
+          }).catch((error) => {
+            console.log("Failed removing token from local storage: " + error);
+            console.log("Logging out to user...")
+            this.signOut();
+          });
       });
   }
 
