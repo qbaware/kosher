@@ -207,7 +207,7 @@ class Tabs extends NamedNavigationalComponent {
 
   async signOut() {
     try {
-      await utils.logoutUser()
+      await utils.logoutUser();
       await this.clearLocalStorage();
       this.setActiveScreen(App.loginScreen);
     } catch (error) {
