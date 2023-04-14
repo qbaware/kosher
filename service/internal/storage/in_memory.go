@@ -9,7 +9,7 @@ import (
 
 // InMemoryStorage represents an in-memory storage for tabs.
 type InMemoryStorage struct {
-	storage  []models.Tab
+	storage  map[string][]models.Tab
 	capacity int
 
 	lock sync.Mutex
@@ -20,7 +20,7 @@ var _ Storage = &InMemoryStorage{}
 // NewInMemoryStorage creates an in-memory tabs storage with default capacity of 1000 tabs.
 func NewInMemoryStorageWithDefaultCapacity() *InMemoryStorage {
 	return &InMemoryStorage{
-		storage:  make([]models.Tab, 0),
+		storage:  make(map[string][]models.Tab, 0),
 		capacity: 1000,
 	}
 }
@@ -28,38 +28,38 @@ func NewInMemoryStorageWithDefaultCapacity() *InMemoryStorage {
 // NewInMemoryStorage creates an in-memory tabs storage.
 func NewInMemoryStorage(capacity int) *InMemoryStorage {
 	return &InMemoryStorage{
-		storage:  make([]models.Tab, 0),
+		storage:  make(map[string][]models.Tab, 0),
 		capacity: capacity,
 	}
 }
 
 // AddTab adds a tab to the storage.
-func (ims *InMemoryStorage) AddTab(tab models.Tab) error {
+func (ims *InMemoryStorage) AddTab(userID string, tab models.Tab) error {
 	ims.lock.Lock()
 	defer ims.lock.Unlock()
 
-	return ims.addTab(tab)
+	return ims.addTab(userID, tab)
 }
 
-func (ims *InMemoryStorage) addTab(tab models.Tab) error {
-	if len(ims.storage) >= ims.capacity {
-		ims.storage = ims.storage[:len(ims.storage)-1]
+func (ims *InMemoryStorage) addTab(userID string, tab models.Tab) error {
+	if len(ims.storage[userID]) >= ims.capacity {
+		ims.storage[userID] = ims.storage[userID][:len(ims.storage[userID])-1]
 	}
 
 	if !tab.IsValid() {
 		return errors.New("tab is invalid")
 	}
 
-	if ims.containsTab(tab.ID) {
+	if ims.containsTab(userID, tab.ID) {
 		return errors.New("tab already exists")
 	}
 
-	ims.storage = append(ims.storage, tab)
+	ims.storage[userID] = append(ims.storage[userID], tab)
 	return nil
 }
 
 // UpsertTab adds or updates a tab in storage.
-func (ims *InMemoryStorage) UpsertTab(tab models.Tab) error {
+func (ims *InMemoryStorage) UpsertTab(userID string, tab models.Tab) error {
 	if !tab.IsValid() {
 		return errors.New("tab is invalid")
 	}
@@ -67,23 +67,23 @@ func (ims *InMemoryStorage) UpsertTab(tab models.Tab) error {
 	ims.lock.Lock()
 	defer ims.lock.Unlock()
 
-	if ims.containsTab(tab.ID) {
-		ims.removeTab(tab.ID)
+	if ims.containsTab(userID, tab.ID) {
+		ims.removeTab(userID, tab.ID)
 	}
 
-	return ims.addTab(tab)
+	return ims.addTab(userID, tab)
 }
 
 // ContainsTab checks if a tab is in storage.
-func (ims *InMemoryStorage) ContainsTab(id string) bool {
+func (ims *InMemoryStorage) ContainsTab(userID string, id string) bool {
 	ims.lock.Lock()
 	defer ims.lock.Unlock()
 
-	return ims.containsTab(id)
+	return ims.containsTab(userID, id)
 }
 
-func (ims *InMemoryStorage) containsTab(id string) bool {
-	for _, t := range ims.storage {
+func (ims *InMemoryStorage) containsTab(userID string, id string) bool {
+	for _, t := range ims.storage[userID] {
 		if t.ID == id {
 			return true
 		}
@@ -92,25 +92,28 @@ func (ims *InMemoryStorage) containsTab(id string) bool {
 }
 
 // ListTabs retrieves all tabs.
-func (ims *InMemoryStorage) ListTabs() []models.Tab {
+func (ims *InMemoryStorage) ListTabs(userID string) []models.Tab {
 	ims.lock.Lock()
 	defer ims.lock.Unlock()
 
-	return ims.storage
+	if tabs := ims.storage[userID]; tabs != nil {
+		return tabs
+	}
+	return []models.Tab{}
 }
 
 // RemoveTab removes a tab from the storage.
-func (ims *InMemoryStorage) RemoveTab(id string) error {
+func (ims *InMemoryStorage) RemoveTab(userID string, id string) error {
 	ims.lock.Lock()
 	defer ims.lock.Unlock()
 
-	return ims.removeTab(id)
+	return ims.removeTab(userID, id)
 }
 
-func (ims *InMemoryStorage) removeTab(id string) error {
-	for i, t := range ims.storage {
+func (ims *InMemoryStorage) removeTab(userID string, id string) error {
+	for i, t := range ims.storage[userID] {
 		if t.ID == id {
-			ims.storage = append(ims.storage[:i], ims.storage[i+1:]...)
+			ims.storage[userID] = append(ims.storage[userID][:i], ims.storage[userID][i+1:]...)
 			return nil
 		}
 	}

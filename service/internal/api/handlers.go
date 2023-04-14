@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/gorilla/mux"
 	"github.com/qbaware/kosher/internal/models"
 	"github.com/qbaware/kosher/internal/storage"
 )
@@ -12,7 +13,10 @@ import (
 // GetTabsHandler retrieves all stored tabs.
 func GetTabsHandler(storage storage.Storage) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
-		tabs := storage.ListTabs()
+		params := mux.Vars(r)
+		userID := params["userId"]
+
+		tabs := storage.ListTabs(userID)
 
 		tabsJSON, _ := json.Marshal(tabs)
 		w.Header().Set("Content-Type", "application/json")
@@ -24,6 +28,9 @@ func GetTabsHandler(storage storage.Storage) func(w http.ResponseWriter, r *http
 // AddTabHandler stores a tab.
 func AddTabHandler(storage storage.Storage) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
+		params := mux.Vars(r)
+		userID := params["userId"]
+
 		var tabs []models.Tab
 		if err := json.NewDecoder(r.Body).Decode(&tabs); err != nil {
 			log.Printf("error: failed to decode json %s\n", err.Error())
@@ -40,7 +47,7 @@ func AddTabHandler(storage storage.Storage) func(w http.ResponseWriter, r *http.
 		}
 
 		for _, tab := range tabs {
-			err := storage.UpsertTab(tab)
+			err := storage.UpsertTab(userID, tab)
 			if err != nil {
 				w.WriteHeader(http.StatusInternalServerError)
 				w.Write([]byte(err.Error()))
@@ -56,6 +63,9 @@ func AddTabHandler(storage storage.Storage) func(w http.ResponseWriter, r *http.
 // RemoveTabsHandler removes a tab from storage.
 func RemoveTabsHandler(storage storage.Storage) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
+		params := mux.Vars(r)
+		userID := params["userId"]
+
 		var tabIDs []string
 		if err := json.NewDecoder(r.Body).Decode(&tabIDs); err != nil {
 			log.Printf("error: failed to decode json %s\n", err.Error())
@@ -64,11 +74,11 @@ func RemoveTabsHandler(storage storage.Storage) func(w http.ResponseWriter, r *h
 		}
 
 		for _, id := range tabIDs {
-			if !storage.ContainsTab(id) {
+			if !storage.ContainsTab(userID, id) {
 				continue
 			}
 
-			storage.RemoveTab(id)
+			storage.RemoveTab(userID, id)
 		}
 
 		w.Header().Set("Content-Type", "application/json")
