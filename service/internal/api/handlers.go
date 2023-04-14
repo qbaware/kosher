@@ -5,7 +5,7 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/gorilla/mux"
+	"github.com/qbaware/kosher/internal/middleware"
 	"github.com/qbaware/kosher/internal/models"
 	"github.com/qbaware/kosher/internal/storage"
 )
@@ -13,8 +13,7 @@ import (
 // GetTabsHandler retrieves all stored tabs.
 func GetTabsHandler(storage storage.Storage) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
-		params := mux.Vars(r)
-		userID := params["userId"]
+		userID := r.Context().Value(middleware.UserIDKey{}).(string)
 
 		tabs := storage.ListTabs(userID)
 
@@ -28,8 +27,7 @@ func GetTabsHandler(storage storage.Storage) func(w http.ResponseWriter, r *http
 // AddTabHandler stores a tab.
 func AddTabHandler(storage storage.Storage) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
-		params := mux.Vars(r)
-		userID := params["userId"]
+		userID := r.Context().Value(middleware.UserIDKey{}).(string)
 
 		var tabs []models.Tab
 		if err := json.NewDecoder(r.Body).Decode(&tabs); err != nil {
@@ -63,8 +61,7 @@ func AddTabHandler(storage storage.Storage) func(w http.ResponseWriter, r *http.
 // RemoveTabsHandler removes a tab from storage.
 func RemoveTabsHandler(storage storage.Storage) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
-		params := mux.Vars(r)
-		userID := params["userId"]
+		userID := r.Context().Value(middleware.UserIDKey{}).(string)
 
 		var tabIDs []string
 		if err := json.NewDecoder(r.Body).Decode(&tabIDs); err != nil {
