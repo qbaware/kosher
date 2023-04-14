@@ -29,6 +29,7 @@ func (tab Tab) IsEmpty() bool {
 
 // IsValid checks whether the object is valid or not.
 func (tab Tab) IsValid() bool {
-	return tab.Name != "" &&
-		tab.URL != ""
+	return tab.ID != "" &&
+		tab.URL != "" &&
+		tab.Name != ""
 }

@@ -11,24 +11,29 @@ import (
 )
 
 const (
-	maxTabs = 1000
+	defaultPort = "5656"
 )
 
 var (
 	port = os.Getenv("PORT")
 )
 
+func init() {
+	if port == "" {
+		port = defaultPort
+	}
+}
+
 func main() {
-	log.Println("Server starting ...")
+	log.Printf("Server starting on port %s ...", port)
 
 	router := mux.NewRouter()
 
-	storage := storage.NewInMemoryStorage(maxTabs)
+	storage := storage.NewInMemoryStorageWithDefaultCapacity()
 
 	router.HandleFunc("/tabs", api.GetTabsHandler(storage)).Methods(http.MethodGet)
-	router.HandleFunc("/tabs", api.AddTabHandler(storage)).Methods(http.MethodPost)
-	router.HandleFunc("/tabs/{id}", api.GetTabHandler(storage)).Methods(http.MethodGet)
-	router.HandleFunc("/tabs/{id}", api.RemoveTabHandler(storage)).Methods(http.MethodDelete)
+	router.HandleFunc("/tabs", api.AddTabHandler(storage)).Methods(http.MethodPut)
+	router.HandleFunc("/tabs", api.RemoveTabsHandler(storage)).Methods(http.MethodDelete)
 
 	http.Handle("/", router)
 	log.Fatal(http.ListenAndServe(":"+port, router))
