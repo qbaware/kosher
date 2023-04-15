@@ -26,7 +26,7 @@ func init() {
 }
 
 func main() {
-	log.Printf("Server starting on port %s ...", port)
+	log.Printf("Server starting on port %s ...\n", port)
 
 	router := mux.NewRouter()
 
