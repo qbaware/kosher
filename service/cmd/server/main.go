@@ -34,9 +34,9 @@ func main() {
 
 	router.Use(middleware.GoogleOAuth2Middleware)
 
-	router.HandleFunc("/tabs", api.GetTabsHandler(storage)).Methods(http.MethodGet)
-	router.HandleFunc("/tabs", api.AddTabHandler(storage)).Methods(http.MethodPut)
-	router.HandleFunc("/tabs", api.RemoveTabsHandler(storage)).Methods(http.MethodDelete)
+	router.HandleFunc("/browsers", api.GetBrowsersHandler(storage)).Methods(http.MethodGet)
+	router.HandleFunc("/browsers", api.PutBrowserHandler(storage)).Methods(http.MethodPut)
+	router.HandleFunc("/browsers", api.RemoveBrowsersHandler(storage)).Methods(http.MethodDelete)
 
 	http.Handle("/", router)
 	log.Fatal(http.ListenAndServe(":"+port, router))

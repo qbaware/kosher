@@ -9,8 +9,7 @@ import (
 
 // InMemoryStorage represents an in-memory storage for tabs.
 type InMemoryStorage struct {
-	storage  map[string][]models.Tab
-	capacity int
+	browsersStorage map[string][]models.Browser
 
 	lock sync.Mutex
 }
@@ -20,103 +19,78 @@ var _ Storage = &InMemoryStorage{}
 // NewInMemoryStorage creates an in-memory tabs storage with default capacity of 1000 tabs.
 func NewInMemoryStorageWithDefaultCapacity() *InMemoryStorage {
 	return &InMemoryStorage{
-		storage:  make(map[string][]models.Tab, 0),
-		capacity: 1000,
+		browsersStorage: make(map[string][]models.Browser, 0),
 	}
 }
 
 // NewInMemoryStorage creates an in-memory tabs storage.
 func NewInMemoryStorage(capacity int) *InMemoryStorage {
 	return &InMemoryStorage{
-		storage:  make(map[string][]models.Tab, 0),
-		capacity: capacity,
+		browsersStorage: make(map[string][]models.Browser, 0),
 	}
 }
 
-// AddTab adds a tab to the storage.
-func (ims *InMemoryStorage) AddTab(userID string, tab models.Tab) error {
+// UpsertTab adds or updates a browser in storage.
+func (ims *InMemoryStorage) UpsertBrowser(userID string, browser models.Browser) error {
 	ims.lock.Lock()
 	defer ims.lock.Unlock()
 
-	return ims.addTab(userID, tab)
-}
-
-func (ims *InMemoryStorage) addTab(userID string, tab models.Tab) error {
-	if len(ims.storage[userID]) >= ims.capacity {
-		ims.storage[userID] = ims.storage[userID][:len(ims.storage[userID])-1]
+	if ims.containsBrowser(userID, browser.ID) {
+		ims.removeBrowser(userID, browser.ID)
 	}
+	ims.addBrowser(userID, browser)
 
-	if !tab.IsValid() {
-		return errors.New("tab is invalid")
-	}
-
-	if ims.containsTab(userID, tab.ID) {
-		return errors.New("tab already exists")
-	}
-
-	ims.storage[userID] = append(ims.storage[userID], tab)
 	return nil
 }
 
-// UpsertTab adds or updates a tab in storage.
-func (ims *InMemoryStorage) UpsertTab(userID string, tab models.Tab) error {
-	if !tab.IsValid() {
-		return errors.New("tab is invalid")
-	}
-
+// ListTabs retrieves all browsers.
+func (ims *InMemoryStorage) ListBrowsers(userID string) []models.Browser {
 	ims.lock.Lock()
 	defer ims.lock.Unlock()
 
-	if ims.containsTab(userID, tab.ID) {
-		ims.removeTab(userID, tab.ID)
+	if browsers, ok := ims.browsersStorage[userID]; ok {
+		return browsers
 	}
-
-	return ims.addTab(userID, tab)
+	return []models.Browser{}
 }
 
-// ContainsTab checks if a tab is in storage.
-func (ims *InMemoryStorage) ContainsTab(userID string, id string) bool {
+// RemoveTab removes a browser from the storage.
+func (ims *InMemoryStorage) RemoveBrowsers(userID string, ids []string) error {
 	ims.lock.Lock()
 	defer ims.lock.Unlock()
 
-	return ims.containsTab(userID, id)
+	for _, id := range ids {
+		ims.removeBrowser(userID, id)
+	}
+
+	return nil
 }
 
-func (ims *InMemoryStorage) containsTab(userID string, id string) bool {
-	for _, t := range ims.storage[userID] {
-		if t.ID == id {
+func (ims *InMemoryStorage) addBrowser(userID string, browser models.Browser) error {
+	if ims.containsBrowser(userID, browser.ID) {
+		return errors.New("browser already exists")
+	}
+
+	ims.browsersStorage[userID] = append(ims.browsersStorage[userID], browser)
+	return nil
+}
+
+func (ims *InMemoryStorage) containsBrowser(userID string, id string) bool {
+	for _, b := range ims.browsersStorage[userID] {
+		if b.ID == id {
 			return true
 		}
 	}
 	return false
 }
 
-// ListTabs retrieves all tabs.
-func (ims *InMemoryStorage) ListTabs(userID string) []models.Tab {
-	ims.lock.Lock()
-	defer ims.lock.Unlock()
-
-	if tabs := ims.storage[userID]; tabs != nil {
-		return tabs
-	}
-	return []models.Tab{}
-}
-
-// RemoveTab removes a tab from the storage.
-func (ims *InMemoryStorage) RemoveTab(userID string, id string) error {
-	ims.lock.Lock()
-	defer ims.lock.Unlock()
-
-	return ims.removeTab(userID, id)
-}
-
-func (ims *InMemoryStorage) removeTab(userID string, id string) error {
-	for i, t := range ims.storage[userID] {
-		if t.ID == id {
-			ims.storage[userID] = append(ims.storage[userID][:i], ims.storage[userID][i+1:]...)
-			return nil
+func (ims *InMemoryStorage) removeBrowser(userID string, id string) error {
+	for i, b := range ims.browsersStorage[userID] {
+		if b.ID == id {
+			ims.browsersStorage[userID] = append(ims.browsersStorage[userID][:i], ims.browsersStorage[userID][i+1:]...)
+			break
 		}
 	}
 
-	return errors.New("tab not found")
+	return nil
 }

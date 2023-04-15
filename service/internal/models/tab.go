@@ -20,13 +20,6 @@ func NewTab(name, url string) Tab {
 	}
 }
 
-// IsEmpty checks whether the object is empty or not.
-func (tab Tab) IsEmpty() bool {
-	return tab.ID == "" &&
-		tab.Name == "" &&
-		tab.URL == ""
-}
-
 // IsValid checks whether the object is valid or not.
 func (tab Tab) IsValid() bool {
 	return tab.ID != "" &&

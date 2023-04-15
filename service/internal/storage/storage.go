@@ -5,18 +5,12 @@ import "github.com/qbaware/kosher/internal/models"
 // Storage describes a tab storage.
 type Storage interface {
 
-	// AddTab adds a tab to storage.
-	AddTab(userID string, t models.Tab) error
+	// UpsertBrowser adds or updates a browser with all its tabs to storage.
+	UpsertBrowser(userID string, browser models.Browser) error
 
-	// UpsertTab adds or updates a tab in storage.
-	UpsertTab(userID string, t models.Tab) error
+	// ListBrowsers retrieves all browsers with their corresponding tabs from storage.
+	ListBrowsers(userID string) []models.Browser
 
-	// ContainsTab checks if a tab is in storage.
-	ContainsTab(userID string, id string) bool
-
-	// ListTabs retrieves all tabs from storage.
-	ListTabs(userID string) []models.Tab
-
-	// RemoveTab removes a tab from storage.
-	RemoveTab(userID string, id string) error
+	// RemoveTab removes browsers from storage.
+	RemoveBrowsers(userID string, ids []string) error
 }

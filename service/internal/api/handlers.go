@@ -10,47 +10,44 @@ import (
 	"github.com/qbaware/kosher/internal/storage"
 )
 
-// GetTabsHandler retrieves all stored tabs.
-func GetTabsHandler(storage storage.Storage) func(w http.ResponseWriter, r *http.Request) {
+// GetBrowsersHandler retrieves all stored browsers.
+func GetBrowsersHandler(storage storage.Storage) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		userID := r.Context().Value(middleware.UserIDKey{}).(string)
 
-		tabs := storage.ListTabs(userID)
+		browsers := storage.ListBrowsers(userID)
 
-		tabsJSON, _ := json.Marshal(tabs)
+		browsersJSON, _ := json.Marshal(browsers)
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		w.Write(tabsJSON)
+		w.Write(browsersJSON)
 	}
 }
 
-// AddTabHandler stores a tab.
-func AddTabHandler(storage storage.Storage) func(w http.ResponseWriter, r *http.Request) {
+// PutBrowserHandler stores a browser with all its tabs.
+func PutBrowserHandler(storage storage.Storage) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
-		userID := r.Context().Value(middleware.UserIDKey{}).(string)
-
-		var tabs []models.Tab
-		if err := json.NewDecoder(r.Body).Decode(&tabs); err != nil {
+		var browser models.Browser
+		if err := json.NewDecoder(r.Body).Decode(&browser); err != nil {
 			log.Printf("error: failed to decode json %s\n", err.Error())
 			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
+		defer r.Body.Close()
 
-		for _, tab := range tabs {
-			if !tab.IsValid() {
-				log.Printf("error: invalid tab %v\n", tab)
-				w.WriteHeader(http.StatusBadRequest)
-				return
-			}
+		if !browser.IsValid() {
+			log.Printf("error: invalid browser %v\n", browser)
+			w.WriteHeader(http.StatusBadRequest)
+			return
 		}
 
-		for _, tab := range tabs {
-			err := storage.UpsertTab(userID, tab)
-			if err != nil {
-				w.WriteHeader(http.StatusInternalServerError)
-				w.Write([]byte(err.Error()))
-				return
-			}
+		userID := r.Context().Value(middleware.UserIDKey{}).(string)
+
+		err := storage.UpsertBrowser(userID, browser)
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			w.Write([]byte(err.Error()))
+			return
 		}
 
 		w.Header().Set("Content-Type", "application/json")
@@ -58,25 +55,20 @@ func AddTabHandler(storage storage.Storage) func(w http.ResponseWriter, r *http.
 	}
 }
 
-// RemoveTabsHandler removes a tab from storage.
-func RemoveTabsHandler(storage storage.Storage) func(w http.ResponseWriter, r *http.Request) {
+// RemoveBrowsersHandler removes a browser from storage.
+func RemoveBrowsersHandler(storage storage.Storage) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
-		userID := r.Context().Value(middleware.UserIDKey{}).(string)
-
-		var tabIDs []string
-		if err := json.NewDecoder(r.Body).Decode(&tabIDs); err != nil {
+		var browserIDs []string
+		if err := json.NewDecoder(r.Body).Decode(&browserIDs); err != nil {
 			log.Printf("error: failed to decode json %s\n", err.Error())
 			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
+		defer r.Body.Close()
 
-		for _, id := range tabIDs {
-			if !storage.ContainsTab(userID, id) {
-				continue
-			}
+		userID := r.Context().Value(middleware.UserIDKey{}).(string)
 
-			storage.RemoveTab(userID, id)
-		}
+		storage.RemoveBrowsers(userID, browserIDs)
 
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
