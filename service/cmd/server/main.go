@@ -30,7 +30,7 @@ func main() {
 
 	router := mux.NewRouter()
 
-	storage := storage.NewInMemoryStorageWithDefaultCapacity()
+	storage := storage.NewInMemoryStorage()
 
 	router.Use(middleware.GoogleOAuth2Middleware)
 

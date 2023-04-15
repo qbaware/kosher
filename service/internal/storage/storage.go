@@ -2,7 +2,7 @@ package storage
 
 import "github.com/qbaware/kosher/internal/models"
 
-// Storage describes a tab storage.
+// Storage describes a browser storage.
 type Storage interface {
 
 	// UpsertBrowser adds or updates a browser with all its tabs to storage.

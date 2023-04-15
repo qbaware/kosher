@@ -7,7 +7,7 @@ import (
 	"github.com/qbaware/kosher/internal/models"
 )
 
-// InMemoryStorage represents an in-memory storage for tabs.
+// InMemoryStorage represents an in-memory storage for browsers.
 type InMemoryStorage struct {
 	browsersStorage map[string][]models.Browser
 
@@ -16,15 +16,8 @@ type InMemoryStorage struct {
 
 var _ Storage = &InMemoryStorage{}
 
-// NewInMemoryStorage creates an in-memory tabs storage with default capacity of 1000 tabs.
-func NewInMemoryStorageWithDefaultCapacity() *InMemoryStorage {
-	return &InMemoryStorage{
-		browsersStorage: make(map[string][]models.Browser, 0),
-	}
-}
-
-// NewInMemoryStorage creates an in-memory tabs storage.
-func NewInMemoryStorage(capacity int) *InMemoryStorage {
+// NewInMemoryStorage creates an in-memory browsers storage.
+func NewInMemoryStorage() *InMemoryStorage {
 	return &InMemoryStorage{
 		browsersStorage: make(map[string][]models.Browser, 0),
 	}
