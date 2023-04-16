@@ -4,9 +4,9 @@ import "github.com/google/uuid"
 
 // Tab represents a browser tab object.
 type Tab struct {
-	ID   string `json:"id,omitempty"`
-	Name string `json:"name,omitempty"`
-	URL  string `json:"url,omitempty"`
+	ID   string `json:"id"`
+	Name string `json:"name"`
+	URL  string `json:"url"`
 }
 
 // NewTab creates a new tab.
