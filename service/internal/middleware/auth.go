@@ -54,6 +54,8 @@ func GoogleOAuth2Middleware(next http.Handler) http.Handler {
 			log.Fatal(err)
 		}
 
+		log.Printf("User with email '%s' authenticated successfully", user.Email)
+
 		ctx := context.WithValue(r.Context(), UserIDKey{}, user.ID)
 		ctx = context.WithValue(ctx, UserEmailKey{}, user.Email)
 		r = r.WithContext(ctx)
