@@ -40,9 +40,8 @@ func main() {
 	router.HandleFunc("/browsers", api.RemoveBrowsersHandler(storage)).Methods(http.MethodDelete)
 
 	cors := cors.New(cors.Options{
-		AllowedMethods:   []string{http.MethodOptions, http.MethodHead, http.MethodGet, http.MethodPut, http.MethodDelete},
-		AllowedHeaders:   []string{"*"},
-		AllowCredentials: true,
+		AllowedMethods: []string{http.MethodOptions, http.MethodHead, http.MethodGet, http.MethodPut, http.MethodDelete},
+		AllowedHeaders: []string{"*"},
 	})
 
 	log.Fatal(http.ListenAndServe(":"+port, cors.Handler(router)))
