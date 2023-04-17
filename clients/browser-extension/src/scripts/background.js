@@ -11,28 +11,40 @@ chrome.runtime.onInstalled.addListener(() => {
 
   const extensionId = crypto.randomUUID().substring(0, 10);
   setVariableToLocalStorageIfMissing(localStorageExtensionId, extensionId);
-  loadVariableFromLocalStorage(localStorageExtensionId).then((extensionId) => {
-    console.log("Loaded extension ID: " + extensionId);
-  });
+  loadVariableFromLocalStorage(localStorageExtensionId)
+    .then((extensionId) => {
+      console.log("Loaded extension ID: " + extensionId);
+    }).catch((error) => {
+      console.log("Error while loading extension ID: " + error);
+    });
 
   const deviceName = crypto.randomUUID().substring(0, 6).toUpperCase();
   setVariableToLocalStorageIfMissing(localStorageDeviceName, deviceName);
-  loadVariableFromLocalStorage(localStorageDeviceName).then((deviceName) => {
-    console.log("Loaded device name: " + deviceName);
-  });
+  loadVariableFromLocalStorage(localStorageDeviceName)
+    .then((deviceName) => {
+      console.log("Loaded device name: " + deviceName);
+    }).catch((error) => {
+      console.log("Error while loading device name: " + error);
+    });
 
   const browser = getCurrentBrowser();
   setVariableToLocalStorageIfMissing(localStorageBrowserTypeKey, browser);
-  loadVariableFromLocalStorage(localStorageBrowserTypeKey).then((browser) => {
-    console.log("Loaded browser: " + browser);
-  });
+  loadVariableFromLocalStorage(localStorageBrowserTypeKey)
+    .then((browser) => {
+      console.log("Loaded browser: " + browser);
+    }).catch((error) => {
+      console.log("Error while loading browser: " + error);
+    });
 
   getCurrentOs()
     .then((os) => {
       setVariableToLocalStorageIfMissing(localStorageOsKey, os);
-      loadVariableFromLocalStorage(localStorageOsKey).then((os) => {
-        console.log("Loaded OS: " + os);
-      });
+      loadVariableFromLocalStorage(localStorageOsKey)
+        .then((os) => {
+          console.log("Loaded OS: " + os);
+        }).catch((error) => {
+          console.log("Error while loading OS: " + error);
+        });
     });
 
   chrome.alarms.get(tabBackupAction, (alarm) => {
