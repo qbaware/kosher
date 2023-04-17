@@ -4,3 +4,6 @@ github.com/google/uuid
 # github.com/gorilla/mux v1.8.0
 ## explicit; go 1.12
 github.com/gorilla/mux
+# github.com/rs/cors v1.9.0
+## explicit; go 1.13
+github.com/rs/cors

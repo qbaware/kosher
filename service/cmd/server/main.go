@@ -9,6 +9,7 @@ import (
 	"github.com/qbaware/kosher/internal/api"
 	"github.com/qbaware/kosher/internal/middleware"
 	"github.com/qbaware/kosher/internal/storage"
+	"github.com/rs/cors"
 )
 
 const (
@@ -38,6 +39,9 @@ func main() {
 	router.HandleFunc("/browsers", api.PutBrowserHandler(storage)).Methods(http.MethodPut)
 	router.HandleFunc("/browsers", api.RemoveBrowsersHandler(storage)).Methods(http.MethodDelete)
 
-	http.Handle("/", router)
-	log.Fatal(http.ListenAndServe(":"+port, router))
+	cors := cors.New(cors.Options{
+		AllowedMethods: []string{http.MethodHead, http.MethodGet, http.MethodPut, http.MethodDelete},
+	})
+
+	log.Fatal(http.ListenAndServe(":"+port, cors.Handler(router)))
 }
