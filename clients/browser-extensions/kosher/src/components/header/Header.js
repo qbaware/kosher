@@ -3,7 +3,7 @@ import './Header.css';
 import logo from '../../resources/logo.png';
 import NormalText from '../text/NormalText';
 import KosherText from '../text/KosherText';
-import { getCurrentBrowser } from '../../utils/Utils';
+import { getCurrentBrowser } from '../../scripts/utils';
 
 class Header extends Component {
   constructor(props) {
@@ -15,12 +15,7 @@ class Header extends Component {
   }
 
   componentDidMount() {
-    getCurrentBrowser()
-      .then((browser) => {
-        this.setState({ browser: browser });
-      }).catch((error) => {
-        console.log("Error while getting current browser: " + error);
-      });
+    this.setState({ browser: getCurrentBrowser() });
   }
 
   render() {

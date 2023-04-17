@@ -41,17 +41,19 @@ import FavoriteIcon from '@mui/icons-material/Favorite';
 import DeleteIcon from '@mui/icons-material/Delete';
 import App from '../../App';
 import './Tabs.css';
-import * as utils from '../../utils/Utils';
 import { ListItem } from '@mui/material';
+import { logoutUser, openLink, checkUserLogin } from '../../scripts/utils';
 
+const DEFAULT_DEVICE_NAME = "Unnamed";
 const INITIAL_SCREEN = "tabs";
 const CLOUD_SYNC_INTERVAL_IN_MINS = "5";
 const SNACK_AUTOHIDE_DURATION = 2500;
-const SYNC_ENABLED_KEY = "syncEnabled";
-const DEVICE_ID_KEY = "deviceId";
-const DEVICE_NAME_KEY = "deviceName";
 const FREE_PLAN = "free";
 const PREMIUM_PLAN = "premium";
+const BACKUP_TABS_ON_REMOTE_ACTION_FROM_UI = "tabsBackupRemoteFromUi"; // TODO: Move this to shared file
+
+const SYNC_ENABLED_KEY = "syncEnabled";
+const DEVICE_NAME_KEY = "deviceName";
 
 const STRIPE_DONATIONS_URL = "https://donate.stripe.com/bIY9CbfGte6Cgus002";
 const STRIPE_SUBSCRIBE_PREMIUM_URL = "https://buy.stripe.com/cN215F65Td2ydigeUX";
@@ -60,9 +62,6 @@ const STRIPE_MANAGE_SUBSCRIPTIONS_URL = "https://billing.stripe.com/p/login/7sId
 class Tabs extends NamedNavigationalComponent {
   constructor(props) {
     super(props);
-
-    const deviceId = crypto.randomUUID().substring(0, 6).toUpperCase();
-    const deviceName = deviceId;
 
     this.state = {
       profileName: "",
@@ -87,13 +86,12 @@ class Tabs extends NamedNavigationalComponent {
       syncEnabled: false,
       cloudSyncIntervalMin: CLOUD_SYNC_INTERVAL_IN_MINS,
 
-      deviceId: deviceId,
-      deviceName: deviceName
+      deviceName: DEFAULT_DEVICE_NAME
     };
   }
 
   componentDidMount() {
-    utils.checkUserLogin()
+    checkUserLogin()
       .then((token) => {
         if (token) {
           this.loadProfile(token);
@@ -113,7 +111,6 @@ class Tabs extends NamedNavigationalComponent {
 
   loadLocalStorageSettings() {
     this.loadLocalStorageVariable(SYNC_ENABLED_KEY, this.state.syncEnabled);
-    this.loadLocalStorageVariable(DEVICE_ID_KEY, this.state.deviceId);
     this.loadLocalStorageVariable(DEVICE_NAME_KEY, this.state.deviceName);
   }
 
@@ -164,14 +161,10 @@ class Tabs extends NamedNavigationalComponent {
   }
 
   async loadUserTabs(token) {
-    // TODO: Remove those logs and variables from here.
-    const os = await utils.getCurrentOs();
-    const browser = await utils.getCurrentBrowser();
-
     // Define mock data.
     const mockDeviceWithTabs1 = {
       id: "1",
-      name: "C02GN16Z1PG2", // TODO: Try making `Chrome on MacOS` a separate label with smaller font with a grayed out color.
+      name: "C02GN16Z1PG2",
       browser: "Chrome",
       os: "MacOS",
       tabs: [
@@ -215,7 +208,7 @@ class Tabs extends NamedNavigationalComponent {
 
   async signOut() {
     try {
-      await utils.logoutUser();
+      await logoutUser();
       await this.clearLocalStorage();
       this.setActiveScreen(App.loginScreen);
     } catch (error) {
@@ -331,7 +324,7 @@ class Tabs extends NamedNavigationalComponent {
             <Button onClick={() => { this.setActiveTab("settings"); }} sx={{ borderRadius: 0 }}>Settings</Button>
             <Button onClick={() => { this.setActiveTab("plans"); }} sx={{ borderRadius: 0 }}>Plans</Button>
             <Button onClick={() => {
-              utils.openLink(STRIPE_DONATIONS_URL);
+              openLink(STRIPE_DONATIONS_URL);
             }} sx={{ borderRadius: 0 }} color="warning" endIcon={<FavoriteIcon fontSize="large" />}>Donate</Button>
             <Fragment>
               <Box sx={{ display: 'flex', alignItems: 'center', textAlign: 'center', padding: "6px", paddingRight: "10px", backgroundColor: "#000000" }}>
@@ -386,13 +379,8 @@ class Tabs extends NamedNavigationalComponent {
                   <Typography sx={{ padding: "10px" }}>{`Hi, ${this.state.profileName}`}</Typography>
                 </Box>
                 <Divider />
-                <MenuItem onClick={async () => {
-                  const tabsResult = await chrome.storage.local.get("tabs");
-                  const tabs = tabsResult["tabs"];
-
-                  // TODO: Replace log with backend call.
-                  console.log("Sending tabs to backend. %s", JSON.stringify(tabs));
-
+                <MenuItem onClick={() => {
+                  chrome.runtime.sendMessage({ action: BACKUP_TABS_ON_REMOTE_ACTION_FROM_UI });
                   this.showSuccessSnackbar("Successfully synced tabs");
                   this.setState({
                     profileMenuOpen: false
@@ -644,7 +632,7 @@ class Tabs extends NamedNavigationalComponent {
                     <CardActions sx={{ justifyContent: "center" }}>
                       <Button disabled={this.state.profileSubscriptionPlan === FREE_PLAN} width="100%" fullWidth variant="contained" color='warning' size="large"
                         onClick={() => {
-                          utils.openLink(STRIPE_MANAGE_SUBSCRIPTIONS_URL);
+                          openLink(STRIPE_MANAGE_SUBSCRIPTIONS_URL);
                         }}>
                         {this.state.profileSubscriptionPlan === FREE_PLAN ? ("Subscribed") : ("Subscribe")}
                       </Button>
@@ -676,7 +664,7 @@ class Tabs extends NamedNavigationalComponent {
                     <CardActions sx={{ width: "100%", justifyContent: "center" }}>
                       <Button disabled={this.state.profileSubscriptionPlan === PREMIUM_PLAN} width="100%" fullWidth variant="contained" color='warning' size="large"
                         onClick={() => {
-                          utils.openLink(STRIPE_SUBSCRIBE_PREMIUM_URL);
+                          openLink(STRIPE_SUBSCRIBE_PREMIUM_URL);
                         }}>
                         {this.state.profileSubscriptionPlan === PREMIUM_PLAN ? ("Subscribed") : ("Subscribe")}
                       </Button>
@@ -685,7 +673,7 @@ class Tabs extends NamedNavigationalComponent {
                 </Stack>
                 <Stack sx={{ paddingTop: "10px", paddingBottom: "10px" }}>
                   <Button variant="contained" color='primary' size="large" onClick={() => {
-                    utils.openLink(STRIPE_MANAGE_SUBSCRIPTIONS_URL);
+                    openLink(STRIPE_MANAGE_SUBSCRIPTIONS_URL);
                   }}>Manage subscriptions</Button>
                 </Stack>
               </Container>

@@ -11,7 +11,7 @@ import GoogleIcon from '@mui/icons-material/Google';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import './Login.css';
 import App from '../../App';
-import { checkUserLogin, loginUser } from '../../utils/Utils';
+import { loginUser, checkUserLogin } from '../../scripts/utils';
 
 class Login extends NamedNavigationalComponent {
   constructor(props) {

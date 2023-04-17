@@ -1,19 +1,69 @@
-const tabBackupAction = "tabs_backup";
-const localStorageTabsKey = "tabs";
+/*global chrome*/
+
+import { getCurrentBrowser, getCurrentOs, loadVariableFromLocalStorage, localStorageBrowserTypeKey, localStorageDeviceName, localStorageExtensionId, localStorageOsKey, saveTabsToStorage, sendTabsToRemote, setVariableToLocalStorageIfMissing } from "./utils.js";
+
+export const tabBackupAction = "tabsBackup";
+export const tabBackupRemoteAction = "tabsBackupRemote";
+export const tabBackupRemoteActionFromUi = "tabsBackupRemoteFromUi";
 
 chrome.runtime.onInstalled.addListener(() => {
   console.log("Extension starting ...");
-});
 
-chrome.alarms.create(tabBackupAction, {
-  periodInMinutes: 1
+  const extensionId = crypto.randomUUID().substring(0, 10);
+  setVariableToLocalStorageIfMissing(localStorageExtensionId, extensionId);
+  loadVariableFromLocalStorage(localStorageExtensionId).then((extensionId) => {
+    console.log("Loaded extension ID: " + extensionId);
+  });
+
+  const deviceName = crypto.randomUUID().substring(0, 6).toUpperCase();
+  setVariableToLocalStorageIfMissing(localStorageDeviceName, deviceName);
+  loadVariableFromLocalStorage(localStorageDeviceName).then((deviceName) => {
+    console.log("Loaded device name: " + deviceName);
+  });
+
+  const browser = getCurrentBrowser();
+  setVariableToLocalStorageIfMissing(localStorageBrowserTypeKey, browser);
+  loadVariableFromLocalStorage(localStorageBrowserTypeKey).then((browser) => {
+    console.log("Loaded browser: " + browser);
+  });
+
+  getCurrentOs()
+    .then((os) => {
+      setVariableToLocalStorageIfMissing(localStorageOsKey, os);
+      loadVariableFromLocalStorage(localStorageOsKey).then((os) => {
+        console.log("Loaded OS: " + os);
+      });
+    });
+
+  chrome.alarms.get(tabBackupAction, (alarm) => {
+    if (!alarm) {
+      chrome.alarms.create(tabBackupAction, { periodInMinutes: 1 });
+    }
+  });
+  chrome.alarms.get(tabBackupRemoteAction, (alarm) => {
+    if (!alarm) {
+      chrome.alarms.create(tabBackupRemoteAction, { periodInMinutes: 15 });
+    }
+  });
 });
 
 chrome.alarms.onAlarm.addListener((alarm) => {
-  if (alarm.name === tabBackupAction) {
-    chrome.tabs.query({}, (tabs) => {
-      console.log("Found %d tabs. Putting them to local storage.", tabs.length);
-      chrome.storage.local.set({ localStorageTabsKey: tabs });
-    });
+  switch (alarm.name) {
+    case tabBackupAction:
+      console.log("Periodic backup of tabs to local storage...");
+      saveTabsToStorage();
+      break;
+    case tabBackupRemoteAction:
+      console.log("Periodic backup of tabs to remote...");
+      sendTabsToRemote();
+      break;
+  }
+});
+
+chrome.runtime.onMessage.addListener((request, _sender, _sendResponse) => {
+  switch (request.action) {
+    case tabBackupRemoteActionFromUi:
+      sendTabsToRemote();
+      break;
   }
 });

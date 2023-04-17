@@ -5,7 +5,7 @@ import { Container } from '@mui/system';
 import React from 'react';
 import App from '../../App';
 import NamedNavigationalComponent from '../../utils/navigation/NamedNavigationalComponent';
-import { checkUserLogin, loginUser } from '../../utils/Utils';
+import { loginUser, checkUserLogin } from '../../scripts/utils';
 import './Initial.css';
 
 class Initial extends NamedNavigationalComponent {
