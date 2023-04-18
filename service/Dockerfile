@@ -1,11 +1,13 @@
-FROM golang:1.17
+FROM golang:1.20
 
-WORKDIR /opt/qbaware
+WORKDIR /opt/qbaware/kosher
 
-COPY . .
+COPY go.mod go.sum ./
 
 RUN go mod download
 
-RUN go build -o kosher ./cmd/main.go
+COPY . . 
+
+RUN go build -o kosher ./cmd/server/main.go
 
 ENTRYPOINT ["./kosher"]
