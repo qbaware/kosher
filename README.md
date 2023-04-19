@@ -3,7 +3,7 @@
  <h1 align="center">Kosher</h1>
 </p>
 
-<p align="center">Tab synchronization software, available for Mozilla Firefox and Google Chrome</p>
+<p align="center">Tab synchronization software for Chrome, Firefox, and Edge</p>
 
 <p align="center">
     <a href="">
