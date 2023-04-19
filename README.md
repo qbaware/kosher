@@ -14,10 +14,10 @@
 
 ## Description
 Do you
-- :sunglasses: use multiple browsers, like Chrome, Firefox, and Edge? 
-- :boom: have tens or hundreds of opened tabs on each browser? 
-- :expressionless: feel annoyed that you can't access a certain tab because it's on the other browser, and potentially on another machine too? 
+- :sunglasses: use multiple browsers, like Chrome, Firefox, and Edge, and on multiple machines too? 
+- :boom: have tens or hundreds of opened tabs everywhere? 
+- :expressionless: feel annoyed that you can't access a certain tab because it's on the other browser, and potentially on another machine? 
 - :unamused: get annoyed of the duplication of tabs on both browsers, when you do manage to open the same tab in the other browser?
 - :sweat: experience another issue caused by using multiple browsers on multiple machines?
 
-Kosher aims to resolve all of those issues by providing users a unified way to sync all of their tabs in a single place.
+Kosher aims to resolve all of those issues by providing users a unified way to sync all of your machines' browser tabs in a single place.
