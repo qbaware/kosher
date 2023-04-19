@@ -30,7 +30,7 @@ func (ims *InMemoryStorage) UpsertBrowser(userID string, browser models.Browser)
 
 	browsers := ims.listBrowsers(userID)
 	if len(browsers) >= MaxBrowsersLimitPerUser {
-		return errors.New("max browsers limit reached")
+		return &MaxBrowsersLimitPerUserError{}
 	}
 
 	if ims.containsBrowser(userID, browser.ID) {

@@ -11,11 +11,11 @@ import (
 )
 
 // GetBrowsersHandler retrieves all stored browsers.
-func GetBrowsersHandler(storage storage.Storage) func(w http.ResponseWriter, r *http.Request) {
+func GetBrowsersHandler(s storage.Storage) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		userID := r.Context().Value(middleware.UserIDKey{}).(string)
 
-		browsers := storage.ListBrowsers(userID)
+		browsers := s.ListBrowsers(userID)
 
 		browsersJSON, _ := json.Marshal(browsers)
 		w.Header().Set("Content-Type", "application/json")
@@ -25,7 +25,7 @@ func GetBrowsersHandler(storage storage.Storage) func(w http.ResponseWriter, r *
 }
 
 // PutBrowserHandler stores a browser with all its tabs.
-func PutBrowserHandler(storage storage.Storage) func(w http.ResponseWriter, r *http.Request) {
+func PutBrowserHandler(s storage.Storage) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var browser models.Browser
 		if err := json.NewDecoder(r.Body).Decode(&browser); err != nil {
@@ -43,9 +43,15 @@ func PutBrowserHandler(storage storage.Storage) func(w http.ResponseWriter, r *h
 
 		userID := r.Context().Value(middleware.UserIDKey{}).(string)
 
-		err := storage.UpsertBrowser(userID, browser)
+		err := s.UpsertBrowser(userID, browser)
 		if err != nil {
-			w.WriteHeader(http.StatusInternalServerError)
+			switch err.(type) {
+			case *storage.MaxBrowsersLimitPerUserError:
+				w.WriteHeader(http.StatusTooManyRequests)
+			default:
+				w.WriteHeader(http.StatusInternalServerError)
+			}
+
 			w.Write([]byte(err.Error()))
 			return
 		}
@@ -56,7 +62,7 @@ func PutBrowserHandler(storage storage.Storage) func(w http.ResponseWriter, r *h
 }
 
 // RemoveBrowsersHandler removes a browser from storage.
-func RemoveBrowsersHandler(storage storage.Storage) func(w http.ResponseWriter, r *http.Request) {
+func RemoveBrowsersHandler(s storage.Storage) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var browserIDs []string
 		if err := json.NewDecoder(r.Body).Decode(&browserIDs); err != nil {
@@ -68,7 +74,7 @@ func RemoveBrowsersHandler(storage storage.Storage) func(w http.ResponseWriter, 
 
 		userID := r.Context().Value(middleware.UserIDKey{}).(string)
 
-		storage.RemoveBrowsers(userID, browserIDs)
+		s.RemoveBrowsers(userID, browserIDs)
 
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
