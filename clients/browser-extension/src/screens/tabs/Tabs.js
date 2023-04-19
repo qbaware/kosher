@@ -42,7 +42,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import App from '../../App';
 import './Tabs.css';
 import { ListItem } from '@mui/material';
-import { logoutUser, openLink, checkUserLogin } from '../../scripts/utils';
+import { logoutUser, openLink, checkUserLogin, getTokenUserInfo } from '../../scripts/utils';
 
 const DEFAULT_DEVICE_NAME = "Unnamed";
 const INITIAL_SCREEN = "tabs";
@@ -135,7 +135,7 @@ class Tabs extends NamedNavigationalComponent {
   }
 
   loadProfile(token) {
-    fetch(`https://www.googleapis.com/oauth2/v1/userinfo?access_token=${token}`)
+    getTokenUserInfo(token)
       .then(response => {
         return response.json();
       }).then(info => {

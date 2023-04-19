@@ -87,7 +87,20 @@ export const logoutUser = async () => {
 };
 
 const revokeToken = (token) => {
-  fetch(`https://accounts.google.com/o/oauth2/revoke?token=${token}`);
+  return fetch(`https://accounts.google.com/o/oauth2/revoke?token=${token}`);
+}
+
+export const getTokenUserInfo = (token) => {
+  return fetch(`https://www.googleapis.com/oauth2/v1/userinfo?access_token=${token}`);
+}
+
+const checkTokenValidity = (token) => {
+  return fetch(`https://www.googleapis.com/oauth2/v1/tokeninfo?access_token=${token}`)
+    .then((response) => {
+      return response.ok;
+    }).catch((_error) => {
+      return false;
+    });
 }
 
 export const openLink = (link) => {
@@ -179,16 +192,14 @@ export function sendTabsToRemote() {
   ]).then(async (values) => {
     let [extensionId, tabs, os, browserType, deviceName, token] = values;
 
-    if (!token) {
-      console.log("No token found, trying to fetch a new one...");
+    const isTokenValid = await checkTokenValidity(token);
+    if (!isTokenValid) {
+      console.log("Token is invalid, trying to refresh it...");
       try {
-        token = await loginUser(false);
-        if (!token) {
-          console.log("No new token is available, aborting sending tabs to remote...");
-          return;
-        }
+        await loginUser(false);
+        token = await loadVariableFromLocalStorage(localStorageToken);
       } catch (error) {
-        console.log("Failed fetching a new token %s, aborting sending tabs to remote...", error);
+        console.log("Error while refreshing token so aborting sending tabs to remote...");
         return;
       }
     }
