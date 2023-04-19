@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/gorilla/mux"
+	"github.com/go-chi/chi/v5"
 	"github.com/qbaware/kosher/internal/api"
 	"github.com/qbaware/kosher/internal/middleware"
 	"github.com/qbaware/kosher/internal/storage"
@@ -29,15 +29,15 @@ func init() {
 func main() {
 	log.Printf("Server starting on port %s ...\n", port)
 
-	router := mux.NewRouter()
+	router := chi.NewRouter()
 
 	storage := storage.NewInMemoryStorage()
 
 	router.Use(middleware.GoogleOAuth2Middleware)
 
-	router.HandleFunc("/browsers", api.GetBrowsersHandler(storage)).Methods(http.MethodGet)
-	router.HandleFunc("/browsers", api.PutBrowserHandler(storage)).Methods(http.MethodPut)
-	router.HandleFunc("/browsers", api.RemoveBrowsersHandler(storage)).Methods(http.MethodDelete)
+	router.Get("/browsers", api.GetBrowsersHandler(storage))
+	router.Put("/browsers", api.PutBrowserHandler(storage))
+	router.Delete("/browsers", api.RemoveBrowsersHandler(storage))
 
 	cors := cors.New(cors.Options{
 		AllowedMethods: []string{http.MethodOptions, http.MethodHead, http.MethodGet, http.MethodPut, http.MethodDelete},
