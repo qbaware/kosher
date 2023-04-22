@@ -7,10 +7,10 @@
 
 <p align="center">
   <a href="">
-    <img src="https://i.imgur.com/8oYypZP.png" width="50px" height="50px">
+    <img src="https://i.imgur.com/swtHVgh.png" width="50px" height="50px">
   </a>
   <a href="">
-    <img src="https://i.imgur.com/swtHVgh.png" width="50px" height="50px">
+    <img src="https://i.imgur.com/8oYypZP.png" width="50px" height="50px">
   </a>
   <a href="">
     <img src="https://i.imgur.com/t4Er9jY.png" width="50px" height="50px">
