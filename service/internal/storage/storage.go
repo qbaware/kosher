@@ -2,11 +2,6 @@ package storage
 
 import "github.com/qbaware/kosher/internal/models"
 
-const (
-	// MaxBrowsersLimitPerUser is a maximum number of browsers per user.
-	MaxBrowsersLimitPerUser = 2
-)
-
 // Storage describes a browser storage.
 type Storage interface {
 

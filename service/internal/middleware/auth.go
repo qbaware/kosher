@@ -20,8 +20,8 @@ type user struct {
 	Email string `json:"email"`
 }
 
-// GoogleOAuth2Middleware validates the access token in the Authorization header. If the token is valid, the user ID and email are added to the request context.
-func GoogleOAuth2Middleware(next http.Handler) http.Handler {
+// GoogleOAuth2 validates the access token in the Authorization header. If the token is valid, the user ID and email are added to the request context.
+func GoogleOAuth2(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		accessToken := r.Header.Get("Authorization")
 		if accessToken == "" {

@@ -15,9 +15,9 @@ import (
 // GetBrowsersHandler retrieves all stored browsers.
 func GetBrowsersHandler(s storage.Storage) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
-		userID := r.Context().Value(middleware.UserIDKey{}).(string)
+		user := r.Context().Value(middleware.UserKey{}).(models.User)
 
-		browsers := s.ListBrowsers(userID)
+		browsers := s.ListBrowsers(user.ID)
 
 		browsersJSON, _ := json.Marshal(browsers)
 		w.Header().Set("Content-Type", "application/json")
@@ -45,24 +45,27 @@ func PutBrowserHandler(s storage.Storage) func(w http.ResponseWriter, r *http.Re
 			return
 		}
 
-		userID := r.Context().Value(middleware.UserIDKey{}).(string)
-		userEmail := r.Context().Value(middleware.UserEmailKey{}).(string)
+		user := r.Context().Value(middleware.UserKey{}).(models.User)
 
-		log.Printf("User %s is trying to put his %s browser with ID '%s' and name '%s'\n", userEmail, browser.BrowserType, browser.ID, browser.DeviceName)
-		err := s.UpsertBrowser(userID, browser)
+		log.Printf("User %s is trying to put his %s browser with ID '%s' and name '%s'\n", user.Email, browser.BrowserType, browser.ID, browser.DeviceName)
+
+		// NOTE: Note that this API is susceptible to race conditions.
+
+		browsers := s.ListBrowsers(user.ID)
+		if len(browsers) >= MaxBrowsersLimitPerUser {
+			w.WriteHeader(http.StatusTooManyRequests)
+			w.Write([]byte((&MaxBrowsersLimitPerUserError{}).Error()))
+			return
+		}
+
+		err := s.UpsertBrowser(user.ID, browser)
 		if err != nil {
-			switch err.(type) {
-			case *storage.MaxBrowsersLimitPerUserError:
-				w.WriteHeader(http.StatusTooManyRequests)
-			default:
-				w.WriteHeader(http.StatusInternalServerError)
-			}
-
+			w.WriteHeader(http.StatusInternalServerError)
 			w.Write([]byte(err.Error()))
 			return
 		}
 
-		log.Printf("User %s successfully put his %s browser with ID '%s' and name '%s'\n", userEmail, browser.BrowserType, browser.ID, browser.DeviceName)
+		log.Printf("User %s successfully put his %s browser with ID '%s' and name '%s'\n", user.Email, browser.BrowserType, browser.ID, browser.DeviceName)
 
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
@@ -80,9 +83,9 @@ func RemoveBrowsersHandler(s storage.Storage) func(w http.ResponseWriter, r *htt
 		}
 		defer r.Body.Close()
 
-		userID := r.Context().Value(middleware.UserIDKey{}).(string)
+		user := r.Context().Value(middleware.UserKey{}).(models.User)
 
-		s.RemoveBrowsers(userID, browserIDs)
+		s.RemoveBrowsers(user.ID, browserIDs)
 
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)

@@ -1,4 +1,4 @@
-package storage
+package api
 
 // MaxBrowsersLimitPerUserError is an error that is returned when a user tries to add more than MaxBrowsersLimitPerUser browsers.
 type MaxBrowsersLimitPerUserError struct {

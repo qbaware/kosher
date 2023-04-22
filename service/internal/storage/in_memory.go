@@ -28,11 +28,6 @@ func (ims *InMemoryStorage) UpsertBrowser(userID string, browser models.Browser)
 	ims.lock.Lock()
 	defer ims.lock.Unlock()
 
-	browsers := ims.listBrowsers(userID)
-	if len(browsers) >= MaxBrowsersLimitPerUser {
-		return &MaxBrowsersLimitPerUserError{}
-	}
-
 	if ims.containsBrowser(userID, browser.ID) {
 		ims.removeBrowser(userID, browser.ID)
 	}
