@@ -30,7 +30,6 @@ func (ims *InMemoryStorage) UpsertBrowser(userID string, browser models.Browser)
 
 	browsers := ims.listBrowsers(userID)
 	if len(browsers) >= MaxBrowsersLimitPerUser {
-		// TODO: Check if the user is a premium user, then allow more browsers.
 		return &MaxBrowsersLimitPerUserError{}
 	}
 
