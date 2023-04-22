@@ -7,7 +7,7 @@ on:
   push:
     branches: ["main"]
     paths:
-      - "./service/**"
+      - "service/**"
   pull_request:
     branches: ["main"]
 
