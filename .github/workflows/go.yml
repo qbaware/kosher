@@ -23,7 +23,7 @@ jobs:
       - name: Dependencies
         working-directory: ./service
         run: |
-          go get -v -t -d ./...
+          go mod vendor
 
       - name: Build
         working-directory: ./service
