@@ -46,7 +46,9 @@ func PutBrowserHandler(s storage.Storage) func(w http.ResponseWriter, r *http.Re
 		}
 
 		userID := r.Context().Value(middleware.UserIDKey{}).(string)
+		userEmail := r.Context().Value(middleware.UserEmailKey{}).(string)
 
+		log.Printf("User %s is putting his %s browser with ID '%s' and name '%s'\n", userEmail, browser.BrowserType, browser.ID, browser.DeviceName)
 		err := s.UpsertBrowser(userID, browser)
 		if err != nil {
 			switch err.(type) {
