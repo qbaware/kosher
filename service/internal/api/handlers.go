@@ -2,8 +2,10 @@ package api
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
+	"time"
 
 	"github.com/qbaware/kosher/internal/middleware"
 	"github.com/qbaware/kosher/internal/models"
@@ -34,6 +36,8 @@ func PutBrowserHandler(s storage.Storage) func(w http.ResponseWriter, r *http.Re
 			return
 		}
 		defer r.Body.Close()
+
+		browser.LastUpdateTime = fmt.Sprintf("%d", time.Now().UnixNano())
 
 		if !browser.IsValid() {
 			log.Printf("error: invalid browser %v\n", browser)
