@@ -49,7 +49,7 @@ func PutBrowserHandler(s storage.Storage) func(w http.ResponseWriter, r *http.Re
 
 		log.Printf("User %s is trying to put his %s browser with ID '%s' and name '%s'\n", user.Email, browser.BrowserType, browser.ID, browser.DeviceName)
 
-		// NOTE: Note that this API is susceptible to race conditions.
+		// NOTE: This API is susceptible to race conditions.
 
 		browsers := s.ListBrowsers(user.ID)
 		if len(browsers) >= MaxBrowsersLimitPerUser {
