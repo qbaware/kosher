@@ -27,7 +27,7 @@ func init() {
 }
 
 func main() {
-	log.Printf("Server is starting on port %s ...\n", port)
+	log.Printf("Server starting on port %s ...\n", port)
 
 	router := chi.NewRouter()
 
