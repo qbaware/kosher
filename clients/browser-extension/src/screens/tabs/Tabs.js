@@ -55,6 +55,7 @@ const PREMIUM_PLAN = "premium";
 const SYNC_ENABLED_KEY = "syncEnabled";
 const DEVICE_NAME_KEY = "deviceName";
 
+// TODO: Move those URLs to a config file
 const STRIPE_DONATIONS_URL = "https://donate.stripe.com/bIY9CbfGte6Cgus002";
 const STRIPE_SUBSCRIBE_PREMIUM_URL = "https://buy.stripe.com/cN215F65Td2ydigeUX";
 const STRIPE_MANAGE_SUBSCRIPTIONS_URL = "https://billing.stripe.com/p/login/7sIdTOdFg4hP67m288";
