@@ -43,6 +43,7 @@ import App from '../../App';
 import './Tabs.css';
 import { ListItem } from '@mui/material';
 import { logoutUser, openLink, checkUserLogin, getTokenUserInfo } from '../../scripts/utils';
+import { tabBackupRemoteActionFromUi } from '../../scripts/background';
 
 const DEFAULT_DEVICE_NAME = "Unnamed";
 const INITIAL_SCREEN = "tabs";
@@ -50,7 +51,6 @@ const CLOUD_SYNC_INTERVAL_IN_MINS = "5";
 const SNACK_AUTOHIDE_DURATION = 2500;
 const FREE_PLAN = "free";
 const PREMIUM_PLAN = "premium";
-const BACKUP_TABS_ON_REMOTE_ACTION_FROM_UI = "tabsBackupRemoteFromUi"; // TODO: Move this to shared file
 
 const SYNC_ENABLED_KEY = "syncEnabled";
 const DEVICE_NAME_KEY = "deviceName";
@@ -97,7 +97,6 @@ class Tabs extends NamedNavigationalComponent {
           this.loadProfile(token);
           this.loadUserTabs(token);
           this.loadLocalStorageSettings();
-          // TODO: Setup alarm listener that receives all tabs from the background worker and sends them to the backend.
         } else {
           console.log("User is not logged in.");
           console.log("Redirecting to Login scene...");
@@ -380,7 +379,7 @@ class Tabs extends NamedNavigationalComponent {
                 </Box>
                 <Divider />
                 <MenuItem onClick={() => {
-                  chrome.runtime.sendMessage({ action: BACKUP_TABS_ON_REMOTE_ACTION_FROM_UI });
+                  chrome.runtime.sendMessage({ action: tabBackupRemoteActionFromUi });
                   this.showSuccessSnackbar("Successfully synced tabs");
                   this.setState({
                     profileMenuOpen: false
