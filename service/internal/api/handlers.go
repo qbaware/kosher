@@ -9,15 +9,15 @@ import (
 
 	"github.com/qbaware/kosher/internal/middleware"
 	"github.com/qbaware/kosher/internal/models"
-	"github.com/qbaware/kosher/internal/storage"
+	"github.com/qbaware/kosher/internal/service"
 )
 
-// GetBrowsersHandler retrieves all stored browsers.
-func GetBrowsersHandler(s storage.Storage) func(w http.ResponseWriter, r *http.Request) {
+// NewGetBrowsersHandler retrieves all stored browsers.
+func NewGetBrowsersHandler(b service.BrowserService) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		user := r.Context().Value(middleware.UserKey{}).(models.User)
 
-		browsers := s.ListBrowsers(user.ID)
+		browsers := b.ListBrowsers(user.ID)
 
 		browsersJSON, _ := json.Marshal(browsers)
 		w.Header().Set("Content-Type", "application/json")
@@ -26,8 +26,8 @@ func GetBrowsersHandler(s storage.Storage) func(w http.ResponseWriter, r *http.R
 	}
 }
 
-// PutBrowserHandler stores a browser with all its tabs.
-func PutBrowserHandler(s storage.Storage) func(w http.ResponseWriter, r *http.Request) {
+// NewPutBrowserHandler stores a browser with all its tabs.
+func NewPutBrowserHandler(b service.BrowserService) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var browser models.Browser
 		if err := json.NewDecoder(r.Body).Decode(&browser); err != nil {
@@ -49,20 +49,18 @@ func PutBrowserHandler(s storage.Storage) func(w http.ResponseWriter, r *http.Re
 
 		log.Printf("User %s is trying to put his %s browser with ID '%s' and name '%s'\n", user.Email, browser.BrowserType, browser.ID, browser.DeviceName)
 
-		// NOTE: This API is susceptible to race conditions.
-
-		browsers := s.ListBrowsers(user.ID)
-		if len(browsers) >= MaxBrowsersLimitPerUser {
-			w.WriteHeader(http.StatusTooManyRequests)
-			w.Write([]byte((&MaxBrowsersLimitPerUserError{}).Error()))
-			return
-		}
-
-		err := s.UpsertBrowser(user.ID, browser)
+		err := b.UpsertBrowser(user.ID, browser)
 		if err != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-			w.Write([]byte(err.Error()))
-			return
+			switch err.(type) {
+			case *service.MaxBrowsersLimitPerUserError:
+				w.WriteHeader(http.StatusTooManyRequests)
+				w.Write([]byte(err.Error()))
+				return
+			default:
+				w.WriteHeader(http.StatusInternalServerError)
+				w.Write([]byte(err.Error()))
+				return
+			}
 		}
 
 		log.Printf("User %s successfully put his %s browser with ID '%s' and name '%s'\n", user.Email, browser.BrowserType, browser.ID, browser.DeviceName)
@@ -72,8 +70,8 @@ func PutBrowserHandler(s storage.Storage) func(w http.ResponseWriter, r *http.Re
 	}
 }
 
-// RemoveBrowsersHandler removes a browser from storage.
-func RemoveBrowsersHandler(s storage.Storage) func(w http.ResponseWriter, r *http.Request) {
+// NewRemoveBrowsersHandler removes a browser from storage.
+func NewRemoveBrowsersHandler(b service.BrowserService) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var browserIDs []string
 		if err := json.NewDecoder(r.Body).Decode(&browserIDs); err != nil {
@@ -85,7 +83,7 @@ func RemoveBrowsersHandler(s storage.Storage) func(w http.ResponseWriter, r *htt
 
 		user := r.Context().Value(middleware.UserKey{}).(models.User)
 
-		s.RemoveBrowsers(user.ID, browserIDs)
+		b.RemoveBrowsers(user.ID, browserIDs)
 
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)

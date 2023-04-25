@@ -2,7 +2,6 @@ package storage
 
 import (
 	"errors"
-	"sync"
 
 	"github.com/qbaware/kosher/internal/models"
 )
@@ -10,8 +9,6 @@ import (
 // InMemoryStorage represents an in-memory storage for browsers.
 type InMemoryStorage struct {
 	browsersStorage map[string][]models.Browser
-
-	lock sync.Mutex
 }
 
 var _ Storage = &InMemoryStorage{}
@@ -25,9 +22,6 @@ func NewInMemoryStorage() *InMemoryStorage {
 
 // UpsertTab adds or updates a browser in storage.
 func (ims *InMemoryStorage) UpsertBrowser(userID string, browser models.Browser) error {
-	ims.lock.Lock()
-	defer ims.lock.Unlock()
-
 	if ims.containsBrowser(userID, browser.ID) {
 		ims.removeBrowser(userID, browser.ID)
 	}
@@ -38,9 +32,6 @@ func (ims *InMemoryStorage) UpsertBrowser(userID string, browser models.Browser)
 
 // ListTabs retrieves all browsers.
 func (ims *InMemoryStorage) ListBrowsers(userID string) []models.Browser {
-	ims.lock.Lock()
-	defer ims.lock.Unlock()
-
 	return ims.listBrowsers(userID)
 }
 
@@ -53,9 +44,6 @@ func (ims *InMemoryStorage) listBrowsers(userID string) []models.Browser {
 
 // RemoveTab removes a browser from the storage.
 func (ims *InMemoryStorage) RemoveBrowsers(userID string, ids []string) error {
-	ims.lock.Lock()
-	defer ims.lock.Unlock()
-
 	for _, id := range ids {
 		ims.removeBrowser(userID, id)
 	}

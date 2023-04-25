@@ -8,6 +8,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/qbaware/kosher/internal/api"
 	"github.com/qbaware/kosher/internal/middleware"
+	"github.com/qbaware/kosher/internal/service"
 	"github.com/qbaware/kosher/internal/storage"
 	"github.com/rs/cors"
 )
@@ -32,14 +33,15 @@ func main() {
 	router := chi.NewRouter()
 
 	storage := storage.NewInMemoryStorage()
+	browserService := service.NewBrowserService(storage)
 
 	router.Use(middleware.GoogleOAuth2)
 	router.Use(middleware.UserPremiumCheck)
 	router.Use(middleware.PrepareUser)
 
-	router.Get("/browsers", api.GetBrowsersHandler(storage))
-	router.Put("/browsers", api.PutBrowserHandler(storage))
-	router.Delete("/browsers", api.RemoveBrowsersHandler(storage))
+	router.Get("/browsers", api.NewGetBrowsersHandler(browserService))
+	router.Put("/browsers", api.NewPutBrowserHandler(browserService))
+	router.Delete("/browsers", api.NewRemoveBrowsersHandler(browserService))
 
 	cors := cors.New(cors.Options{
 		AllowedMethods: []string{http.MethodOptions, http.MethodHead, http.MethodGet, http.MethodPut, http.MethodDelete},
