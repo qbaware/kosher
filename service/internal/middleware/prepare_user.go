@@ -10,6 +10,7 @@ import (
 // UserKey is the key for the user in the request context.
 type UserKey struct{}
 
+// PrepareUser adds the user to the request context.
 func PrepareUser(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		userID := r.Context().Value(UserIDKey{}).(string)
