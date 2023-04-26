@@ -42,7 +42,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import App from '../../App';
 import './Tabs.css';
 import { ListItem } from '@mui/material';
-import { logoutUser, openLink, checkUserLogin, getTokenUserInfo } from '../../scripts/utils';
+import { logoutUser, openLink, checkUserLogin, getTokenUserInfo, fetchBrowsersFromRemote, deleteBrowsersFromRemote } from '../../scripts/utils';
 import { tabBackupRemoteActionFromUi } from '../../scripts/background';
 
 const DEFAULT_DEVICE_NAME = "Unnamed";
@@ -96,7 +96,7 @@ class Tabs extends NamedNavigationalComponent {
       .then((token) => {
         if (token) {
           this.loadProfile(token);
-          this.loadUserTabs(token);
+          this.loadUserTabs();
           this.loadLocalStorageSettings();
         } else {
           console.log("User is not logged in.");
@@ -160,48 +160,16 @@ class Tabs extends NamedNavigationalComponent {
       });
   }
 
-  async loadUserTabs(token) {
-    // Define mock data.
-    const mockDeviceWithTabs1 = {
-      id: "1",
-      name: "C02GN16Z1PG2",
-      browser: "Chrome",
-      os: "MacOS",
-      tabs: [
-        { id: "1", name: "reactjs - How to make dynamic state for multiple Collapse items", url: "https://google.com" },
-        { id: "2", name: "React grid component - Material UI", url: "https://mui.com/material-ui/react-grid/" },
-        { id: "3", name: "FYRE - Момче От Народа (prod. by VITEZZ)(Official 4K Video)", url: "https://www.youtube.com/watch?v=wD_uSekJwVA&ab_channel=FyreHateCity" },
-        { id: "4", name: "qbaware/kosher: Tab synchronization software", url: "https://github.com/qbaware/kosher" }
-      ]
-    };
-
-    const mockDeviceWithTabs2 = {
-      id: "2",
-      name: "Dancho's Macbook",
-      browser: "Firefox",
-      os: "MacOS",
-      tabs: [
-        { id: "1", name: "Launching an Infrastructure SaaS Product, An Example Walkthrough", url: "https://www.thenile.dev/blog/launch-infra-saas" },
-        { id: "2", name: "Future - MASSAGING ME (Official Music Video)", url: "https://www.youtube.com/watch?v=TrR1wVxj1_Y&ab_channel=FutureVEVO" }
-      ]
-    };
-    // End of mocks.
-
-    // TODO: Implement real call to backend to retrieve devices with their corresponding tabs.
-
-    const devices = [
-      mockDeviceWithTabs1,
-      mockDeviceWithTabs2
-    ]
-
+  async loadUserTabs() {
+    const browsers = await fetchBrowsersFromRemote();
     const deviceListItemsCollapsed = this.state.devicesItemListCollapsed;
 
-    devices.map(device => {
+    browsers.map(device => {
       deviceListItemsCollapsed[device.name] = deviceListItemsCollapsed[device.name] || false;
     });
 
     this.setState({
-      devicesWithTabs: devices,
+      devicesWithTabs: browsers,
       devicesItemListCollapsed: deviceListItemsCollapsed
     });
   }
@@ -474,8 +442,7 @@ class Tabs extends NamedNavigationalComponent {
                                 `Delete browser '${device.name}'?`,
                                 "Delete",
                                 (() => {
-                                  // TODO: Request to delete browser from backend and remove from React state as well.
-
+                                  deleteBrowsersFromRemote([device.id]);
                                   this.showSuccessSnackbar(`Successfully deleted browser ${device.name}`);
                                 }).bind(this)
                               );

@@ -229,3 +229,55 @@ export function sendTabsToRemote() {
     console.log("Error while retrieving data from storage: " + error);
   });
 }
+
+export function fetchBrowsersFromRemote() {
+  return new Promise(async (resolve, reject) => {
+    console.log("Fetching user's browsers from remote...");
+    try {
+      const token = await loadVariableFromLocalStorage(localStorageToken);
+      const response = await fetch(kosherBrowsersApiUrl, {
+        method: "GET",
+        headers: {
+          "Authorization": token
+        }
+      });
+
+      if (response.status !== 200) {
+        reject("Server responded with non-OK status code on fetching browsers from remote: " + response.status)
+        return;
+      }
+
+      const browsers = await response.json();
+      resolve(browsers);
+    } catch (error) {
+      reject("Error while fetching browsers from remote: " + error);
+      return;
+    }
+  });
+}
+
+export function deleteBrowsersFromRemote(browersIds) {
+  return new Promise(async (resolve, reject) => {
+    console.log("Deleting browsers from remote...");
+    try {
+      const token = await loadVariableFromLocalStorage(localStorageToken);
+      const response = await fetch(kosherBrowsersApiUrl, {
+        method: "DELETE",
+        headers: {
+          "Authorization": token
+        },
+        body: JSON.stringify(browersIds)
+      });
+
+      if (response.status !== 200) {
+        reject("Server responded with non-OK status code on fetching browsers from remote: " + response.status)
+        return;
+      }
+
+      resolve();
+    } catch (error) {
+      reject("Error while fetching browsers from remote: " + error);
+      return;
+    }
+  });
+}
