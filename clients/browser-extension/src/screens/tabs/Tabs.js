@@ -442,8 +442,13 @@ class Tabs extends NamedNavigationalComponent {
                                 `Delete browser '${device.name}'?`,
                                 "Delete",
                                 (() => {
-                                  deleteBrowsersFromRemote([device.id]);
-                                  this.showSuccessSnackbar(`Successfully deleted browser ${device.name}`);
+                                  deleteBrowsersFromRemote([device.id])
+                                    .then(() => {
+                                      this.setState({
+                                        devicesWithTabs: this.state.devicesWithTabs.filter(d => d.id !== device.id)
+                                      });
+                                      this.showSuccessSnackbar(`Successfully deleted browser ${device.name}`);
+                                    });
                                 }).bind(this)
                               );
                             }}>
