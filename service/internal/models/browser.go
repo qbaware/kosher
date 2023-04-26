@@ -11,7 +11,7 @@ var (
 // Browser represents a browser with all its tabs.
 type Browser struct {
 	ID             string `json:"id"`
-	DeviceName     string `json:"device_name"`
+	Name           string `json:"name"`
 	BrowserType    string `json:"browser"`
 	OS             string `json:"os"`
 	LastUpdateTime string `json:"last_update_time"`
@@ -21,7 +21,7 @@ type Browser struct {
 // IsValid checks if a browser is valid.
 func (b Browser) IsValid() bool {
 	isNonEmpty := b.ID != "" &&
-		b.DeviceName != "" &&
+		b.Name != "" &&
 		b.BrowserType != "" &&
 		b.OS != "" &&
 		b.LastUpdateTime != ""

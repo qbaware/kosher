@@ -47,7 +47,7 @@ func NewPutBrowserHandler(b service.BrowserService) func(w http.ResponseWriter, 
 
 		user := r.Context().Value(middleware.UserKey{}).(models.User)
 
-		log.Printf("User %s is trying to put his %s browser with ID '%s' and name '%s'\n", user.Email, browser.BrowserType, browser.ID, browser.DeviceName)
+		log.Printf("User %s is trying to put his %s browser with ID '%s' and name '%s'\n", user.Email, browser.BrowserType, browser.ID, browser.Name)
 
 		err := b.UpsertBrowser(user.ID, browser)
 		if err != nil {
@@ -63,7 +63,7 @@ func NewPutBrowserHandler(b service.BrowserService) func(w http.ResponseWriter, 
 			}
 		}
 
-		log.Printf("User %s successfully put his %s browser with ID '%s' and name '%s'\n", user.Email, browser.BrowserType, browser.ID, browser.DeviceName)
+		log.Printf("User %s successfully put his %s browser with ID '%s' and name '%s'\n", user.Email, browser.BrowserType, browser.ID, browser.Name)
 
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)

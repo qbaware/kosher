@@ -206,7 +206,7 @@ export function sendTabsToRemote() {
 
     const dataJson = JSON.stringify({
       id: extensionId,
-      device_name: deviceName,
+      name: deviceName,
       browser: browserType,
       os: os,
       tabs: tabs
