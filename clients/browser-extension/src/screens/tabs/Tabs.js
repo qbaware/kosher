@@ -45,19 +45,19 @@ import { ListItem } from '@mui/material';
 import { logoutUser, openLink, checkUserLogin, getTokenUserInfo, fetchBrowsersFromRemote, deleteBrowsersFromRemote, localStorageSyncEnabledKey } from '../../scripts/utils';
 import { tabBackupRemoteActionFromUi } from '../../scripts/background';
 
-const DEFAULT_DEVICE_NAME = "Unnamed";
-const INITIAL_SCREEN = "tabs";
-const CLOUD_SYNC_INTERVAL_IN_MINS = "5";
-const SNACK_AUTOHIDE_DURATION = 2500;
-const FREE_PLAN = "free";
-const PREMIUM_PLAN = "premium";
+const defaultDeviceName = "Unnamed";
+const initialScreen = "tabs";
+const cloudSyncIntervalInMins = "5";
+const snackAutohideDuration = 2500;
+const freePlan = "free";
+const premiumPlan = "premium";
 
-const DEVICE_NAME_KEY = "deviceName";
+const deviceNameKey = "deviceName";
 
 // TODO: Move those URLs to a config file
-const STRIPE_DONATIONS_URL = "https://donate.stripe.com/bIY9CbfGte6Cgus002";
-const STRIPE_SUBSCRIBE_PREMIUM_URL = "https://buy.stripe.com/cN215F65Td2ydigeUX";
-const STRIPE_MANAGE_SUBSCRIPTIONS_URL = "https://billing.stripe.com/p/login/7sIdTOdFg4hP67m288";
+const stripeDonationsUrl = "https://donate.stripe.com/bIY9CbfGte6Cgus002";
+const stripeSubscribePremiumUrl = "https://buy.stripe.com/cN215F65Td2ydigeUX";
+const stripeManageSubscriptionsUrl = "https://billing.stripe.com/p/login/7sIdTOdFg4hP67m288";
 
 class Tabs extends NamedNavigationalComponent {
   constructor(props) {
@@ -66,7 +66,7 @@ class Tabs extends NamedNavigationalComponent {
     this.state = {
       profileName: "",
       profilePicUrl: "",
-      profileSubscriptionPlan: FREE_PLAN,
+      profileSubscriptionPlan: freePlan,
 
       profileMenuAnchor: null,
       profileMenuOpen: false,
@@ -79,14 +79,14 @@ class Tabs extends NamedNavigationalComponent {
       snackbarButtonText: "",
       snackbarButtonOnClick: () => { },
       snackbarType: "",
-      snackbarAutohideDuration: SNACK_AUTOHIDE_DURATION,
+      snackbarAutohideDuration: snackAutohideDuration,
 
-      selectedTab: INITIAL_SCREEN,
+      selectedTab: initialScreen,
 
       syncEnabled: true,
-      cloudSyncIntervalMin: CLOUD_SYNC_INTERVAL_IN_MINS,
+      cloudSyncIntervalMin: cloudSyncIntervalInMins,
 
-      deviceName: DEFAULT_DEVICE_NAME
+      deviceName: defaultDeviceName
     };
   }
 
@@ -110,7 +110,7 @@ class Tabs extends NamedNavigationalComponent {
 
   loadLocalStorageSettings() {
     this.loadLocalStorageVariable(localStorageSyncEnabledKey, this.state.syncEnabled);
-    this.loadLocalStorageVariable(DEVICE_NAME_KEY, this.state.deviceName);
+    this.loadLocalStorageVariable(deviceNameKey, this.state.deviceName);
   }
 
   setVariableToStorageAndState(variableName, value) {
@@ -284,7 +284,7 @@ class Tabs extends NamedNavigationalComponent {
             <Button onClick={() => { this.setActiveTab("settings"); }} sx={{ borderRadius: 0 }}>Settings</Button>
             <Button onClick={() => { this.setActiveTab("plans"); }} sx={{ borderRadius: 0 }}>Plans</Button>
             <Button onClick={() => {
-              openLink(STRIPE_DONATIONS_URL);
+              openLink(stripeDonationsUrl);
             }} sx={{ borderRadius: 0 }} color="warning" endIcon={<FavoriteIcon fontSize="large" />}>Donate</Button>
             <Fragment>
               <Box sx={{ display: 'flex', alignItems: 'center', textAlign: 'center', padding: "6px", paddingRight: "10px", backgroundColor: "#000000" }}>
@@ -556,7 +556,7 @@ class Tabs extends NamedNavigationalComponent {
                       variant="outlined"
                       value={this.state.deviceName}
                       onChange={(event) => {
-                        this.setVariableToStorageAndState(DEVICE_NAME_KEY, event.target.value);
+                        this.setVariableToStorageAndState(deviceNameKey, event.target.value);
                       }}
                       color="warning"
                       size="small"
@@ -594,11 +594,11 @@ class Tabs extends NamedNavigationalComponent {
                       </Typography>
                     </CardContent>
                     <CardActions sx={{ justifyContent: "center" }}>
-                      <Button disabled={this.state.profileSubscriptionPlan === FREE_PLAN} width="100%" fullWidth variant="contained" color='warning' size="large"
+                      <Button disabled={this.state.profileSubscriptionPlan === freePlan} width="100%" fullWidth variant="contained" color='warning' size="large"
                         onClick={() => {
-                          openLink(STRIPE_MANAGE_SUBSCRIPTIONS_URL);
+                          openLink(stripeManageSubscriptionsUrl);
                         }}>
-                        {this.state.profileSubscriptionPlan === FREE_PLAN ? ("Subscribed") : ("Subscribe")}
+                        {this.state.profileSubscriptionPlan === freePlan ? ("Subscribed") : ("Subscribe")}
                       </Button>
                     </CardActions>
                   </Card>
@@ -626,18 +626,18 @@ class Tabs extends NamedNavigationalComponent {
                       </Typography>
                     </CardContent>
                     <CardActions sx={{ width: "100%", justifyContent: "center" }}>
-                      <Button disabled={this.state.profileSubscriptionPlan === PREMIUM_PLAN} width="100%" fullWidth variant="contained" color='warning' size="large"
+                      <Button disabled={this.state.profileSubscriptionPlan === premiumPlan} width="100%" fullWidth variant="contained" color='warning' size="large"
                         onClick={() => {
-                          openLink(STRIPE_SUBSCRIBE_PREMIUM_URL);
+                          openLink(stripeSubscribePremiumUrl);
                         }}>
-                        {this.state.profileSubscriptionPlan === PREMIUM_PLAN ? ("Subscribed") : ("Subscribe")}
+                        {this.state.profileSubscriptionPlan === premiumPlan ? ("Subscribed") : ("Subscribe")}
                       </Button>
                     </CardActions>
                   </Card>
                 </Stack>
                 <Stack sx={{ paddingTop: "10px", paddingBottom: "10px" }}>
                   <Button variant="contained" color='primary' size="large" onClick={() => {
-                    openLink(STRIPE_MANAGE_SUBSCRIPTIONS_URL);
+                    openLink(stripeManageSubscriptionsUrl);
                   }}>Manage subscriptions</Button>
                 </Stack>
               </Container>
