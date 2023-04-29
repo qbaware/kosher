@@ -84,7 +84,7 @@ class Tabs extends NamedNavigationalComponent {
 
       selectedTab: INITIAL_SCREEN,
 
-      syncEnabled: false,
+      syncEnabled: true,
       cloudSyncIntervalMin: CLOUD_SYNC_INTERVAL_IN_MINS,
 
       deviceName: DEFAULT_DEVICE_NAME
@@ -126,12 +126,6 @@ class Tabs extends NamedNavigationalComponent {
     const value = storageResult[variableName] !== undefined ? storageResult[variableName] : defaultValue;
 
     this.setVariableToStorageAndState(variableName, value);
-  }
-
-  async clearLocalStorage() {
-    chrome.storage.local.remove([
-      SYNC_ENABLED_KEY
-    ]);
   }
 
   loadProfile(token) {
@@ -177,7 +171,6 @@ class Tabs extends NamedNavigationalComponent {
   async signOut() {
     try {
       await logoutUser();
-      await this.clearLocalStorage();
       this.setActiveScreen(App.loginScreen);
     } catch (error) {
       this.showErrorSnackbar("Failed to sign out");
