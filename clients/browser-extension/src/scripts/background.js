@@ -1,6 +1,6 @@
 /*global chrome*/
 
-import { getCurrentBrowser, getCurrentOs, loadVariableFromLocalStorage, localStorageBrowserTypeKey, localStorageDeviceName, localStorageExtensionId, localStorageOsKey, saveTabsToStorage, sendTabsToRemote, setVariableToLocalStorageIfMissing } from "./utils.js";
+import { getCurrentBrowser, getCurrentOs, loadVariableFromLocalStorage, localStorageBrowserTypeKey, localStorageDeviceName, localStorageExtensionId, localStorageOsKey, saveTabsToStorage, sendTabsToRemote, setVariableToLocalStorageIfMissing, localStorageSyncEnabledKey } from "./utils.js";
 
 export const tabBackupAction = "tabsBackup";
 export const tabBackupRemoteAction = "tabsBackupRemote";
@@ -59,7 +59,7 @@ chrome.runtime.onInstalled.addListener(() => {
   });
 });
 
-chrome.alarms.onAlarm.addListener((alarm) => {
+chrome.alarms.onAlarm.addListener(async (alarm) => {
   switch (alarm.name) {
     case tabBackupAction:
       console.log("Periodic backup of tabs to local storage...");
@@ -67,6 +67,13 @@ chrome.alarms.onAlarm.addListener((alarm) => {
       break;
     case tabBackupRemoteAction:
       console.log("Periodic backup of tabs to remote...");
+
+      const syncEnabled = await loadVariableFromLocalStorage(localStorageSyncEnabledKey);
+      if (!syncEnabled) {
+        console.log("Sync is disabled, aborting sending tabs to remote...");
+        break;
+      }
+
       sendTabsToRemote();
       break;
   }
