@@ -12,6 +12,7 @@ export const localStorageExtensionId = "extensionId";
 export const localStorageDeviceName = "deviceName";
 export const localStorageOsKey = "os";
 export const localStorageBrowserTypeKey = "browserType";
+export const localStorageSyncEnabledKey = "syncEnabled";
 
 export const loginUser = (interactive) => {
   return loginUserWithClientCreds(clientId, scopes, redirectUrl, interactive);

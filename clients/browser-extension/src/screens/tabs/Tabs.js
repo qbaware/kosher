@@ -42,7 +42,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import App from '../../App';
 import './Tabs.css';
 import { ListItem } from '@mui/material';
-import { logoutUser, openLink, checkUserLogin, getTokenUserInfo, fetchBrowsersFromRemote, deleteBrowsersFromRemote } from '../../scripts/utils';
+import { logoutUser, openLink, checkUserLogin, getTokenUserInfo, fetchBrowsersFromRemote, deleteBrowsersFromRemote, localStorageSyncEnabledKey } from '../../scripts/utils';
 import { tabBackupRemoteActionFromUi } from '../../scripts/background';
 
 const DEFAULT_DEVICE_NAME = "Unnamed";
@@ -52,7 +52,6 @@ const SNACK_AUTOHIDE_DURATION = 2500;
 const FREE_PLAN = "free";
 const PREMIUM_PLAN = "premium";
 
-const SYNC_ENABLED_KEY = "syncEnabled";
 const DEVICE_NAME_KEY = "deviceName";
 
 // TODO: Move those URLs to a config file
@@ -110,7 +109,7 @@ class Tabs extends NamedNavigationalComponent {
   }
 
   loadLocalStorageSettings() {
-    this.loadLocalStorageVariable(SYNC_ENABLED_KEY, this.state.syncEnabled);
+    this.loadLocalStorageVariable(localStorageSyncEnabledKey, this.state.syncEnabled);
     this.loadLocalStorageVariable(DEVICE_NAME_KEY, this.state.deviceName);
   }
 
@@ -488,7 +487,7 @@ class Tabs extends NamedNavigationalComponent {
                       <Switch
                         checked={this.state.syncEnabled}
                         onChange={(event) => {
-                          this.setVariableToStorageAndState(SYNC_ENABLED_KEY, event.target.checked);
+                          this.setVariableToStorageAndState(localStorageSyncEnabledKey, event.target.checked);
                         }}
                         disableRipple
                         defaultChecked
