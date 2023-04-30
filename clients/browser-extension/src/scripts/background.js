@@ -65,7 +65,7 @@ chrome.runtime.onInstalled.addListener(() => {
   });
 });
 
-chrome.alarms.onAlarm.addListener(async (alarm) => {
+chrome.alarms.onAlarm.addListener((alarm) => {
   switch (alarm.name) {
     case tabBackupAction:
       console.log("Periodic backup of tabs to local storage...");
@@ -74,13 +74,16 @@ chrome.alarms.onAlarm.addListener(async (alarm) => {
     case browserBackupToRemoteAction:
       console.log("Periodic backup of current browser to remote...");
 
-      const syncEnabled = await loadVariableFromLocalStorage(localStorageSyncEnabledKey);
-      if (!syncEnabled) {
-        console.log("Sync is disabled, aborting sending tabs to remote...");
-        break;
-      }
+      loadVariableFromLocalStorage(localStorageSyncEnabledKey)
+        .then((syncEnabled) => {
+          if (syncEnabled) {
+            console.log("Sync enabled, sending browser to remote...")
+            sendBrowserToRemote();
+          }
+        }).catch((_error) => {
+          console.log("Sync not enabled, skipping sending browser to remote...")
+        });
 
-      sendBrowserToRemote();
       break;
     case browsersFetchFromRemoteAndSaveAction:
       console.log("Periodic fetch of browsers from remote and save to storage...");

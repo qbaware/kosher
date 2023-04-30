@@ -233,9 +233,13 @@ export function sendBrowserToRemote() {
 }
 
 export async function refreshBrowsersFromRemote() {
-  const browsers = await fetchBrowsersFromRemote();
-  setVariableToLocalStorage(localStorageUserBrowsersKey, browsers);
-  return browsers;
+  try {
+    const browsers = await fetchBrowsersFromRemote();
+    setVariableToLocalStorage(localStorageUserBrowsersKey, browsers);
+    return browsers;
+  } catch (error) {
+    return [];
+  }
 }
 
 export async function fetchBrowsersFromStorage() {
