@@ -276,6 +276,15 @@ function fetchBrowsersFromRemote() {
   });
 }
 
+export async function deleteBrowser(browserId) {
+  let browsers = await loadVariableFromLocalStorage(localStorageUserBrowsersKey);
+  browsers = browsers.filter((browser) => {
+    return browser.id !== browserId;
+  });
+  setVariableToLocalStorage(localStorageUserBrowsersKey, browsers);
+  return deleteBrowsersFromRemote([browserId]);
+}
+
 export function deleteBrowsersFromRemote(browersIds) {
   return new Promise(async (resolve, reject) => {
     console.log("Deleting browsers from remote...");

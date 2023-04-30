@@ -42,7 +42,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import App from '../../App';
 import './Tabs.css';
 import { ListItem } from '@mui/material';
-import { logoutUser, openLink, checkUserLogin, getTokenUserInfo, deleteBrowsersFromRemote, localStorageSyncEnabledKey, refreshBrowsersFromRemote, fetchBrowsersFromStorage } from '../../scripts/utils';
+import { logoutUser, openLink, checkUserLogin, getTokenUserInfo, deleteBrowser, localStorageSyncEnabledKey, refreshBrowsersFromRemote, fetchBrowsersFromStorage } from '../../scripts/utils';
 import { browserBackupRemoteActionFromUi } from '../../scripts/background';
 
 const defaultDeviceName = "Unnamed";
@@ -442,7 +442,7 @@ class Tabs extends NamedNavigationalComponent {
                                 `Delete browser '${device.name}'?`,
                                 "Delete",
                                 (() => {
-                                  deleteBrowsersFromRemote([device.id])
+                                  deleteBrowser(device.id)
                                     .then(() => {
                                       this.setState({
                                         devicesWithTabs: this.state.devicesWithTabs.filter(d => d.id !== device.id)
