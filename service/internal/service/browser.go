@@ -41,6 +41,12 @@ func (s *browserService) UpsertBrowser(userID string, browser models.Browser) er
 	defer s.mutex.Unlock()
 
 	browsers := s.storage.ListBrowsers(userID)
+	for _, b := range browsers {
+		if b.ID == browser.ID {
+			return s.storage.UpsertBrowser(userID, browser)
+		}
+	}
+
 	if len(browsers) >= MaxBrowsersLimitPerUser {
 		return &MaxBrowsersLimitPerUserError{}
 	}
