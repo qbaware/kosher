@@ -341,6 +341,7 @@ class Tabs extends NamedNavigationalComponent {
                 <Divider />
                 <MenuItem onClick={() => {
                   chrome.runtime.sendMessage({ action: tabBackupRemoteActionFromUi });
+                  this.loadUserTabs();
                   this.showSuccessSnackbar("Successfully synced tabs");
                   this.setState({
                     profileMenuOpen: false
