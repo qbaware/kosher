@@ -48,13 +48,12 @@ const loginUserWithClientCreds = async (clientId, scopes, redirectUrl, interacti
 export const checkUserLogin = () => {
   return new Promise(async (resolve, reject) => {
     try {
-      let tokenResult = await chrome.storage.local.get("token");
+      let tokenResult = await chrome.storage.local.get(localStorageToken);
       let token = tokenResult.token;
       if (!token) {
         resolve(null);
         return;
       }
-      console.log("Found token in storage:" + token);
       resolve(token);
     } catch (error) {
       console.log("Error while checking for token in storage: " + error);
@@ -76,7 +75,7 @@ export const logoutUser = async () => {
       await revokeToken(token);
       console.log("Revoked token successfully");
 
-      await chrome.storage.local.remove("token");
+      await chrome.storage.local.remove(localStorageToken);
       console.log("Token cleaned from storage");
 
       console.log("User logged out successfully");
