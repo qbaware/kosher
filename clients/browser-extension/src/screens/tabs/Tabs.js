@@ -158,7 +158,7 @@ class Tabs extends NamedNavigationalComponent {
   }
 
   async loadBrowsers(fromRemote) {
-    const browsers = await fetchBrowsersFromStorage();
+    let browsers = await fetchBrowsersFromStorage();
     if (browsers.length <= 0 || fromRemote) {
       browsers = await refreshBrowsersFromRemote();
     }
