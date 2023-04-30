@@ -13,6 +13,7 @@ export const localStorageDeviceName = "deviceName";
 export const localStorageOsKey = "os";
 export const localStorageBrowserTypeKey = "browserType";
 export const localStorageSyncEnabledKey = "syncEnabled";
+export const localStorageUserBrowsersKey = "userBrowsers";
 
 export const loginUser = (interactive) => {
   return loginUserWithClientCreds(clientId, scopes, redirectUrl, interactive);
@@ -182,7 +183,7 @@ export function saveTabsToStorage() {
   });
 }
 
-export function sendTabsToRemote() {
+export function sendBrowserToRemote() {
   Promise.all([
     loadVariableFromLocalStorage(localStorageExtensionId),
     loadVariableFromLocalStorage(localStorageTabsKey),
@@ -231,7 +232,21 @@ export function sendTabsToRemote() {
   });
 }
 
-export function fetchBrowsersFromRemote() {
+export async function refreshBrowsersFromRemote() {
+  const browsers = await fetchBrowsersFromRemote();
+  setVariableToLocalStorage(localStorageUserBrowsersKey, browsers);
+  return browsers;
+}
+
+export async function fetchBrowsersFromStorage() {
+  try {
+    return await loadVariableFromLocalStorage(localStorageUserBrowsersKey);
+  } catch (error) {
+    return [];
+  }
+}
+
+function fetchBrowsersFromRemote() {
   return new Promise(async (resolve, reject) => {
     console.log("Fetching user's browsers from remote...");
     try {

@@ -42,8 +42,8 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import App from '../../App';
 import './Tabs.css';
 import { ListItem } from '@mui/material';
-import { logoutUser, openLink, checkUserLogin, getTokenUserInfo, fetchBrowsersFromRemote, deleteBrowsersFromRemote, localStorageSyncEnabledKey } from '../../scripts/utils';
-import { tabBackupRemoteActionFromUi } from '../../scripts/background';
+import { logoutUser, openLink, checkUserLogin, getTokenUserInfo, deleteBrowsersFromRemote, localStorageSyncEnabledKey, refreshBrowsersFromRemote, fetchBrowsersFromStorage } from '../../scripts/utils';
+import { browserBackupRemoteActionFromUi } from '../../scripts/background';
 
 const defaultDeviceName = "Unnamed";
 const initialScreen = "tabs";
@@ -95,7 +95,7 @@ class Tabs extends NamedNavigationalComponent {
       .then((token) => {
         if (token) {
           this.loadProfile(token);
-          this.loadUserTabs();
+          this.loadBrowsers(false);
           this.loadLocalStorageSettings();
         } else {
           console.log("User is not logged in.");
@@ -153,8 +153,15 @@ class Tabs extends NamedNavigationalComponent {
       });
   }
 
-  async loadUserTabs() {
-    const browsers = await fetchBrowsersFromRemote();
+  async sendBrowserToRemote() {
+    chrome.runtime.sendMessage({ action: browserBackupRemoteActionFromUi });
+  }
+
+  async loadBrowsers(fromRemote) {
+    const browsers = await fetchBrowsersFromStorage();
+    if (browsers.length <= 0 || fromRemote) {
+      browsers = await refreshBrowsersFromRemote();
+    }
     const deviceListItemsCollapsed = this.state.devicesItemListCollapsed;
 
     browsers.map(device => {
@@ -340,8 +347,8 @@ class Tabs extends NamedNavigationalComponent {
                 </Box>
                 <Divider />
                 <MenuItem onClick={() => {
-                  chrome.runtime.sendMessage({ action: tabBackupRemoteActionFromUi });
-                  this.loadUserTabs();
+                  this.sendBrowserToRemote();
+                  this.loadBrowsers(true);
                   this.showSuccessSnackbar("Successfully synced tabs");
                   this.setState({
                     profileMenuOpen: false

@@ -1,10 +1,11 @@
 /*global chrome*/
 
-import { getCurrentBrowser, getCurrentOs, loadVariableFromLocalStorage, localStorageBrowserTypeKey, localStorageDeviceName, localStorageExtensionId, localStorageOsKey, saveTabsToStorage, sendTabsToRemote, setVariableToLocalStorageIfMissing, localStorageSyncEnabledKey } from "./utils.js";
+import { getCurrentBrowser, getCurrentOs, loadVariableFromLocalStorage, localStorageBrowserTypeKey, localStorageDeviceName, localStorageExtensionId, localStorageOsKey, saveTabsToStorage, sendBrowserToRemote, setVariableToLocalStorageIfMissing, localStorageSyncEnabledKey, refreshBrowsersFromRemote } from "./utils.js";
 
 export const tabBackupAction = "tabsBackup";
-export const tabBackupRemoteAction = "tabsBackupRemote";
-export const tabBackupRemoteActionFromUi = "tabsBackupRemoteFromUi";
+export const browserBackupToRemoteAction = "browserBackupToRemote";
+export const browserBackupRemoteActionFromUi = "browserBackupRemoteFromUi";
+export const browsersFetchFromRemoteAndSaveAction = "browsersFetchFromRemoteAndSave";
 
 chrome.runtime.onInstalled.addListener(() => {
   console.log("Extension starting ...");
@@ -52,9 +53,14 @@ chrome.runtime.onInstalled.addListener(() => {
       chrome.alarms.create(tabBackupAction, { periodInMinutes: 1 });
     }
   });
-  chrome.alarms.get(tabBackupRemoteAction, (alarm) => {
+  chrome.alarms.get(browserBackupToRemoteAction, (alarm) => {
     if (!alarm) {
-      chrome.alarms.create(tabBackupRemoteAction, { periodInMinutes: 15 });
+      chrome.alarms.create(browserBackupToRemoteAction, { periodInMinutes: 30 });
+    }
+  });
+  chrome.alarms.get(browsersFetchFromRemoteAndSaveAction, (alarm) => {
+    if (!alarm) {
+      chrome.alarms.create(browsersFetchFromRemoteAndSaveAction, { periodInMinutes: 30 });
     }
   });
 });
@@ -65,8 +71,8 @@ chrome.alarms.onAlarm.addListener(async (alarm) => {
       console.log("Periodic backup of tabs to local storage...");
       saveTabsToStorage();
       break;
-    case tabBackupRemoteAction:
-      console.log("Periodic backup of tabs to remote...");
+    case browserBackupToRemoteAction:
+      console.log("Periodic backup of current browser to remote...");
 
       const syncEnabled = await loadVariableFromLocalStorage(localStorageSyncEnabledKey);
       if (!syncEnabled) {
@@ -74,15 +80,19 @@ chrome.alarms.onAlarm.addListener(async (alarm) => {
         break;
       }
 
-      sendTabsToRemote();
+      sendBrowserToRemote();
+      break;
+    case browsersFetchFromRemoteAndSaveAction:
+      console.log("Periodic fetch of browsers from remote and save to storage...");
+      refreshBrowsersFromRemote();
       break;
   }
 });
 
 chrome.runtime.onMessage.addListener((request, _sender, _sendResponse) => {
   switch (request.action) {
-    case tabBackupRemoteActionFromUi:
-      sendTabsToRemote();
+    case browserBackupRemoteActionFromUi:
+      sendBrowserToRemote();
       break;
   }
 });
