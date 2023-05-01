@@ -606,7 +606,7 @@ class Tabs extends NamedNavigationalComponent {
                       </Typography>
                     </CardContent>
                     <CardActions sx={{ justifyContent: "center" }}>
-                      <Button disabled={this.state.profileSubscriptionPlan !== freePlan} width="100%" fullWidth variant="contained" color='warning' size="large"
+                      <Button disabled={this.state.profileSubscriptionPlan === freePlan} width="100%" fullWidth variant="contained" color='warning' size="large"
                         onClick={() => {
                           openLink(stripeManageSubscriptionsUrl);
                         }}>
@@ -638,7 +638,7 @@ class Tabs extends NamedNavigationalComponent {
                       </Typography>
                     </CardContent>
                     <CardActions sx={{ width: "100%", justifyContent: "center" }}>
-                      <Button disabled={this.state.profileSubscriptionPlan !== premiumPlan} width="100%" fullWidth variant="contained" color='warning' size="large"
+                      <Button disabled={this.state.profileSubscriptionPlan === premiumPlan} width="100%" fullWidth variant="contained" color='warning' size="large"
                         onClick={() => {
                           openLink(stripeSubscribePremiumUrl);
                         }}>
