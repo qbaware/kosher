@@ -13,14 +13,18 @@ type UserKey struct{}
 // PrepareUser adds the user to the request context.
 func PrepareUser(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		userID := r.Context().Value(UserIDKey{}).(string)
-		userEmail := r.Context().Value(UserEmailKey{}).(string)
-		userIsPremium := r.Context().Value(UserIsPremiumKey{}).(bool)
+		userID := r.Context().Value(userIDKey{}).(string)
+		userName := r.Context().Value(userNameKey{}).(string)
+		userEmail := r.Context().Value(userEmailKey{}).(string)
+		userProfilePicURL := r.Context().Value(userProfilePicURLKey{}).(string)
+		userIsPremium := r.Context().Value(userIsPremiumKey{}).(bool)
 
 		user := models.User{
-			ID:        userID,
-			Email:     userEmail,
-			IsPremium: userIsPremium,
+			ID:            userID,
+			Name:          userName,
+			Email:         userEmail,
+			ProfilePicURL: userProfilePicURL,
+			IsPremium:     userIsPremium,
 		}
 
 		ctx := context.WithValue(r.Context(), UserKey{}, user)

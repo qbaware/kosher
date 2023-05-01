@@ -43,6 +43,8 @@ func main() {
 	router.Put("/browsers", api.NewPutBrowserHandler(browserService))
 	router.Delete("/browsers", api.NewRemoveBrowsersHandler(browserService))
 
+	router.Get("/user", api.NewGetUserInfoHandler())
+
 	cors := cors.New(cors.Options{
 		AllowedMethods: []string{http.MethodOptions, http.MethodHead, http.MethodGet, http.MethodPut, http.MethodDelete},
 		AllowedHeaders: []string{"*"},

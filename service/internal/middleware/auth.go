@@ -9,15 +9,23 @@ import (
 	"net/http"
 )
 
-// UserIDKey is the key for the user ID in the request context.
-type UserIDKey struct{}
+// userIDKey is the key for the user ID in the request context.
+type userIDKey struct{}
 
-// UserEmailKey is the key for the user email in the request context.
-type UserEmailKey struct{}
+// userNameKey is the key for the user name in the request context.
+type userNameKey struct{}
+
+// userEmailKey is the key for the user email in the request context.
+type userEmailKey struct{}
+
+// userProfilePicURLKey is the key for the user profile picture URL in the request context.
+type userProfilePicURLKey struct{}
 
 type user struct {
-	ID    string `json:"user_id"`
-	Email string `json:"email"`
+	ID            string `json:"user_id"`
+	Name          string `json:"given_name"`
+	Email         string `json:"email"`
+	ProfilePicURL string `json:"picture"`
 }
 
 // GoogleOAuth2 validates the access token in the Authorization header. If the token is valid, the user ID and email are added to the request context.
@@ -56,8 +64,10 @@ func GoogleOAuth2(next http.Handler) http.Handler {
 
 		log.Printf("User with email '%s' authenticated successfully", user.Email)
 
-		ctx := context.WithValue(r.Context(), UserIDKey{}, user.ID)
-		ctx = context.WithValue(ctx, UserEmailKey{}, user.Email)
+		ctx := context.WithValue(r.Context(), userIDKey{}, user.ID)
+		ctx = context.WithValue(ctx, userNameKey{}, user.Name)
+		ctx = context.WithValue(ctx, userEmailKey{}, user.Email)
+		ctx = context.WithValue(ctx, userProfilePicURLKey{}, user.ProfilePicURL)
 		r = r.WithContext(ctx)
 
 		next.ServeHTTP(w, r)
