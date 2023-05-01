@@ -11,6 +11,6 @@ type BrowserStorage interface {
 	// ListBrowsers retrieves all browsers with their corresponding tabs from storage.
 	ListBrowsers(userID string) []models.Browser
 
-	// RemoveTab removes browsers from storage.
+	// RemoveBrowsers removes browsers from storage.
 	RemoveBrowsers(userID string, ids []string) error
 }
