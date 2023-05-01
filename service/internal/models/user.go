@@ -6,5 +6,5 @@ type User struct {
 	Name          string `json:"name"`
 	Email         string `json:"email"`
 	ProfilePicURL string `json:"profile_pic_url"`
-	IsPremium     bool   `json:"is_premium"`
+	Subscription  string `json:"subscription"`
 }

@@ -8,10 +8,12 @@ import (
 
 // InMemoryStorage represents an in-memory storage for browsers.
 type InMemoryStorage struct {
-	browsersStorage map[string][]models.Browser
+	browsersStorage          map[string][]models.Browser
+	userSubscriptionsStorage map[string]string
 }
 
 var _ BrowserStorage = &InMemoryStorage{}
+var _ UserStorage = &InMemoryStorage{}
 
 // NewInMemoryStorage creates an in-memory browsers storage.
 func NewInMemoryStorage() *InMemoryStorage {
@@ -77,5 +79,19 @@ func (ims *InMemoryStorage) removeBrowser(userID string, id string) error {
 		}
 	}
 
+	return nil
+}
+
+// GetSubscription retrieves a user's subscription.
+func (ims *InMemoryStorage) GetSubscription(userID string) (string, error) {
+	if subscription, ok := ims.userSubscriptionsStorage[userID]; ok {
+		return subscription, nil
+	}
+	return "", nil
+}
+
+// SetSubscription sets a user's subscription.
+func (ims *InMemoryStorage) SetSubscription(userID string, subscription string) error {
+	ims.userSubscriptionsStorage[userID] = subscription
 	return nil
 }

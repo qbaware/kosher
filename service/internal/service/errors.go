@@ -8,3 +8,10 @@ type MaxBrowsersLimitPerUserError struct {
 func (e *MaxBrowsersLimitPerUserError) Error() string {
 	return "max browsers limit reached"
 }
+
+type InvalidSubscriptionValueError struct {
+}
+
+func (e *InvalidSubscriptionValueError) Error() string {
+	return "invalid subscription value"
+}

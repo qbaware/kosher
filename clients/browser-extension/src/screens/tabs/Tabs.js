@@ -138,7 +138,7 @@ class Tabs extends NamedNavigationalComponent {
         this.setState({
           profileName: info.name,
           profilePicUrl: info.profile_pic_url.replace(hardcodedGoogleApiSize, `s${targetProfilePicSize}`),
-          profileSubscriptionPlan: (info.is_premium ? premiumPlan : freePlan)
+          profileSubscriptionPlan: info.subscription
         });
       }).catch(error => {
         console.log("Failed retrieving user info from Google APIs", error);

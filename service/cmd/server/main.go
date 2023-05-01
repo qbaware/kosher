@@ -34,10 +34,11 @@ func main() {
 
 	storage := storage.NewInMemoryStorage()
 	browserService := service.NewBrowserService(storage)
+	userService := service.NewUserService(storage)
 
-	router.Use(middleware.GoogleOAuth2)
-	router.Use(middleware.UserPremiumCheck)
-	router.Use(middleware.PrepareUser)
+	router.Use(middleware.NewGoogleOAuth2())
+	router.Use(middleware.NewUserSubscription(userService))
+	router.Use(middleware.NewPrepareUser())
 
 	router.Get("/browsers", api.NewGetBrowsersHandler(browserService))
 	router.Put("/browsers", api.NewPutBrowserHandler(browserService))
