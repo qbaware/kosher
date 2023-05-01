@@ -22,7 +22,7 @@ type userEmailKey struct{}
 type userProfilePicURLKey struct{}
 
 type user struct {
-	ID            string `json:"user_id"`
+	ID            string `json:"id"`
 	Name          string `json:"given_name"`
 	Email         string `json:"email"`
 	ProfilePicURL string `json:"picture"`
@@ -37,7 +37,7 @@ func GoogleOAuth2(next http.Handler) http.Handler {
 			return
 		}
 
-		tokenValidateEndpoint := fmt.Sprintf("https://www.googleapis.com/oauth2/v1/tokeninfo?access_token=%s", accessToken)
+		tokenValidateEndpoint := fmt.Sprintf("https://www.googleapis.com/oauth2/v1/userinfo?access_token=%s", accessToken)
 		resp, err := http.Get(tokenValidateEndpoint)
 		if err != nil {
 			http.Error(w, "Unauthorized", http.StatusUnauthorized)
