@@ -15,7 +15,7 @@ type BrowserService interface {
 }
 
 type browserService struct {
-	storage storage.Storage
+	storage storage.BrowserStorage
 
 	mutex sync.Mutex
 }
@@ -23,7 +23,7 @@ type browserService struct {
 var _ BrowserService = &browserService{}
 
 // NewBrowserService creates a new BrowserService.
-func NewBrowserService(storage storage.Storage) BrowserService {
+func NewBrowserService(storage storage.BrowserStorage) BrowserService {
 	return &browserService{storage: storage}
 }
 

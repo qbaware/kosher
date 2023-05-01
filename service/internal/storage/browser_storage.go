@@ -2,8 +2,8 @@ package storage
 
 import "github.com/qbaware/kosher/internal/models"
 
-// Storage describes a browser storage.
-type Storage interface {
+// BrowserStorage describes a browser storage.
+type BrowserStorage interface {
 
 	// UpsertBrowser adds or updates a browser with all its tabs to storage.
 	UpsertBrowser(userID string, browser models.Browser) error

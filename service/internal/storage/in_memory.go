@@ -11,7 +11,7 @@ type InMemoryStorage struct {
 	browsersStorage map[string][]models.Browser
 }
 
-var _ Storage = &InMemoryStorage{}
+var _ BrowserStorage = &InMemoryStorage{}
 
 // NewInMemoryStorage creates an in-memory browsers storage.
 func NewInMemoryStorage() *InMemoryStorage {
