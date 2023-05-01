@@ -35,8 +35,8 @@ func (s *userService) GetSubscription(userID string) string {
 	s.mutex.Lock()
 	defer s.mutex.Unlock()
 
-	sub := s.storage.GetSubscription(userID)
-	if sub == "" {
+	sub, err := s.storage.GetSubscription(userID)
+	if sub == "" || err != nil {
 		return constants.DefaultSubscription
 	}
 	return sub
