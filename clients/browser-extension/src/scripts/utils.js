@@ -2,6 +2,7 @@
 
 // TODO: See how to get those from a secure config
 const kosherBrowsersApiUrl = "https://kosher.herokuapp.com/browsers";
+const kosherUsersApiUrl = "https://kosher.herokuapp.com/user";
 const clientId = "537590887046-6c985s5fp4qnph99vtsvmqgs07061gj5.apps.googleusercontent.com";
 const scopes = "https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile";
 const redirectUrl = chrome.identity.getRedirectURL();
@@ -91,8 +92,13 @@ const revokeToken = (token) => {
   return fetch(`https://accounts.google.com/o/oauth2/revoke?token=${token}`);
 }
 
-export const getTokenUserInfo = (token) => {
-  return fetch(`https://www.googleapis.com/oauth2/v1/userinfo?access_token=${token}`);
+export const getUserInfo = (token) => {
+  return fetch(kosherUsersApiUrl, {
+    method: "GET",
+    headers: {
+      "Authorization": `${token}`
+    }
+  });
 }
 
 const checkTokenValidity = (token) => {

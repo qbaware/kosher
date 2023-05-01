@@ -42,7 +42,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import App from '../../App';
 import './Tabs.css';
 import { ListItem } from '@mui/material';
-import { logoutUser, openLink, checkUserLogin, getTokenUserInfo, deleteBrowser, localStorageSyncEnabledKey, refreshBrowsersFromRemote, fetchBrowsersFromStorage } from '../../scripts/utils';
+import { logoutUser, openLink, checkUserLogin, getUserInfo, deleteBrowser, localStorageSyncEnabledKey, refreshBrowsersFromRemote, fetchBrowsersFromStorage } from '../../scripts/utils';
 import { browserBackupRemoteActionFromUi } from '../../scripts/background';
 
 const defaultDeviceName = "Unnamed";
@@ -128,7 +128,7 @@ class Tabs extends NamedNavigationalComponent {
   }
 
   loadProfile(token) {
-    getTokenUserInfo(token)
+    getUserInfo(token)
       .then(response => {
         return response.json();
       }).then(info => {
@@ -136,8 +136,9 @@ class Tabs extends NamedNavigationalComponent {
         const targetProfilePicSize = 128;
 
         this.setState({
-          profileName: info.given_name,
-          profilePicUrl: info.picture.replace(hardcodedGoogleApiSize, `s${targetProfilePicSize}`)
+          profileName: info.name,
+          profilePicUrl: info.profile_pic_url.replace(hardcodedGoogleApiSize, `s${targetProfilePicSize}`),
+          profileSubscriptionPlan: (info.is_premium ? premiumPlan : freePlan)
         });
       }).catch(error => {
         console.log("Failed retrieving user info from Google APIs", error);
@@ -605,7 +606,7 @@ class Tabs extends NamedNavigationalComponent {
                       </Typography>
                     </CardContent>
                     <CardActions sx={{ justifyContent: "center" }}>
-                      <Button disabled={this.state.profileSubscriptionPlan === freePlan} width="100%" fullWidth variant="contained" color='warning' size="large"
+                      <Button disabled={this.state.profileSubscriptionPlan !== freePlan} width="100%" fullWidth variant="contained" color='warning' size="large"
                         onClick={() => {
                           openLink(stripeManageSubscriptionsUrl);
                         }}>
@@ -637,7 +638,7 @@ class Tabs extends NamedNavigationalComponent {
                       </Typography>
                     </CardContent>
                     <CardActions sx={{ width: "100%", justifyContent: "center" }}>
-                      <Button disabled={this.state.profileSubscriptionPlan === premiumPlan} width="100%" fullWidth variant="contained" color='warning' size="large"
+                      <Button disabled={this.state.profileSubscriptionPlan !== premiumPlan} width="100%" fullWidth variant="contained" color='warning' size="large"
                         onClick={() => {
                           openLink(stripeSubscribePremiumUrl);
                         }}>
