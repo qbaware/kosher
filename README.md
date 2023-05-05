@@ -29,4 +29,4 @@ Do you
 
 Kosher aims to resolve all of those issues by providing users a unified way to sync all of your machines' browser tabs in a single place.
 
-Kosher is a cross-browser extension that stores all your browser tabs into the cloud. This makes it possible to use browser tabs across other browsers on other machines. It also has the benefit of being a secure backup storage for your browser tabs.
+Kosher is a cross-browser extension that stores all your browser tabs into the cloud. This makes it possible to use browser tabs across other browsers on other machines. It also has the benefit of being a secure backup storage for your browser tabs in case of an issue with the browser.
