@@ -52,6 +52,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
+      - name: Copy Postgres certificate
+        run: |
+          cp ./service/security/postgres/psql-cert.crt ./service/
+
       - name: Deploy to Heroku
         uses: akhileshns/heroku-deploy@v3.12.13
         with:
