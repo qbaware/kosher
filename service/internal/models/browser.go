@@ -1,5 +1,11 @@
 package models
 
+import (
+	"database/sql/driver"
+	"encoding/json"
+	"errors"
+)
+
 var (
 	supportedBrowsers = map[string]struct{}{
 		"Chrome":  {},
@@ -8,6 +14,8 @@ var (
 	}
 )
 
+type Tabs []Tab
+
 // Browser represents a browser with all its tabs.
 type Browser struct {
 	ID             string `json:"id"`
@@ -15,7 +23,7 @@ type Browser struct {
 	BrowserType    string `json:"browser"`
 	OS             string `json:"os"`
 	LastUpdateTime string `json:"last_update_time"`
-	Tabs           []Tab  `json:"tabs" gorm:"type:text[]"`
+	Tabs           Tabs   `json:"tabs"`
 	UserID         string `json:"user_id"`
 }
 
@@ -40,4 +48,26 @@ func (b Browser) IsValid() bool {
 	return isNonEmpty &&
 		isBrowserSupported &&
 		areTabsValid
+}
+
+func (b Tabs) Value() (driver.Value, error) {
+	// Serialize the tabs slice to JSON.
+	data, err := json.Marshal(b)
+	if err != nil {
+		return nil, err
+	}
+
+	// Return the JSON data as a string.
+	return driver.Value(data), nil
+}
+
+func (b *Tabs) Scan(value interface{}) error {
+	// Convert the database value to a []byte.
+	data, ok := value.([]byte)
+	if !ok {
+		return errors.New("failed to scan Tab object")
+	}
+
+	// Deserialize the JSON data into the tab object.
+	return json.Unmarshal(data, &b)
 }
