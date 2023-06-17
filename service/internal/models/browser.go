@@ -67,5 +67,5 @@ func (b Browser) ValueTabs() (driver.Value, error) {
 	}
 
 	// Return the JSON data as a string.
-	return string(data), nil
+	return data, nil
 }
