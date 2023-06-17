@@ -2,7 +2,7 @@ run:
 	go run cmd/server/main.go
 
 deps:
-	rm -rf vendor && go mod vendor
+	go mod download
 
 docker-image-build: deps
 	docker build . -t ghcr.io/qbaware/kosher:latest
