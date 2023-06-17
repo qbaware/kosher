@@ -4,7 +4,6 @@ import (
 	"database/sql/driver"
 	"encoding/json"
 	"errors"
-	"fmt"
 )
 
 var (
@@ -68,5 +67,5 @@ func (b Browser) ValueTabs() (driver.Value, error) {
 	}
 
 	// Return the JSON data as a string.
-	return fmt.Sprintf("arr: %s", data), nil
+	return driver.Value(string(data)), nil
 }
