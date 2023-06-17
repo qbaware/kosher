@@ -4,6 +4,7 @@ import (
 	"database/sql/driver"
 	"encoding/json"
 	"errors"
+	"fmt"
 )
 
 var (
@@ -21,7 +22,7 @@ type Browser struct {
 	BrowserType    string `json:"browser"`
 	OS             string `json:"os"`
 	LastUpdateTime string `json:"last_update_time"`
-	Tabs           []Tab  `json:"tabs" gorm:"type:text[];scanner:ScanTabs;valuer:ValueTabs"`
+	Tabs           []Tab  `json:"tabs" gorm:"type:text;scanner:ScanTabs;valuer:ValueTabs"`
 	UserID         string `json:"user_id"`
 }
 
@@ -67,5 +68,5 @@ func (b Browser) ValueTabs() (driver.Value, error) {
 	}
 
 	// Return the JSON data as a string.
-	return data, nil
+	return fmt.Sprintf("arr: %s", data), nil
 }
