@@ -1,11 +1,16 @@
 package storage
 
+import "github.com/qbaware/kosher/internal/models"
+
 // UserStorage describes a browser storage.
 type UserStorage interface {
 
-	// GetSubscription retrieves a user's subscription.
-	GetSubscription(userID string) (string, error)
+	// GetUser retrieves a user.
+	GetUser(userID string) (models.User, error)
 
-	// SetSubscription sets a user's subscription.
-	SetSubscription(userID string, subscription string) error
+	// UpsertUser stores the user.
+	UpsertUser(user models.User) error
+
+	// UpsertSubscription updates a user's subscription.
+	UpsertSubscription(userID string, subscription string) error
 }

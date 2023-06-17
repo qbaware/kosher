@@ -11,6 +11,12 @@ type BrowserStorage interface {
 	// ListBrowsers retrieves all browsers with their corresponding tabs from storage.
 	ListBrowsers(userID string) ([]models.Browser, error)
 
+	// ExistsBrowser checks if a browser exists in storage.
+	ExistsBrowser(userID string, browserID string) (bool, error)
+
+	// CountBrowsers counts all browsers from storage.
+	CountBrowsers(userID string) (int, error)
+
 	// RemoveBrowsers removes browsers from storage.
 	RemoveBrowsers(userID string, ids []string) error
 }

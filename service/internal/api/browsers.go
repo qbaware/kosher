@@ -49,7 +49,7 @@ func NewPutBrowserHandler(b service.BrowserService) func(w http.ResponseWriter, 
 
 		log.Printf("User %s is trying to put his %s browser with ID '%s' and name '%s'\n", user.Email, browser.BrowserType, browser.ID, browser.Name)
 
-		err := b.UpsertBrowser(user.ID, browser)
+		err := b.UpsertBrowser(user, browser)
 		if err != nil {
 			switch err.(type) {
 			case *service.MaxBrowsersLimitPerUserError:

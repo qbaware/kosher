@@ -44,6 +44,18 @@ func (ims *InMemoryStorage) listBrowsers(userID string) []models.Browser {
 	return []models.Browser{}
 }
 
+// ExistsBrowser checks if a browser exists in storage.
+func (ims *InMemoryStorage) ExistsBrowser(userID string, browserID string) (bool, error) {
+	// TODO: implement
+	panic("not implemented")
+}
+
+// CountBrowsers counts all browsers from storage.
+func (ims *InMemoryStorage) CountBrowsers(userID string) (int, error) {
+	// TODO: implement
+	panic("not implemented")
+}
+
 // RemoveTab removes a browser from the storage.
 func (ims *InMemoryStorage) RemoveBrowsers(userID string, ids []string) error {
 	for _, id := range ids {
@@ -82,16 +94,20 @@ func (ims *InMemoryStorage) removeBrowser(userID string, id string) error {
 	return nil
 }
 
-// GetSubscription retrieves a user's subscription.
-func (ims *InMemoryStorage) GetSubscription(userID string) (string, error) {
-	if subscription, ok := ims.userSubscriptionsStorage[userID]; ok {
-		return subscription, nil
-	}
-	return "", nil
+// GetUser retrieves a user.
+func (ims *InMemoryStorage) GetUser(userID string) (models.User, error) {
+	// TODO: Implement.
+	panic("not implemented")
 }
 
-// SetSubscription sets a user's subscription.
-func (ims *InMemoryStorage) SetSubscription(userID string, subscription string) error {
+// UpsertUser adds or updates a user.
+func (ims *InMemoryStorage) UpsertUser(user models.User) error {
+	// TODO: Implement.
+	panic("not implemented")
+}
+
+// UpsertSubscription updates a user's subscription.
+func (ims *InMemoryStorage) UpsertSubscription(userID string, subscription string) error {
 	ims.userSubscriptionsStorage[userID] = subscription
 	return nil
 }

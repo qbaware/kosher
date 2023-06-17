@@ -47,7 +47,6 @@ func (ss *SQLStorage) StartConnection() error {
 	// Migrate the schema
 	db.AutoMigrate(&models.Browser{})
 	db.AutoMigrate(&models.User{})
-	db.AutoMigrate(&models.Subscription{})
 
 	ss.db = db
 
@@ -71,6 +70,22 @@ func (ss *SQLStorage) ListBrowsers(userID string) ([]models.Browser, error) {
 	return browsers, result.Error
 }
 
+// ExistsBrowser checks if a browser exists in storage.
+func (ss *SQLStorage) ExistsBrowser(userID string, browserID string) (bool, error) {
+	var count int64
+	result := ss.db.Model(&models.Browser{}).Where("user_id = ? AND id = ?", userID, browserID).Count(&count)
+
+	return count > 0, result.Error
+}
+
+// CountBrowsers counts all browsers from storage.
+func (ss *SQLStorage) CountBrowsers(userID string) (int, error) {
+	var count int64
+	result := ss.db.Model(&models.Browser{}).Where("user_id = ?", userID).Count(&count)
+
+	return int(count), result.Error
+}
+
 // RemoveTab removes a browser from the storage.
 func (ss *SQLStorage) RemoveBrowsers(userID string, ids []string) error {
 	result := ss.db.Delete(&models.Browser{}, "user_id = ? AND id IN ?", userID, ids)
@@ -78,21 +93,22 @@ func (ss *SQLStorage) RemoveBrowsers(userID string, ids []string) error {
 	return result.Error
 }
 
-// GetSubscription retrieves a user's subscription.
-func (ss *SQLStorage) GetSubscription(userID string) (string, error) {
-	sub := models.Subscription{}
-	result := ss.db.Where("user_id = ?", userID).Find(&sub)
+// GetUser retrieves a user.
+func (ss *SQLStorage) GetUser(userID string) (models.User, error) {
+	user := models.User{}
+	result := ss.db.Where("id = ?", userID).Find(&user)
 
-	return sub.Plan, result.Error
+	return user, result.Error
 }
 
-// SetSubscription sets a user's subscription.
-func (ss *SQLStorage) SetSubscription(userID string, subscription string) error {
-	sub := models.Subscription{
-		UserID: userID,
-		Plan:   subscription,
-	}
-	result := ss.db.Save(&sub)
+// UpsertUser stores the user.
+func (ss *SQLStorage) UpsertUser(user models.User) error {
+	result := ss.db.Save(&user)
+	return result.Error
+}
 
+// UpsertSubscription updates a user's subscription.
+func (ss *SQLStorage) UpsertSubscription(userID string, subscription string) error {
+	result := ss.db.Model(&models.User{}).Where("id = ?", userID).Update("subscription", subscription)
 	return result.Error
 }

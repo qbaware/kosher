@@ -4,17 +4,21 @@ import (
 	"sync"
 
 	"github.com/qbaware/kosher/internal/constants"
+	"github.com/qbaware/kosher/internal/models"
 	"github.com/qbaware/kosher/internal/storage"
 )
 
 // UserService describes a user service.
 type UserService interface {
 
-	// GetSubscription retrieves a user's subscription.
-	GetSubscription(userID string) string
+	// GetUser retrieves a user.
+	GetUser(userID string) (models.User, error)
 
-	// SetSubscription sets a user's subscription.
-	SetSubscription(userID string, subscription string) error
+	// UpsertUser stores the user.
+	UpsertUser(user models.User) error
+
+	// UpsertSubscription updates a user's subscription.
+	UpsertSubscription(userID string, subscription string) error
 }
 
 type userService struct {
@@ -30,20 +34,24 @@ func NewUserService(storage storage.UserStorage) UserService {
 	return &userService{storage: storage}
 }
 
-// GetSubscription retrieves a user's subscription.
-func (s *userService) GetSubscription(userID string) string {
+// GetUser retrieves a user.
+func (s *userService) GetUser(userID string) (models.User, error) {
 	s.mutex.Lock()
 	defer s.mutex.Unlock()
 
-	sub, err := s.storage.GetSubscription(userID)
-	if sub == "" || err != nil {
-		return constants.DefaultSubscription
-	}
-	return sub
+	return s.storage.GetUser(userID)
 }
 
-// SetSubscription sets a user's subscription.
-func (s *userService) SetSubscription(userID string, subscription string) error {
+// UpsertUser stores the user.
+func (s *userService) UpsertUser(user models.User) error {
+	s.mutex.Lock()
+	defer s.mutex.Unlock()
+
+	return s.storage.UpsertUser(user)
+}
+
+// UpsertSubscription updates a user's subscription.
+func (s *userService) UpsertSubscription(userID string, subscription string) error {
 	s.mutex.Lock()
 	defer s.mutex.Unlock()
 
@@ -51,5 +59,5 @@ func (s *userService) SetSubscription(userID string, subscription string) error 
 		return &InvalidSubscriptionValueError{}
 	}
 
-	return s.storage.SetSubscription(userID, subscription)
+	return s.storage.UpsertSubscription(userID, subscription)
 }

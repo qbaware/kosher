@@ -10,7 +10,7 @@ import (
 // BrowserService is a service that takes care of browser management - retrieval, addition, and removal.
 type BrowserService interface {
 	ListBrowsers(userID string) []models.Browser
-	UpsertBrowser(userID string, browser models.Browser) error
+	UpsertBrowser(user models.User, browser models.Browser) error
 	RemoveBrowsers(userID string, browserIDs []string) error
 }
 
@@ -40,26 +40,29 @@ func (s *browserService) ListBrowsers(userID string) []models.Browser {
 }
 
 // UpsertBrowser adds or updates a browser.
-func (s *browserService) UpsertBrowser(userID string, browser models.Browser) error {
+func (s *browserService) UpsertBrowser(user models.User, browser models.Browser) error {
 	s.mutex.Lock()
 	defer s.mutex.Unlock()
 
-	browsers, err := s.storage.ListBrowsers(userID)
+	browserExists, err := s.storage.ExistsBrowser(user.ID, browser.ID)
 	if err != nil {
 		return err
 	}
 
-	for _, b := range browsers {
-		if b.ID == browser.ID {
-			return s.storage.UpsertBrowser(userID, browser)
-		}
+	if browserExists {
+		return s.storage.UpsertBrowser(user.ID, browser)
 	}
 
-	if len(browsers) >= MaxBrowsersLimitPerUser {
+	browsersCount, err := s.storage.CountBrowsers(user.ID)
+	if err != nil {
+		return err
+	}
+
+	if browsersCount >= MaxBrowsersLimitPerUser {
 		return &MaxBrowsersLimitPerUserError{}
 	}
 
-	return s.storage.UpsertBrowser(userID, browser)
+	return s.storage.UpsertBrowser(user.ID, browser)
 }
 
 // RemoveBrowsers removes browsers.
