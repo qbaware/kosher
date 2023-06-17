@@ -54,6 +54,7 @@ jobs:
 
       - name: Build Docker image
         run: |
+          cd ./service
           make docker-image-build
           make docker-image-push
 
