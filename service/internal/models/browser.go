@@ -4,7 +4,6 @@ import (
 	"database/sql/driver"
 	"encoding/json"
 	"errors"
-	"log"
 )
 
 var (
@@ -66,9 +65,6 @@ func (b Browser) ValueTabs() (driver.Value, error) {
 	if err != nil {
 		return nil, err
 	}
-
-	// TODO: Remove the putka
-	log.Printf("putka value tabs %s", string(data))
 
 	// Return the JSON data as a string.
 	return data, nil
