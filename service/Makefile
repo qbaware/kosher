@@ -1,5 +1,7 @@
 run:
+	cp ./security/postgres/psql-cert.crt ./
 	go run cmd/server/main.go
+	rm psql-crt.crt
 
 deps:
 	go mod download
