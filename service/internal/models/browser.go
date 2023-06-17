@@ -21,7 +21,7 @@ type Browser struct {
 	BrowserType    string `json:"browser"`
 	OS             string `json:"os"`
 	LastUpdateTime string `json:"last_update_time"`
-	Tabs           []Tab  `json:"tabs" gorm:"scanner:ScanTabs;valuer:ValueTabs"`
+	Tabs           []Tab  `json:"tabs" gorm:"type:text[];scanner:ScanTabs;valuer:ValueTabs"`
 	UserID         string `json:"user_id"`
 }
 
