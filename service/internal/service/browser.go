@@ -32,7 +32,11 @@ func (s *browserService) ListBrowsers(userID string) []models.Browser {
 	s.mutex.Lock()
 	defer s.mutex.Unlock()
 
-	return s.storage.ListBrowsers(userID)
+	browsers, err := s.storage.ListBrowsers(userID)
+	if err != nil {
+		return []models.Browser{}
+	}
+	return browsers
 }
 
 // UpsertBrowser adds or updates a browser.
@@ -40,7 +44,11 @@ func (s *browserService) UpsertBrowser(userID string, browser models.Browser) er
 	s.mutex.Lock()
 	defer s.mutex.Unlock()
 
-	browsers := s.storage.ListBrowsers(userID)
+	browsers, err := s.storage.ListBrowsers(userID)
+	if err != nil {
+		return err
+	}
+
 	for _, b := range browsers {
 		if b.ID == browser.ID {
 			return s.storage.UpsertBrowser(userID, browser)

@@ -6,7 +6,7 @@ import (
 	"github.com/qbaware/kosher/internal/models"
 )
 
-// InMemoryStorage represents an in-memory storage for browsers.
+// InMemoryStorage represents an in-memory storage for browsers and users.
 type InMemoryStorage struct {
 	browsersStorage          map[string][]models.Browser
 	userSubscriptionsStorage map[string]string
@@ -15,7 +15,7 @@ type InMemoryStorage struct {
 var _ BrowserStorage = &InMemoryStorage{}
 var _ UserStorage = &InMemoryStorage{}
 
-// NewInMemoryStorage creates an in-memory browsers storage.
+// NewInMemoryStorage creates an in-memory browsers and users storage.
 func NewInMemoryStorage() *InMemoryStorage {
 	return &InMemoryStorage{
 		browsersStorage: make(map[string][]models.Browser, 0),
@@ -33,8 +33,8 @@ func (ims *InMemoryStorage) UpsertBrowser(userID string, browser models.Browser)
 }
 
 // ListTabs retrieves all browsers.
-func (ims *InMemoryStorage) ListBrowsers(userID string) []models.Browser {
-	return ims.listBrowsers(userID)
+func (ims *InMemoryStorage) ListBrowsers(userID string) ([]models.Browser, error) {
+	return ims.listBrowsers(userID), nil
 }
 
 func (ims *InMemoryStorage) listBrowsers(userID string) []models.Browser {

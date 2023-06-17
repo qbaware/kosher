@@ -9,7 +9,7 @@ type BrowserStorage interface {
 	UpsertBrowser(userID string, browser models.Browser) error
 
 	// ListBrowsers retrieves all browsers with their corresponding tabs from storage.
-	ListBrowsers(userID string) []models.Browser
+	ListBrowsers(userID string) ([]models.Browser, error)
 
 	// RemoveBrowsers removes browsers from storage.
 	RemoveBrowsers(userID string, ids []string) error

@@ -32,7 +32,7 @@ func main() {
 
 	router := chi.NewRouter()
 
-	storage := storage.NewInMemoryStorage()
+	storage := storage.NewSQLStorage()
 	browserService := service.NewBrowserService(storage)
 	userService := service.NewUserService(storage)
 
