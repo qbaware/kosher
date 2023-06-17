@@ -52,6 +52,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
+      - name: Login to Docker
+        run: echo "${{ secrets.GH_DANIELGOSPODINOW_PACKAGES_ACCESS_TOKEN }}" | docker login -u danielgospodinow --password-stdin
+
       - name: Build Docker image
         run: |
           cd ./service
