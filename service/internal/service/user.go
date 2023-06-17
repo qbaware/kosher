@@ -47,6 +47,10 @@ func (s *userService) UpsertUser(user models.User) error {
 	s.mutex.Lock()
 	defer s.mutex.Unlock()
 
+	if !user.IsValid() {
+		return &InvalidUserError{}
+	}
+
 	return s.storage.UpsertUser(user)
 }
 

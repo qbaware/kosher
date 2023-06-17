@@ -98,6 +98,9 @@ func (ss *SQLStorage) GetUser(userID string) (models.User, error) {
 	user := models.User{}
 	result := ss.db.Where("id = ?", userID).Find(&user)
 
+	if !user.IsValid() {
+		return models.User{}, gorm.ErrRecordNotFound
+	}
 	return user, result.Error
 }
 

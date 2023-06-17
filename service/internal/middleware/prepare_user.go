@@ -28,7 +28,7 @@ func NewPrepareUser(userService service.UserService) func(http.Handler) http.Han
 			case nil:
 				// Double check that there's no funny business going on.
 				if dbUser.Email != userEmail {
-					http.Error(w, "Bad request", http.StatusBadRequest)
+					http.Error(w, "Invalid user", http.StatusBadRequest)
 					return
 				}
 

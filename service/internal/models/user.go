@@ -8,3 +8,12 @@ type User struct {
 	ProfilePicURL string `json:"profile_pic_url"`
 	Subscription  string `json:"subscription"`
 }
+
+// IsValid returns true if the user is valid.
+func (u User) IsValid() bool {
+	return u.ID != "" &&
+		u.Name != "" &&
+		u.Email != "" &&
+		u.ProfilePicURL != "" &&
+		u.Subscription != ""
+}

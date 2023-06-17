@@ -20,5 +20,14 @@ func (e *InvalidSubscriptionValueError) Error() string {
 	return "invalid subscription value"
 }
 
+// InvalidUserError is an error that is returned when a user is invalid.
+type InvalidUserError struct {
+}
+
+// Error returns the error message.
+func (e *InvalidUserError) Error() string {
+	return "invalid user"
+}
+
 // RecordNotFoundError is an error that is returned when a record is not found.
 var RecordNotFoundError error = gorm.ErrRecordNotFound
