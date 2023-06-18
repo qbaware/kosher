@@ -1,7 +1,6 @@
 package api
 
 import (
-	"encoding/json"
 	"io"
 	"log"
 	"net/http"
@@ -32,12 +31,6 @@ func NewPostSubscriptionWebhooksHandler(u service.UserService) func(w http.Respo
 		event, err := webhook.ConstructEvent(payload, r.Header.Get("Stripe-Signature"), endpointSecret)
 		if err != nil {
 			log.Printf("Error verifying webhook signature: %v", err)
-			w.WriteHeader(http.StatusBadRequest)
-			return
-		}
-
-		if err := json.Unmarshal(payload, &event); err != nil {
-			log.Printf("Failed to parse webhook body json: %v", err.Error())
 			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
