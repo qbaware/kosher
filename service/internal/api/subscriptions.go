@@ -26,9 +26,9 @@ func NewPostSubscriptionWebhooksHandler(u service.UserService) func(w http.Respo
 		defer r.Body.Close()
 
 		// TODO: Remove this key from source code, lol. See if you can pass this via GH.
-		endpointSecret := "whsec_mnxqmiJ8xo3nKilKBixPhh8uPgACznSE"
+		signSecret := "whsec_mnxqmiJ8xo3nKilKBixPhh8uPgACznSE"
 
-		event, err := webhook.ConstructEvent(payload, r.Header.Get("Stripe-Signature"), endpointSecret)
+		event, err := webhook.ConstructEvent(payload, r.Header.Get("Stripe-Signature"), signSecret)
 		if err != nil {
 			log.Printf("Error verifying webhook signature: %v", err)
 			w.WriteHeader(http.StatusBadRequest)
