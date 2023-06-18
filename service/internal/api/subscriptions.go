@@ -82,7 +82,7 @@ func NewPostSubscriptionWebhooksHandler(u service.UserService) func(w http.Respo
 
 		user, err := u.GetUserByEmail("mazei gei")
 		if err != nil {
-			log.Printf("Error finding the user corresponding to subscription '%+v': %s", sub, err)
+			log.Printf("Error finding the user corresponding to subscription '%+v' with event '%+v': %s", sub, event, err)
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
