@@ -52,9 +52,6 @@ func NewPostSubscriptionWebhooksHandler(u service.UserService) func(w http.Respo
 
 			customerEmail = sub.Customer.Email
 
-			// TODO: Remove this log statement, it could be too verbose.
-			log.Printf("Received a subscription event for customer %+v", sub.Customer)
-
 			if sub.Customer.Deleted {
 				log.Printf("Customer %s is deleted", customerEmail)
 				w.WriteHeader(http.StatusBadRequest)
