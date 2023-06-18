@@ -13,6 +13,9 @@ import (
 
 // NewPostSubscriptionWebhooksHandler handles all incoming webhooks from the subscription system.
 func NewPostSubscriptionWebhooksHandler(u service.UserService) func(w http.ResponseWriter, r *http.Request) {
+	// TODO: Remove this key from source code, lol.
+	stripe.Key = "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"
+
 	return func(w http.ResponseWriter, r *http.Request) {
 		payload, err := io.ReadAll(r.Body)
 		if err != nil {
