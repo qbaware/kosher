@@ -9,11 +9,12 @@ import (
 	"github.com/qbaware/kosher/internal/constants"
 	"github.com/qbaware/kosher/internal/service"
 	"github.com/stripe/stripe-go/v74"
+	"github.com/stripe/stripe-go/v74/webhook"
 )
 
 // NewPostSubscriptionWebhooksHandler handles all incoming webhooks from the subscription system.
 func NewPostSubscriptionWebhooksHandler(u service.UserService) func(w http.ResponseWriter, r *http.Request) {
-	// TODO: Remove this key from source code, lol.
+	// TODO: Remove this key from source code, lol. See if you can pass this via GH.
 	stripe.Key = "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"
 
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -25,7 +26,15 @@ func NewPostSubscriptionWebhooksHandler(u service.UserService) func(w http.Respo
 		}
 		defer r.Body.Close()
 
-		event := stripe.Event{}
+		// TODO: Remove this key from source code, lol. See if you can pass this via GH.
+		endpointSecret := "whsec_mnxqmiJ8xo3nKilKBixPhh8uPgACznSE"
+
+		event, err := webhook.ConstructEvent(payload, r.Header.Get("Stripe-Signature"), endpointSecret)
+		if err != nil {
+			log.Printf("Error verifying webhook signature: %v", err)
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
 
 		if err := json.Unmarshal(payload, &event); err != nil {
 			log.Printf("Failed to parse webhook body json: %v", err.Error())
