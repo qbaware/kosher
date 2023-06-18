@@ -37,7 +37,6 @@ func NewPostSubscriptionWebhooksHandler(u service.UserService) func(w http.Respo
 		}
 
 		var sub *stripe.Subscription
-		var customer *stripe.Customer
 		var newSubscription string
 
 		switch event.Type {
@@ -50,8 +49,6 @@ func NewPostSubscriptionWebhooksHandler(u service.UserService) func(w http.Respo
 				w.WriteHeader(http.StatusBadRequest)
 				return
 			}
-
-			customer = sub.Customer
 
 			if sub.Customer.Deleted {
 				log.Printf("Customer %s is deleted", sub.Customer.Email)
@@ -83,9 +80,9 @@ func NewPostSubscriptionWebhooksHandler(u service.UserService) func(w http.Respo
 			return
 		}
 
-		user, err := u.GetUserByEmail(customer.Email)
+		user, err := u.GetUserByEmail("mazei gei")
 		if err != nil {
-			log.Printf("Error finding the user corresponding to customer '%+v' in subscription '%+v': %s", customer, sub, err)
+			log.Printf("Error finding the user corresponding to subscription '%+v': %s", sub, err)
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
