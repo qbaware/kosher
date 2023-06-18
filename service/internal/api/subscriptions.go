@@ -36,7 +36,7 @@ func NewPostSubscriptionWebhooksHandler(u service.UserService) func(w http.Respo
 			return
 		}
 
-		var sub *stripe.Subscription
+		var sub stripe.Subscription
 		var newSubscription string
 
 		switch event.Type {
