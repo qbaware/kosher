@@ -14,6 +14,9 @@ type UserService interface {
 	// GetUser retrieves a user.
 	GetUser(userID string) (models.User, error)
 
+	// GetUserByEmail retrieves a user by their email.
+	GetUserByEmail(userEmail string) (models.User, error)
+
 	// UpsertUser stores the user.
 	UpsertUser(user models.User) error
 
@@ -40,6 +43,14 @@ func (s *userService) GetUser(userID string) (models.User, error) {
 	defer s.mutex.Unlock()
 
 	return s.storage.GetUser(userID)
+}
+
+// GetUserByEmail retrieves a user by their email.
+func (s *userService) GetUserByEmail(userEmail string) (models.User, error) {
+	s.mutex.Lock()
+	defer s.mutex.Unlock()
+
+	return s.storage.GetUserByEmail(userEmail)
 }
 
 // UpsertUser stores the user.

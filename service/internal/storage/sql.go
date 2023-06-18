@@ -104,6 +104,17 @@ func (ss *SQLStorage) GetUser(userID string) (models.User, error) {
 	return user, result.Error
 }
 
+// GetUserByEmail retrieves a user.
+func (ss *SQLStorage) GetUserByEmail(userEmail string) (models.User, error) {
+	user := models.User{}
+	result := ss.db.Where("email = ?", userEmail).Find(&user)
+
+	if !user.IsValid() {
+		return models.User{}, gorm.ErrRecordNotFound
+	}
+	return user, result.Error
+}
+
 // UpsertUser stores the user.
 func (ss *SQLStorage) UpsertUser(user models.User) error {
 	result := ss.db.Save(&user)

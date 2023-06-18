@@ -100,6 +100,12 @@ func (ims *InMemoryStorage) GetUser(userID string) (models.User, error) {
 	panic("not implemented")
 }
 
+// GetUserByEmail retrieves a user by their email.
+func (ims *InMemoryStorage) GetUserByEmail(userEmail string) (models.User, error) {
+	// TODO: Implement.
+	panic("not implemented")
+}
+
 // UpsertUser adds or updates a user.
 func (ims *InMemoryStorage) UpsertUser(user models.User) error {
 	// TODO: Implement.
