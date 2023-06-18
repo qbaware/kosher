@@ -40,7 +40,7 @@ func main() {
 	browserService := service.NewBrowserService(storage)
 	userService := service.NewUserService(storage)
 
-	// router.Use(middleware.NewGoogleOAuth2())
+	router.Use(middleware.NewGoogleOAuth2())
 	router.Use(middleware.NewPrepareUser(userService))
 
 	router.Get("/browsers", api.NewGetBrowsersHandler(browserService))
