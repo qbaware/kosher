@@ -2,9 +2,9 @@ package models
 
 // User represents a user object.
 type User struct {
-	ID            string `json:"id"`
+	ID            string `json:"id" gorm:"primaryKey"`
 	Name          string `json:"name"`
-	Email         string `json:"email"`
+	Email         string `json:"email" gorm:"unique"`
 	ProfilePicURL string `json:"profile_pic_url"`
 	Subscription  string `json:"subscription"`
 }
