@@ -30,26 +30,32 @@ func init() {
 func main() {
 	log.Printf("Server starting on port %s ...\n", port)
 
-	// This is the main router that handles user-related requests. It is protected by Google OAuth2.
-	router := chi.NewRouter()
-
-	// This is the router that handles webhooks from the subscription system. It is not protected by any authentication.
-	whRouter := chi.NewRouter()
-
 	storage := storage.NewSQLStorage()
 	browserService := service.NewBrowserService(storage)
 	userService := service.NewUserService(storage)
 
-	router.Use(middleware.NewGoogleOAuth2())
-	router.Use(middleware.NewPrepareUser(userService))
+	router := chi.NewRouter()
 
-	router.Get("/browsers", api.NewGetBrowsersHandler(browserService))
-	router.Put("/browsers", api.NewPutBrowserHandler(browserService))
-	router.Delete("/browsers", api.NewRemoveBrowsersHandler(browserService))
+	// Protected routes that generate a user in the request context.
+	router.Group(func(r chi.Router) {
+		router.Use(middleware.NewGoogleOAuth2())
+		router.Use(middleware.NewPrepareUser(userService))
 
-	router.Get("/user", api.NewGetUserInfoHandler())
+		r.Route("/browsers", func(r chi.Router) {
+			router.Get("/", api.NewGetBrowsersHandler(browserService))
+			router.Put("/", api.NewPutBrowserHandler(browserService))
+			router.Delete("/", api.NewRemoveBrowsersHandler(browserService))
+		})
 
-	whRouter.Post("/subscription_webhooks", api.NewPostSubscriptionWebhooksHandler(userService))
+		r.Route("/user", func(r chi.Router) {
+			router.Get("/", api.NewGetUserInfoHandler())
+		})
+	})
+
+	// Unprotected routes.
+	router.Group(func(r chi.Router) {
+		r.Post("/subscription_webhooks", api.NewPostSubscriptionWebhooksHandler(userService))
+	})
 
 	cors := cors.New(cors.Options{
 		AllowedMethods: []string{http.MethodOptions, http.MethodHead, http.MethodGet, http.MethodPut, http.MethodDelete},
