@@ -38,17 +38,20 @@ func main() {
 
 	// Protected routes that generate a user in the request context.
 	router.Group(func(r chi.Router) {
-		router.Use(middleware.NewGoogleOAuth2())
-		router.Use(middleware.NewPrepareUser(userService))
+		// Auth middleware and user preparation.
+		r.Use(middleware.NewGoogleOAuth2())
+		r.Use(middleware.NewPrepareUser(userService))
 
+		// Browser routes.
 		r.Route("/browsers", func(r chi.Router) {
-			router.Get("/", api.NewGetBrowsersHandler(browserService))
-			router.Put("/", api.NewPutBrowserHandler(browserService))
-			router.Delete("/", api.NewRemoveBrowsersHandler(browserService))
+			r.Get("/", api.NewGetBrowsersHandler(browserService))
+			r.Put("/", api.NewPutBrowserHandler(browserService))
+			r.Delete("/", api.NewRemoveBrowsersHandler(browserService))
 		})
 
+		// User routes.
 		r.Route("/user", func(r chi.Router) {
-			router.Get("/", api.NewGetUserInfoHandler())
+			r.Get("/", api.NewGetUserInfoHandler())
 		})
 	})
 
