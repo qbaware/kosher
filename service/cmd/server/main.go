@@ -31,6 +31,7 @@ func main() {
 	log.Printf("Server starting on port %s ...\n", port)
 
 	router := chi.NewRouter()
+	webhooksRouter := chi.NewRouter()
 
 	storage := storage.NewSQLStorage()
 	browserService := service.NewBrowserService(storage)
@@ -45,7 +46,7 @@ func main() {
 
 	router.Get("/user", api.NewGetUserInfoHandler())
 
-	router.Post("/subscription_webhooks", api.NewPostSubscriptionWebhooksHandler(userService))
+	webhooksRouter.Post("/subscription_webhooks", api.NewPostSubscriptionWebhooksHandler(userService))
 
 	cors := cors.New(cors.Options{
 		AllowedMethods: []string{http.MethodOptions, http.MethodHead, http.MethodGet, http.MethodPut, http.MethodDelete},

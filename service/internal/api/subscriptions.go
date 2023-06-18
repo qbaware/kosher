@@ -33,10 +33,12 @@ func NewPostSubscriptionWebhooksHandler(u service.UserService) func(w http.Respo
 
 		var newSub string
 		switch event.Type {
-		case "customer.subscription.deleted":
-		case "customer.subscription.canceled":
 		case "customer.subscription.created":
-		case "customer.subscription.updated	":
+			// Then define and call a function to handle the event customer.subscription.created
+		case "customer.subscription.updated":
+			// Then define and call a function to handle the event customer.subscription.updated
+		case "customer.subscription.deleted":
+			// Then define and call a function to handle the event customer.subscription.deleted
 			log.Printf("Received a familiar event: '%+v'", event)
 		default:
 			log.Printf("Received an event for which we don't care at all: %s", event.Type)
