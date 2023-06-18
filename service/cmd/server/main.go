@@ -45,6 +45,8 @@ func main() {
 
 	router.Get("/user", api.NewGetUserInfoHandler())
 
+	router.Post("/subscription_webhooks", api.NewPostSubscriptionWebhooksHandler(userService))
+
 	cors := cors.New(cors.Options{
 		AllowedMethods: []string{http.MethodOptions, http.MethodHead, http.MethodGet, http.MethodPut, http.MethodDelete},
 		AllowedHeaders: []string{"*"},

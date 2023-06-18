@@ -31,7 +31,7 @@ func NewPutBrowserHandler(b service.BrowserService) func(w http.ResponseWriter, 
 	return func(w http.ResponseWriter, r *http.Request) {
 		var browser models.Browser
 		if err := json.NewDecoder(r.Body).Decode(&browser); err != nil {
-			log.Printf("error: failed to decode json %s\n", err.Error())
+			log.Printf("Error: failed to decode json %s\n", err.Error())
 			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
@@ -40,7 +40,7 @@ func NewPutBrowserHandler(b service.BrowserService) func(w http.ResponseWriter, 
 		browser.LastUpdateTime = fmt.Sprintf("%d", time.Now().UnixNano())
 
 		if !browser.IsValid() {
-			log.Printf("error: invalid browser %v\n", browser)
+			log.Printf("Error: invalid browser %v\n", browser)
 			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
@@ -75,7 +75,7 @@ func NewRemoveBrowsersHandler(b service.BrowserService) func(w http.ResponseWrit
 	return func(w http.ResponseWriter, r *http.Request) {
 		var browserIDs []string
 		if err := json.NewDecoder(r.Body).Decode(&browserIDs); err != nil {
-			log.Printf("error: failed to decode json %s\n", err.Error())
+			log.Printf("Error: failed to decode json %s\n", err.Error())
 			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
