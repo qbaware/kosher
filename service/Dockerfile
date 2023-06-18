@@ -8,8 +8,6 @@ RUN go mod download
 
 COPY . . 
 
-RUN cp ./security/postgres/psql-cert.crt .
-
 RUN go build -o kosher ./cmd/server/main.go
 
 ENTRYPOINT ["./kosher"]

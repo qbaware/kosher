@@ -37,7 +37,7 @@ func (ss *SQLStorage) StartConnection() error {
 		" password=EVyKuRxEJXXdgfGd",
 		" dbname=postgres",
 		" sslmode=verify-full",
-		" sslrootcert=psql-cert.crt",
+		" sslrootcert=./security/postgres/psql-cert.crt",
 	)
 	db, err := gorm.Open(postgres.Open(connStr), &gorm.Config{})
 	if err != nil {
