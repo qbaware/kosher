@@ -1,7 +1,6 @@
 package api
 
 import (
-	"encoding/json"
 	"io"
 	"log"
 	"net/http"
@@ -43,12 +42,14 @@ func NewPostSubscriptionWebhooksHandler(u service.UserService) func(w http.Respo
 		case "customer.subscription.created":
 		case "customer.subscription.updated":
 		case "customer.subscription.deleted":
-			err := json.Unmarshal(event.Data.Raw, &sub)
-			if err != nil {
+			s, ok := event.Data.Object["object"].(stripe.Subscription)
+			if !ok {
 				log.Printf("Failed to parse subscription object '%+v' from webhook: %s", event.Data.Raw, err)
 				w.WriteHeader(http.StatusBadRequest)
 				return
 			}
+
+			sub = s
 
 			if sub.Customer.Deleted {
 				log.Printf("Customer %s is deleted", sub.Customer.Email)
