@@ -46,6 +46,11 @@ func NewPostSubscriptionWebhooksHandler(u service.UserService) func(w http.Respo
 			}
 
 			customerEmail = sub.Customer.Email
+			if sub.Customer.Deleted {
+				log.Printf("Customer %s is deleted", customerEmail)
+				w.WriteHeader(http.StatusBadRequest)
+				return
+			}
 
 			if sub.CanceledAt != 0 {
 				newSubscription = constants.FreeSubscription
