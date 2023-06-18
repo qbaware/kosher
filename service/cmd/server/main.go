@@ -30,8 +30,11 @@ func init() {
 func main() {
 	log.Printf("Server starting on port %s ...\n", port)
 
+	// This is the main router that handles user-related requests. It is protected by Google OAuth2.
 	router := chi.NewRouter()
-	webhooksRouter := chi.NewRouter()
+
+	// This is the router that handles webhooks from the subscription system. It is not protected by any authentication.
+	whRouter := chi.NewRouter()
 
 	storage := storage.NewSQLStorage()
 	browserService := service.NewBrowserService(storage)
@@ -46,7 +49,7 @@ func main() {
 
 	router.Get("/user", api.NewGetUserInfoHandler())
 
-	webhooksRouter.Post("/subscription_webhooks", api.NewPostSubscriptionWebhooksHandler(userService))
+	whRouter.Post("/subscription_webhooks", api.NewPostSubscriptionWebhooksHandler(userService))
 
 	cors := cors.New(cors.Options{
 		AllowedMethods: []string{http.MethodOptions, http.MethodHead, http.MethodGet, http.MethodPut, http.MethodDelete},
