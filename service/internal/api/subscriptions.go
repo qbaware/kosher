@@ -1,6 +1,7 @@
 package api
 
 import (
+	"encoding/json"
 	"io"
 	"log"
 	"net/http"
@@ -36,18 +37,21 @@ func NewPostSubscriptionWebhooksHandler(u service.UserService) func(w http.Respo
 		}
 
 		var sub *stripe.Subscription
+		var customer *stripe.Customer
 		var newSubscription string
+
 		switch event.Type {
 		case "customer.subscription.created":
 		case "customer.subscription.updated":
 		case "customer.subscription.deleted":
-			if s, ok := event.Data.Object["object"].(*stripe.Subscription); !ok {
-				log.Printf("Failed to parse subscription object from webhook")
+			err := json.Unmarshal(event.Data.Raw, &sub)
+			if err != nil {
+				log.Printf("Failed to parse subscription object '%+v' from webhook: %s", event.Data.Raw, err)
 				w.WriteHeader(http.StatusBadRequest)
 				return
-			} else {
-				sub = s
 			}
+
+			customer = sub.Customer
 
 			if sub.Customer.Deleted {
 				log.Printf("Customer %s is deleted", sub.Customer.Email)
@@ -79,9 +83,9 @@ func NewPostSubscriptionWebhooksHandler(u service.UserService) func(w http.Respo
 			return
 		}
 
-		user, err := u.GetUserByEmail(sub.Customer.Email)
+		user, err := u.GetUserByEmail(customer.Email)
 		if err != nil {
-			log.Printf("Error finding the user corresponding to customer '%s' in subscription '%+v': %s", sub.Customer.Email, sub, err)
+			log.Printf("Error finding the user corresponding to customer '%+v' in subscription '%+v': %s", customer, sub, err)
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
