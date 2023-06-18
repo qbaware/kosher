@@ -83,13 +83,14 @@ func NewPostSubscriptionWebhooksHandler(u service.UserService) func(w http.Respo
 
 		user, err := u.GetUserByEmail(customerEmail)
 		if err != nil {
-			log.Println("Error finding the user")
+			log.Printf("Error finding the user: %s", err)
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
 
 		err = u.UpsertSubscription(user.ID, newSubscription)
 		if err != nil {
+			log.Printf("Error updating the user's subscription: %s", err)
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
