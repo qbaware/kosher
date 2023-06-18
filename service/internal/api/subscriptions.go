@@ -8,6 +8,8 @@ import (
 	"github.com/qbaware/kosher/internal/constants"
 	"github.com/qbaware/kosher/internal/service"
 	"github.com/stripe/stripe-go/v74"
+	stripeCustomer "github.com/stripe/stripe-go/v74/customer"
+	stripeSubscription "github.com/stripe/stripe-go/v74/subscription"
 	"github.com/stripe/stripe-go/v74/webhook"
 )
 
@@ -35,24 +37,35 @@ func NewPostSubscriptionWebhooksHandler(u service.UserService) func(w http.Respo
 			return
 		}
 
-		var sub stripe.Subscription
+		var sub *stripe.Subscription
+		var cust *stripe.Customer
 		var newSubscription string
 
 		switch event.Type {
 		case "customer.subscription.created":
 		case "customer.subscription.updated":
 		case "customer.subscription.deleted":
-			s, ok := event.Data.Object["object"].(stripe.Subscription)
-			if !ok {
-				log.Printf("Failed to parse subscription object '%+v' from webhook: %s", event.Data.Raw, err)
-				w.WriteHeader(http.StatusBadRequest)
+			eventData := event.Data.Object
+
+			subscriptionID := eventData["id"].(string)
+			customerID := eventData["customer"].(string)
+
+			sub, err = stripeSubscription.Get(subscriptionID, nil)
+			if err != nil {
+				log.Printf("Error getting subscription: %s", err)
+				w.WriteHeader(http.StatusInternalServerError)
 				return
 			}
 
-			sub = s
+			cust, err = stripeCustomer.Get(customerID, nil)
+			if err != nil {
+				log.Printf("Error getting customer: %s", err)
+				w.WriteHeader(http.StatusInternalServerError)
+				return
+			}
 
-			if sub.Customer.Deleted {
-				log.Printf("Customer %s is deleted", sub.Customer.Email)
+			if cust.Deleted {
+				log.Printf("Customer %s is deleted", cust.Email)
 				w.WriteHeader(http.StatusBadRequest)
 				return
 			}
@@ -81,9 +94,9 @@ func NewPostSubscriptionWebhooksHandler(u service.UserService) func(w http.Respo
 			return
 		}
 
-		user, err := u.GetUserByEmail("mazei gei")
+		user, err := u.GetUserByEmail(cust.Email)
 		if err != nil {
-			log.Printf("Error finding the user corresponding to subscription '%+v' with event '%+v': %s", sub, event.Data.Object, err)
+			log.Printf("Error finding the user corresponding to customer '%+v' with subscription '%+v': %s", cust, sub, err)
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
