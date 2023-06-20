@@ -1,11 +1,12 @@
 /*global chrome*/
 
-import { getCurrentBrowser, getCurrentOs, loadVariableFromLocalStorage, localStorageBrowserTypeKey, localStorageDeviceName, localStorageExtensionId, localStorageOsKey, saveTabsToStorage, sendBrowserToRemote, setVariableToLocalStorageIfMissing, localStorageSyncEnabledKey, refreshBrowsersFromRemote } from "./utils.js";
+import { getCurrentBrowser, getCurrentOs, loadVariableFromLocalStorage, localStorageBrowserTypeKey, localStorageDeviceName, localStorageExtensionId, localStorageOsKey, saveTabsToStorage, sendBrowserToRemote, setVariableToLocalStorageIfMissing, localStorageSyncEnabledKey, refreshBrowsersFromRemote, refreshToken } from "./utils.js";
 
 export const tabBackupAction = "tabsBackup";
 export const browserBackupToRemoteAction = "browserBackupToRemote";
 export const browserBackupRemoteActionFromUi = "browserBackupRemoteFromUi";
 export const browsersFetchFromRemoteAndSaveAction = "browsersFetchFromRemoteAndSave";
+export const refreshGoogleOAuth2TokenAction = "refreshGoogleOAuth2Token";
 
 chrome.runtime.onInstalled.addListener(() => {
   console.log("Extension starting ...");
@@ -63,6 +64,11 @@ chrome.runtime.onInstalled.addListener(() => {
       chrome.alarms.create(browsersFetchFromRemoteAndSaveAction, { periodInMinutes: 30 });
     }
   });
+  chrome.alarms.get(refreshGoogleOAuth2TokenAction, (alarm) => {
+    if (!alarm) {
+      chrome.alarms.create(refreshGoogleOAuth2TokenAction, { periodInMinutes: 20 });
+    }
+  });
 });
 
 chrome.alarms.onAlarm.addListener((alarm) => {
@@ -88,6 +94,10 @@ chrome.alarms.onAlarm.addListener((alarm) => {
     case browsersFetchFromRemoteAndSaveAction:
       console.log("Periodic fetch of browsers from remote and save to storage...");
       refreshBrowsersFromRemote();
+      break;
+    case refreshGoogleOAuth2TokenAction:
+      console.log("Periodic refresh of Google OAuth2 token...");
+      refreshToken();
       break;
   }
 });

@@ -4,6 +4,7 @@
 const kosherBrowsersApiUrl = "https://kosher.herokuapp.com/browsers";
 const kosherUsersApiUrl = "https://kosher.herokuapp.com/user";
 const clientId = "537590887046-6c985s5fp4qnph99vtsvmqgs07061gj5.apps.googleusercontent.com";
+const clientSecret = "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"
 const scopes = "https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile";
 const redirectUrl = chrome.identity.getRedirectURL();
 
@@ -24,16 +25,37 @@ const loginUserWithClientCreds = async (clientId, scopes, redirectUrl, interacti
   return new Promise(async (resolve, reject) => {
     try {
       const response = await chrome.identity.launchWebAuthFlow({
-        url: `https://accounts.google.com/o/oauth2/auth?client_id=${clientId}&redirect_uri=${redirectUrl}&response_type=token&scope=${scopes}`,
+        url: `https://accounts.google.com/o/oauth2/auth?client_id=${clientId}&redirect_uri=${redirectUrl}&response_type=code&scope=${scopes}&access_type=offline&prompt=consent`,
         interactive: interactive
       });
-      const urlParams = new URLSearchParams(response.substring(response.indexOf("#") + 1));
+      const urlParams = new URLSearchParams(response.split('?')[1]);
       const error = urlParams.get("error");
       if (!error) {
-        const token = urlParams.get("access_token");
+        const code = urlParams.get("code");
+
+        const params = new URLSearchParams();
+        params.append("client_id", clientId);
+        params.append("client_secret", clientSecret);
+        params.append("code", code);
+        params.append("grant_type", "authorization_code");
+        params.append("redirect_uri", redirectUrl);
+        const tokenResponse = await fetch('https://oauth2.googleapis.com/token', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+          },
+          body: params
+        });
+        const data = await tokenResponse.json();
+
+        const token = data["access_token"];
+        const refreshToken = data["refresh_token"];
         await chrome.storage.local.set({ token: token });
-        console.log("Saved token into storage");
+        await chrome.storage.local.set({ refreshToken: refreshToken });
+
         console.log("Received token: " + token);
+        console.log("Received refresh token: " + refreshToken);
+        console.log("Saved both token and refresh token to storage");
         resolve(token);
       } else {
         console.log("Error while logging in with Google: " + error);
@@ -45,6 +67,43 @@ const loginUserWithClientCreds = async (clientId, scopes, redirectUrl, interacti
     }
   });
 }
+
+export const refreshToken = async () => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      let refreshTokenResult = await chrome.storage.local.get("refreshToken");
+      let refreshToken = refreshTokenResult["refreshToken"];
+      if (!refreshToken) {
+        console.log("No refresh token was present on refresh token");
+        reject("No refresh token was present on refresh token");
+        return;
+      }
+    
+      const params = new URLSearchParams();
+      params.append("client_id", clientId);
+      params.append("client_secret", clientSecret);
+      params.append("refresh_token", refreshToken);
+      params.append("grant_type", "refresh_token");
+      const tokenResponse = await fetch('https://oauth2.googleapis.com/token', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded'
+        },
+        body: params
+      });
+      const data = await tokenResponse.json();
+      const token = data["access_token"];
+      await chrome.storage.local.set({ token: token });
+      console.log("Received fresh access token: " + token);
+      console.log("Saved token to storage");
+      resolve(token);
+    } catch (error) {
+      console.log("Error while refreshing token: " + error);
+      reject(error);
+    }
+  });
+}
+
 
 export const checkUserLogin = () => {
   return new Promise(async (resolve, reject) => {
