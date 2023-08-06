@@ -46,7 +46,6 @@ func NewPostSubscriptionWebhooksHandler(u service.UserService) func(w http.Respo
 		switch event.Type {
 		case "customer.subscription.created", "customer.subscription.updated", "customer.subscription.deleted":
 			eventData := event.Data.Object
-			log.Printf("Processing event data: '%+v'...", eventData)
 
 			subscriptionID := eventData["id"].(string)
 			customerID := eventData["customer"].(string)
@@ -96,13 +95,14 @@ func NewPostSubscriptionWebhooksHandler(u service.UserService) func(w http.Respo
 			return
 		}
 
-		user, err := u.GetUserByEmail("UNKNOWN")
+		user, err := u.GetUserByEmail(cust.Email)
 		if err != nil {
 			log.Printf("Error finding the user corresponding to customer '%+v' with subscription '%+v': %s", cust, sub, err)
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
 
+		log.Printf("Updating user '%s' with subscription '%s'...", user.ID, newSubscription)
 		err = u.UpsertSubscription(user.ID, newSubscription)
 		if err != nil {
 			log.Printf("Error updating the user's subscription: %s", err)
