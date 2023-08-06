@@ -37,7 +37,7 @@ func NewPostSubscriptionWebhooksHandler(u service.UserService) func(w http.Respo
 			return
 		}
 
-		log.Printf("Processing event: '%+v'...", event)
+		log.Printf("Processing webhook event type: '%+v'...", event.Type)
 
 		var sub *stripe.Subscription
 		var cust *stripe.Customer
