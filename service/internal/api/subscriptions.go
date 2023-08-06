@@ -44,16 +44,12 @@ func NewPostSubscriptionWebhooksHandler(u service.UserService) func(w http.Respo
 		var newSubscription string
 
 		switch event.Type {
-		case "customer.subscription.created":
-		case "customer.subscription.updated":
-		case "customer.subscription.deleted":
+		case "customer.subscription.created", "customer.subscription.updated", "customer.subscription.deleted":
 			eventData := event.Data.Object
-
 			log.Printf("Processing event data: '%+v'...", eventData)
 
 			subscriptionID := eventData["id"].(string)
 			customerID := eventData["customer"].(string)
-
 			log.Printf("Processing subscription '%s' for customer '%s'...", subscriptionID, customerID)
 
 			sub, err = stripeSubscription.Get(subscriptionID, nil)
