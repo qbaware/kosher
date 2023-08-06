@@ -37,6 +37,8 @@ func NewPostSubscriptionWebhooksHandler(u service.UserService) func(w http.Respo
 			return
 		}
 
+		log.Printf("Processing event: %+v", event)
+
 		var sub *stripe.Subscription
 		var cust *stripe.Customer
 		var newSubscription string
@@ -49,6 +51,8 @@ func NewPostSubscriptionWebhooksHandler(u service.UserService) func(w http.Respo
 
 			subscriptionID := eventData["id"].(string)
 			customerID := eventData["customer"].(string)
+
+			log.Printf("Processing subscription '%s' for customer '%s'...", subscriptionID, customerID)
 
 			sub, err = stripeSubscription.Get(subscriptionID, nil)
 			if err != nil {
