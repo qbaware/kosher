@@ -1,8 +1,8 @@
 /*global chrome*/
 
 // TODO: See how to get those from a secure config
-const kosherBrowsersApiUrl = "https://kosher.herokuapp.com/browsers";
-const kosherUsersApiUrl = "https://kosher.herokuapp.com/user";
+const kosherBrowsersApiUrl = "https://kosher.onrender.com/browsers";
+const kosherUsersApiUrl = "https://kosher.onrender.com/user";
 const clientId = "537590887046-6c985s5fp4qnph99vtsvmqgs07061gj5.apps.googleusercontent.com";
 const clientSecret = "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"
 const scopes = "https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile";
@@ -28,6 +28,9 @@ const loginUserWithClientCreds = async (clientId, scopes, redirectUrl, interacti
         url: `https://accounts.google.com/o/oauth2/auth?client_id=${clientId}&redirect_uri=${redirectUrl}&response_type=code&scope=${scopes}&access_type=offline&prompt=consent`,
         interactive: interactive
       });
+
+      // TODO: Maybe add logic here if refresh token is available, go and fetch a new token with it. Otherwise, continue with the same flow.
+
       const urlParams = new URLSearchParams(response.split('?')[1]);
       const error = urlParams.get("error");
       if (!error) {
@@ -262,6 +265,7 @@ export function sendBrowserToRemote() {
     if (!isTokenValid) {
       console.log("Token is invalid, trying to refresh it...");
       try {
+        // TODO: Implement proper refresh token flow
         await loginUser(false);
         token = await loadVariableFromLocalStorage(localStorageToken);
       } catch (error) {

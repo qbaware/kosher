@@ -20,7 +20,7 @@
   ],
   "host_permissions": [
     "https://accounts.google.com/*",
-    "https://kosher.herokuapp.com/*",
+    "https://kosher.onrender.com/*",
     "https://oauth2.googleapis.com/*"
   ]
 }
