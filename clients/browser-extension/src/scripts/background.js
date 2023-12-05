@@ -56,12 +56,12 @@ chrome.runtime.onInstalled.addListener(() => {
   });
   chrome.alarms.get(browserBackupToRemoteAction, (alarm) => {
     if (!alarm) {
-      chrome.alarms.create(browserBackupToRemoteAction, { periodInMinutes: 30 });
+      chrome.alarms.create(browserBackupToRemoteAction, { periodInMinutes: 180 });
     }
   });
   chrome.alarms.get(browsersFetchFromRemoteAndSaveAction, (alarm) => {
     if (!alarm) {
-      chrome.alarms.create(browsersFetchFromRemoteAndSaveAction, { periodInMinutes: 30 });
+      chrome.alarms.create(browsersFetchFromRemoteAndSaveAction, { periodInMinutes: 180 });
     }
   });
   chrome.alarms.get(refreshGoogleOAuth2TokenAction, (alarm) => {
