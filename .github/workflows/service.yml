@@ -62,20 +62,13 @@ jobs:
           make docker-image-push
 
   deploy:
-    needs: test
+    needs: build-docker-image
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-
-      - name: Copy Postgres certificate
+      - name: Deploy to Render
         run: |
-          cp ./service/security/postgres/psql-cert.crt ./service/
-
-      - name: Deploy to Heroku
-        uses: akhileshns/heroku-deploy@v3.12.13
-        with:
-          heroku_api_key: ${{ secrets.HEROKU_API_KEY }}
-          heroku_app_name: "kosher"
-          heroku_email: "danielgospodinow@gmail.com"
-          appdir: "service"
+          curl --request POST \
+            --url https://api.render.com/v1/services/srv-clfrb8mg1b2c73a3lo4g/deploys \
+            --header 'accept: application/json' \
+            --header 'authorization: Bearer ${{ secrets.RENDER_API_KEY }}' \
+            --header 'content-type: application/json'
