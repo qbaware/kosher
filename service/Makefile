@@ -9,6 +9,3 @@ docker-image-build: deps
 
 docker-image-push: docker-image-build
 	docker push ghcr.io/qbaware/kosher:latest
-
-deploy-to-heroku:
-	cd .. && git subtree push --prefix service heroku main
