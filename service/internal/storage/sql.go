@@ -27,7 +27,7 @@ func NewSQLStorage() *SQLStorage {
 
 // StartConnection starts a connection to the database.
 func (ss *SQLStorage) StartConnection() error {
-	// TODO: Move to config
+	// TODO: Move this to config
 	connStr := "postgres://postgres.qsnrjzssuazkafzlxczg:EVyKuRxEJXXdgfGd@aws-0-eu-west-2.pooler.supabase.com:6543/postgres"
 	db, err := gorm.Open(postgres.Open(connStr), &gorm.Config{})
 	if err != nil {
