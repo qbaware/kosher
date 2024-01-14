@@ -66,9 +66,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Deploy to Render
-        run: |
-          curl --request POST \
-            --url https://api.render.com/v1/services/srv-clfrb8mg1b2c73a3lo4g/deploys \
-            --header 'accept: application/json' \
-            --header 'authorization: Bearer ${{ secrets.RENDER_API_KEY }}' \
-            --header 'content-type: application/json'
+        uses: qbaware/render-redeploy-action@v0
+        with:
+          render-api-key: ${{ secrets.RENDER_API_KEY }}
+          render-service-id: srv-clfrb8mg1b2c73a3lo4g
