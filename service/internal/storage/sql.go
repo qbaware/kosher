@@ -1,8 +1,6 @@
 package storage
 
 import (
-	"fmt"
-
 	"github.com/qbaware/kosher/internal/models"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -30,15 +28,7 @@ func NewSQLStorage() *SQLStorage {
 // StartConnection starts a connection to the database.
 func (ss *SQLStorage) StartConnection() error {
 	// TODO: Move to config
-	connStr := fmt.Sprint(
-		" host=db.qsnrjzssuazkafzlxczg.supabase.co",
-		" port=5432",
-		" user=postgres",
-		" password=EVyKuRxEJXXdgfGd",
-		" dbname=postgres",
-		" sslmode=verify-full",
-		" sslrootcert=./security/postgres/psql-cert.crt",
-	)
+	connStr := "postgres://postgres.qsnrjzssuazkafzlxczg:EVyKuRxEJXXdgfGd@aws-0-eu-west-2.pooler.supabase.com:6543/postgres"
 	db, err := gorm.Open(postgres.Open(connStr), &gorm.Config{})
 	if err != nil {
 		return err
