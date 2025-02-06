@@ -3,12 +3,15 @@ package storage
 import (
 	"errors"
 
+	"github.com/qbaware/kosher/internal/constants"
+	"github.com/qbaware/kosher/internal/mock"
 	"github.com/qbaware/kosher/internal/models"
 )
 
 // InMemoryStorage represents an in-memory storage for browsers and users.
 type InMemoryStorage struct {
 	browsersStorage          map[string][]models.Browser
+	usersStorage             map[string]models.User
 	userSubscriptionsStorage map[string]string
 }
 
@@ -19,7 +22,29 @@ var _ UserStorage = &InMemoryStorage{}
 func NewInMemoryStorage() *InMemoryStorage {
 	return &InMemoryStorage{
 		browsersStorage: make(map[string][]models.Browser, 0),
+		usersStorage:    make(map[string]models.User, 0),
 	}
+}
+
+// PopulateMockData populates the in-memory storage with mock data.
+func (ims *InMemoryStorage) PopulateMockData() {
+	ims.UpsertUser(models.User{
+		ID:            mock.UserID,
+		Name:          mock.UserName,
+		Email:         mock.UserEmail,
+		ProfilePicURL: mock.UserProfilePicURL,
+		Subscription:  constants.DefaultSubscription,
+	})
+
+	ims.UpsertBrowser(mock.UserID, models.Browser{
+		ID:             mock.BrowserID,
+		Name:           mock.BrowserName,
+		BrowserType:    mock.BrowserBrowserType,
+		OS:             mock.BrowserOS,
+		LastUpdateTime: mock.BrowserLastUpdateTime,
+		UserID:         mock.BrowserUserID,
+		Tabs:           mock.BrowserTabs,
+	})
 }
 
 // UpsertTab adds or updates a browser in storage.
@@ -46,14 +71,12 @@ func (ims *InMemoryStorage) listBrowsers(userID string) []models.Browser {
 
 // ExistsBrowser checks if a browser exists in storage.
 func (ims *InMemoryStorage) ExistsBrowser(userID string, browserID string) (bool, error) {
-	// TODO: implement
-	panic("not implemented")
+	return ims.containsBrowser(userID, browserID), nil
 }
 
 // CountBrowsers counts all browsers from storage.
 func (ims *InMemoryStorage) CountBrowsers(userID string) (int, error) {
-	// TODO: implement
-	panic("not implemented")
+	return len(ims.browsersStorage[userID]), nil
 }
 
 // RemoveTab removes a browser from the storage.
@@ -96,20 +119,23 @@ func (ims *InMemoryStorage) removeBrowser(userID string, id string) error {
 
 // GetUser retrieves a user.
 func (ims *InMemoryStorage) GetUser(userID string) (models.User, error) {
-	// TODO: Implement.
-	panic("not implemented")
+	return ims.usersStorage[userID], nil
 }
 
 // GetUserByEmail retrieves a user by their email.
 func (ims *InMemoryStorage) GetUserByEmail(userEmail string) (models.User, error) {
-	// TODO: Implement.
-	panic("not implemented")
+	for _, user := range ims.usersStorage {
+		if user.Email == userEmail {
+			return user, nil
+		}
+	}
+	return models.User{}, errors.New("user not found")
 }
 
 // UpsertUser adds or updates a user.
 func (ims *InMemoryStorage) UpsertUser(user models.User) error {
-	// TODO: Implement.
-	panic("not implemented")
+	ims.usersStorage[user.ID] = user
+	return nil
 }
 
 // UpsertSubscription updates a user's subscription.

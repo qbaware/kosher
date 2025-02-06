@@ -7,6 +7,8 @@ import (
 	"io"
 	"log"
 	"net/http"
+
+	"github.com/qbaware/kosher/internal/mock"
 )
 
 const (
@@ -73,6 +75,23 @@ func NewGoogleOAuth2() func(http.Handler) http.Handler {
 			ctx = context.WithValue(ctx, userNameKey{}, user.Name)
 			ctx = context.WithValue(ctx, userEmailKey{}, user.Email)
 			ctx = context.WithValue(ctx, userProfilePicURLKey{}, user.ProfilePicURL)
+			r = r.WithContext(ctx)
+
+			next.ServeHTTP(w, r)
+		})
+	}
+}
+
+// NewGoogleOAuth2 creates a mock middleware that creates a mock user in the request context.
+func NewGoogleOAuth2Mock() func(http.Handler) http.Handler {
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			log.Printf("Preparing mock user: %s", mock.UserEmail)
+
+			ctx := context.WithValue(r.Context(), userIDKey{}, mock.UserID)
+			ctx = context.WithValue(ctx, userNameKey{}, mock.UserName)
+			ctx = context.WithValue(ctx, userEmailKey{}, mock.UserEmail)
+			ctx = context.WithValue(ctx, userProfilePicURLKey{}, mock.UserProfilePicURL)
 			r = r.WithContext(ctx)
 
 			next.ServeHTTP(w, r)

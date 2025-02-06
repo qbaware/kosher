@@ -35,6 +35,8 @@ func main() {
 	var userStorage storage.UserStorage
 	if isLocal {
 		inMemStorage := storage.NewInMemoryStorage()
+		inMemStorage.PopulateMockData()
+
 		browserStorage = inMemStorage
 		userStorage = inMemStorage
 	} else {
@@ -50,12 +52,12 @@ func main() {
 
 	// Protected routes that generate a user in the request context.
 	protected := router.PathPrefix("/").Subrouter()
-	if !isLocal {
-		protected.Use(middleware.NewGoogleOAuth2())
-		protected.Use(middleware.NewPrepareUser(userService))
+	if isLocal {
+		protected.Use(middleware.NewGoogleOAuth2Mock())
 	} else {
-		protected.Use(middleware.NewPrepareUserMock())
+		protected.Use(middleware.NewGoogleOAuth2())
 	}
+	protected.Use(middleware.NewPrepareUser(userService))
 
 	// Browser routes.
 	browserRouter := protected.PathPrefix("/browsers").Subrouter()
@@ -68,7 +70,9 @@ func main() {
 	userRouter.HandleFunc("", api.NewGetUserInfoHandler()).Methods(http.MethodGet)
 
 	// Unprotected routes.
-	router.HandleFunc("/subscription_webhooks", api.NewPostSubscriptionWebhooksHandler(userService)).Methods(http.MethodPost)
+	if !isLocal {
+		router.HandleFunc("/subscription_webhooks", api.NewPostSubscriptionWebhooksHandler(userService)).Methods(http.MethodPost)
+	}
 
 	cors := cors.New(cors.Options{
 		AllowedMethods: []string{http.MethodOptions, http.MethodHead, http.MethodGet, http.MethodPut, http.MethodDelete},

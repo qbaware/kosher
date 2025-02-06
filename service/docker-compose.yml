@@ -1,5 +1,5 @@
 services:
-  app:
+  kosher-service:
     build: .
     ports:
       - "5656:5656"
