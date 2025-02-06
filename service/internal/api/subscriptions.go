@@ -76,6 +76,7 @@ func NewPostSubscriptionWebhooksHandler(u service.UserService) func(w http.Respo
 				break
 			}
 
+			// TODO: Move those values to constants and into their own package - stripe.
 			if sub.Items.Data[0].Plan.Amount == 100 {
 				newSubscription = constants.PremiumSubscription
 				break

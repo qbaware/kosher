@@ -1,0 +1,15 @@
+services:
+  app:
+    build: .
+    ports:
+      - "5656:5656"
+    volumes:
+      - .:/app/src
+    environment:
+      - PORT=5656
+      - IS_LOCAL=true
+    command: ["go", "run", "src/main.go"]
+    develop:
+      watch:
+        - action: rebuild
+          path: .

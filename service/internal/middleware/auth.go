@@ -9,6 +9,10 @@ import (
 	"net/http"
 )
 
+const (
+	googleOAuth2TokenInfoEndpoint = "https://www.googleapis.com/oauth2/v1/userinfo"
+)
+
 // userIDKey is the key for the user ID in the request context.
 type userIDKey struct{}
 
@@ -38,7 +42,7 @@ func NewGoogleOAuth2() func(http.Handler) http.Handler {
 				return
 			}
 
-			tokenValidateEndpoint := fmt.Sprintf("https://www.googleapis.com/oauth2/v1/userinfo?access_token=%s", accessToken)
+			tokenValidateEndpoint := fmt.Sprintf("%s?access_token=%s", googleOAuth2TokenInfoEndpoint, accessToken)
 			resp, err := http.Get(tokenValidateEndpoint)
 			if err != nil {
 				http.Error(w, "Unauthorized", http.StatusUnauthorized)

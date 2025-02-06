@@ -55,3 +55,23 @@ func NewPrepareUser(userService service.UserService) func(http.Handler) http.Han
 		})
 	}
 }
+
+// NewPrepareUser creates a mock middleware that adds the user to the request context.
+func NewPrepareUserMock() func(http.Handler) http.Handler {
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			user := models.User{
+				ID:            "00000000-0000-0000-0000-000000000000",
+				Name:          "Daniel Gospodinow",
+				Email:         "hi@danielgospodinow.com",
+				ProfilePicURL: "https://gravatar.com/avatar/85c84e08dcb9a38af28c20e93f82b721547ff53e4702df4d5df62de340181e7b?s=256",
+				Subscription:  constants.DefaultSubscription,
+			}
+
+			ctx := context.WithValue(r.Context(), UserKey{}, user)
+			r = r.WithContext(ctx)
+
+			next.ServeHTTP(w, r)
+		})
+	}
+}
