@@ -10,6 +10,7 @@ import (
 	"github.com/qbaware/kosher/internal/middleware"
 	"github.com/qbaware/kosher/internal/service"
 	"github.com/qbaware/kosher/internal/storage"
+	"github.com/qbaware/kosher/internal/stripe"
 	"github.com/rs/cors"
 )
 
@@ -18,13 +19,20 @@ const (
 )
 
 var (
-	port    = os.Getenv("PORT")
-	isLocal = os.Getenv("IS_LOCAL") == "true"
+	port             = os.Getenv("PORT")
+	isLocal          = os.Getenv("IS_LOCAL") != "false"
+	dbConnStr        = os.Getenv("DB_CONN_STR")
+	stripeKey        = os.Getenv("STRIPE_KEY")
+	stripeSignSecret = os.Getenv("STRIPE_SIGN_SECRET")
 )
 
 func init() {
 	if port == "" {
 		port = defaultPort
+	}
+
+	if !isLocal && (dbConnStr == "" || stripeKey == "" || stripeSignSecret == "") {
+		log.Fatalf("Missing connection string in non-local mode")
 	}
 }
 
@@ -41,6 +49,8 @@ func main() {
 		userStorage = inMemStorage
 	} else {
 		dbStorage := storage.NewSQLStorage()
+		dbStorage.Connect(dbConnStr)
+
 		browserStorage = dbStorage
 		userStorage = dbStorage
 	}
@@ -71,7 +81,12 @@ func main() {
 
 	// Unprotected routes.
 	if !isLocal {
-		router.HandleFunc("/subscription_webhooks", api.NewPostSubscriptionWebhooksHandler(userService)).Methods(http.MethodPost)
+		stripeConfig := stripe.Config{
+			StripeKey:         stripeKey,
+			WebhookSignSecret: stripeSignSecret,
+		}
+
+		router.HandleFunc("/subscription_webhooks", api.NewPostSubscriptionWebhookHandler(userService, stripeConfig)).Methods(http.MethodPost)
 	}
 
 	cors := cors.New(cors.Options{

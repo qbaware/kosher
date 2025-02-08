@@ -8,7 +8,8 @@ import (
 
 // SQLStorage represents an SQL storage for browsers and users.
 type SQLStorage struct {
-	db *gorm.DB
+	connStr string
+	db      *gorm.DB
 }
 
 var _ BrowserStorage = &SQLStorage{}
@@ -16,20 +17,12 @@ var _ UserStorage = &SQLStorage{}
 
 // NewSQLStorage creates an in-memory browsers storage.
 func NewSQLStorage() *SQLStorage {
-	storage := &SQLStorage{}
-	err := storage.StartConnection()
-	if err != nil {
-		panic(err)
-	}
-
-	return storage
+	return &SQLStorage{}
 }
 
-// StartConnection starts a connection to the database.
-func (ss *SQLStorage) StartConnection() error {
-	// TODO: Move this to config
-	connStr := "postgres://postgres.qsnrjzssuazkafzlxczg:EVyKuRxEJXXdgfGd@aws-0-eu-west-2.pooler.supabase.com:5432/postgres"
-	db, err := gorm.Open(postgres.Open(connStr), &gorm.Config{})
+// Connect starts a connection to the database.
+func (ss *SQLStorage) Connect(connectionString string) error {
+	db, err := gorm.Open(postgres.Open(connectionString), &gorm.Config{})
 	if err != nil {
 		return err
 	}
