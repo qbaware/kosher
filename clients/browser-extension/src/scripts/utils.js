@@ -1,11 +1,12 @@
 /*global chrome*/
 
-// TODO: See how to get those from a secure config
-const kosherBrowsersApiUrl = "https://kosher.onrender.com/browsers";
-const kosherUsersApiUrl = "https://kosher.onrender.com/user";
-const clientId = "537590887046-6c985s5fp4qnph99vtsvmqgs07061gj5.apps.googleusercontent.com";
-const clientSecret = "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"
-const scopes = "https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile";
+import config from "./config.js";
+
+const kosherBrowsersApiUrl = config.kosherBrowsersApiUrl;
+const kosherUsersApiUrl = config.kosherUsersApiUrl;
+const clientId = config.clientId;
+const clientSecret = config.clientSecret;
+const scopes = config.scopes;
 const redirectUrl = chrome.identity.getRedirectURL();
 
 export const localStorageTabsKey = "tabs";
@@ -17,61 +18,69 @@ export const localStorageBrowserTypeKey = "browserType";
 export const localStorageSyncEnabledKey = "syncEnabled";
 export const localStorageUserBrowsersKey = "userBrowsers";
 
-export const loginUser = (interactive) => {
+export function loginUser(interactive) {
   return loginUserWithClientCreds(clientId, scopes, redirectUrl, interactive);
 }
 
-const loginUserWithClientCreds = async (clientId, scopes, redirectUrl, interactive) => {
-  return new Promise(async (resolve, reject) => {
-    try {
-      const response = await chrome.identity.launchWebAuthFlow({
-        url: `https://accounts.google.com/o/oauth2/auth?client_id=${clientId}&redirect_uri=${redirectUrl}&response_type=code&scope=${scopes}&access_type=offline&prompt=consent`,
-        interactive: interactive
+async function loginUserWithClientCreds(
+  clientId,
+  scopes,
+  redirectUrl,
+  interactive
+) {
+  console.log(
+    "Logging in user with client credentials with client ID: " + clientId
+  );
+
+  try {
+    let response = await chrome.identity.launchWebAuthFlow({
+      url: `https://accounts.google.com/o/oauth2/auth?client_id=${clientId}&redirect_uri=${redirectUrl}&response_type=code&scope=${scopes}&access_type=offline&prompt=consent`,
+      interactive: interactive,
+    });
+
+    console.log("Got response from Google: " + response);
+
+    const urlParams = new URLSearchParams(response.split("?")[1]);
+    const error = urlParams.get("error");
+    if (!error) {
+      const code = urlParams.get("code");
+
+      const params = new URLSearchParams();
+      params.append("client_id", clientId);
+      params.append("client_secret", clientSecret);
+      params.append("code", code);
+      params.append("grant_type", "authorization_code");
+      params.append("redirect_uri", redirectUrl);
+      let tokenResponse = await fetch("https://oauth2.googleapis.com/token", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+        body: params,
       });
+      let data = await tokenResponse.json();
+      console.log("Received data from Google: " + JSON.stringify(data));
 
-      // TODO: Maybe add logic here if refresh token is available, go and fetch a new token with it. Otherwise, continue with the same flow.
+      const token = data["access_token"];
+      const refreshToken = data["refresh_token"];
+      chrome.storage.local.set({ token: token });
+      chrome.storage.local.set({ refreshToken: refreshToken });
 
-      const urlParams = new URLSearchParams(response.split('?')[1]);
-      const error = urlParams.get("error");
-      if (!error) {
-        const code = urlParams.get("code");
+      console.log("Received token: " + token);
+      console.log("Received refresh token: " + refreshToken);
+      console.log("Saved both token and refresh token to storage");
 
-        const params = new URLSearchParams();
-        params.append("client_id", clientId);
-        params.append("client_secret", clientSecret);
-        params.append("code", code);
-        params.append("grant_type", "authorization_code");
-        params.append("redirect_uri", redirectUrl);
-        const tokenResponse = await fetch('https://oauth2.googleapis.com/token', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/x-www-form-urlencoded'
-          },
-          body: params
-        });
-        const data = await tokenResponse.json();
-
-        const token = data["access_token"];
-        const refreshToken = data["refresh_token"];
-        await chrome.storage.local.set({ token: token });
-        await chrome.storage.local.set({ refreshToken: refreshToken });
-
-        console.log("Received token: " + token);
-        console.log("Received refresh token: " + refreshToken);
-        console.log("Saved both token and refresh token to storage");
-        resolve(token);
-      } else {
-        console.log("Error while logging in with Google: " + error);
-        reject(error);
-      }
-    } catch (error) {
-      console.log("Error while logging in: " + error);
-      reject(error);
+      return token;
+    } else {
+      console.log("Error while logging in, we have error: " + error);
+      throw new Error("Error while logging in, we have error: " + error);
     }
-  });
+  } catch (error) {
+    console.info("Error while logging in: " + error);
+  }
 }
 
-export const refreshToken = async () => {
+export async function refreshToken() {
   return new Promise(async (resolve, reject) => {
     try {
       let refreshTokenResult = await chrome.storage.local.get("refreshToken");
@@ -81,18 +90,18 @@ export const refreshToken = async () => {
         reject("No refresh token was present on refresh token");
         return;
       }
-    
+
       const params = new URLSearchParams();
       params.append("client_id", clientId);
       params.append("client_secret", clientSecret);
       params.append("refresh_token", refreshToken);
       params.append("grant_type", "refresh_token");
-      const tokenResponse = await fetch('https://oauth2.googleapis.com/token', {
-        method: 'POST',
+      const tokenResponse = await fetch("https://oauth2.googleapis.com/token", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/x-www-form-urlencoded'
+          "Content-Type": "application/x-www-form-urlencoded",
         },
-        body: params
+        body: params,
       });
       const data = await tokenResponse.json();
       const token = data["access_token"];
@@ -107,73 +116,68 @@ export const refreshToken = async () => {
   });
 }
 
-
-export const checkUserLogin = () => {
-  return new Promise(async (resolve, reject) => {
-    try {
-      let tokenResult = await chrome.storage.local.get(localStorageToken);
-      let token = tokenResult.token;
-      if (!token) {
-        resolve(null);
-        return;
-      }
-      resolve(token);
-    } catch (error) {
-      console.log("Error while checking for token in storage: " + error);
-      reject(error);
-    }
-  });
+export async function checkUserLogin() {
+  try {
+    let tokenResult = await chrome.storage.local.get(localStorageToken);
+    let token = tokenResult.token;
+    return token;
+  } catch (error) {
+    console.log("Error while checking for token in storage: " + error);
+    return false;
+  }
 }
 
-export const logoutUser = async () => {
-  return new Promise(async (resolve, reject) => {
-    try {
-      let token = await checkUserLogin();
-      if (!token) {
-        console.log("No token was present on user logout");
-        resolve();
-        return;
-      }
-
-      await revokeToken(token);
-      console.log("Revoked token successfully");
-
-      await chrome.storage.local.remove(localStorageToken);
-      console.log("Token cleaned from storage");
-
-      console.log("User logged out successfully");
-      resolve();
-    } catch (error) {
-      console.log("An exception occured while trying to log out user", error);
-      reject(error);
+export async function logoutUser() {
+  try {
+    let token = await checkUserLogin();
+    if (!token) {
+      console.log("No token was present on user logout");
+      return;
     }
-  });
-};
 
-const revokeToken = (token) => {
-  return fetch(`https://accounts.google.com/o/oauth2/revoke?token=${token}`);
+    await revokeToken(token);
+    console.log("Revoked token successfully");
+
+    await chrome.storage.local.remove(localStorageToken);
+    console.log("Token cleaned from storage");
+
+    console.log("User logged out successfully");
+  } catch (error) {
+    console.log("An exception occured while trying to log out user", error);
+  }
 }
 
-export const getUserInfo = (token) => {
+async function revokeToken(token) {
+  await fetch(`https://accounts.google.com/o/oauth2/revoke?token=${token}`);
+}
+
+export async function getUserInfoFromKosher(token) {
   return fetch(kosherUsersApiUrl, {
     method: "GET",
     headers: {
-      "Authorization": `${token}`
-    }
+      Authorization: `${token}`,
+    },
   });
 }
 
-const checkTokenValidity = (token) => {
-  return fetch(`https://www.googleapis.com/oauth2/v1/tokeninfo?access_token=${token}`)
-    .then((response) => {
-      return response.ok;
-    }).catch((_error) => {
-      return false;
-    });
+export function getUserInfoFromGoogle(token) {
+  return fetch("https://www.googleapis.com/oauth2/v1/userinfo?alt=json", {
+    method: "GET",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
 }
 
-export const openLink = (link) => {
-  const newWindow = window.open(link, '_blank', 'noopener,noreferrer');
+async function checkTokenValidity(token) {
+  let tokenValidity = await fetch(
+    `https://www.googleapis.com/oauth2/v1/tokeninfo?access_token=${token}`
+  );
+  return tokenValidity.ok;
+}
+
+export function openLink(link) {
+  const newWindow = window.open(link, "_blank", "noopener,noreferrer");
   if (newWindow) {
     newWindow.opener = null;
   }
@@ -185,7 +189,10 @@ export function setVariableToLocalStorage(variableName, variableValue) {
   chrome.storage.local.set(storage);
 }
 
-export function setVariableToLocalStorageIfMissing(variableName, variableValue) {
+export function setVariableToLocalStorageIfMissing(
+  variableName,
+  variableValue
+) {
   chrome.storage.local.get(variableName, (result) => {
     if (!result[variableName]) {
       setVariableToLocalStorage(variableName, variableValue);
@@ -206,20 +213,20 @@ export function loadVariableFromLocalStorage(variableName) {
 }
 
 export async function getCurrentOs() {
-  return chrome.runtime.getPlatformInfo()
-    .then((platformInfo) => {
-      switch (platformInfo.os) {
-        case "mac":
-          return "MacOS";
-        case "windows":
-          return "Windows";
-        default:
-          return "Unknown";
-      }
-    }).catch((error) => {
-      console.log("Error while getting OS: " + error);
-      return "Unknown";
-    });
+  try {
+    let platformInfo = await chrome.runtime.getPlatformInfo();
+    switch (platformInfo.os) {
+      case "mac":
+        return "MacOS";
+      case "windows":
+        return "Windows";
+      default:
+        return "Unknown";
+    }
+  } catch (error) {
+    console.error("Error while getting OS: " + error);
+    return "Unknown";
+  }
 }
 
 export function getCurrentBrowser() {
@@ -250,15 +257,16 @@ export function saveTabsToStorage() {
   });
 }
 
-export function sendBrowserToRemote() {
-  Promise.all([
-    loadVariableFromLocalStorage(localStorageExtensionId),
-    loadVariableFromLocalStorage(localStorageTabsKey),
-    loadVariableFromLocalStorage(localStorageOsKey),
-    loadVariableFromLocalStorage(localStorageBrowserTypeKey),
-    loadVariableFromLocalStorage(localStorageDeviceName),
-    loadVariableFromLocalStorage(localStorageToken)
-  ]).then(async (values) => {
+export async function sendBrowserToRemote() {
+  try {
+    let values = await Promise.all([
+      loadVariableFromLocalStorage(localStorageExtensionId),
+      loadVariableFromLocalStorage(localStorageTabsKey),
+      loadVariableFromLocalStorage(localStorageOsKey),
+      loadVariableFromLocalStorage(localStorageBrowserTypeKey),
+      loadVariableFromLocalStorage(localStorageDeviceName),
+      loadVariableFromLocalStorage(localStorageToken),
+    ]);
     let [extensionId, tabs, os, browserType, deviceName, token] = values;
 
     const isTokenValid = await checkTokenValidity(token);
@@ -269,7 +277,10 @@ export function sendBrowserToRemote() {
         await loginUser(false);
         token = await loadVariableFromLocalStorage(localStorageToken);
       } catch (error) {
-        console.log("Error while refreshing token so aborting sending tabs to remote...");
+        console.error(
+          "Error while refreshing token so aborting sending tabs to remote..." +
+            error
+        );
         return;
       }
     }
@@ -279,25 +290,26 @@ export function sendBrowserToRemote() {
       name: deviceName,
       browser: browserType,
       os: os,
-      tabs: tabs
+      tabs: tabs,
     });
 
     console.log("Sending browser data to server... ");
-    fetch(kosherBrowsersApiUrl, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": token
-      },
-      body: dataJson
-    }).then((response) => {
+    try {
+      let response = await fetch(kosherBrowsersApiUrl, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: token,
+        },
+        body: dataJson,
+      });
       console.log("Server responded with status code: " + response.status);
-    }).catch((error) => {
-      console.log("Error while sending browser data to server: " + error);
-    });
-  }).catch((error) => {
-    console.log("Error while retrieving data from storage: " + error);
-  });
+    } catch (error) {
+      console.error("Error while sending browser data to server: " + error);
+    }
+  } catch (error) {
+    console.error("Error while retrieving data from storage: " + error);
+  }
 }
 
 export async function refreshBrowsersFromRemote() {
@@ -326,12 +338,15 @@ function fetchBrowsersFromRemote() {
       const response = await fetch(kosherBrowsersApiUrl, {
         method: "GET",
         headers: {
-          "Authorization": token
-        }
+          Authorization: token,
+        },
       });
 
       if (response.status !== 200) {
-        reject("Server responded with non-OK status code on fetching browsers from remote: " + response.status)
+        reject(
+          "Server responded with non-OK status code on fetching browsers from remote: " +
+            response.status
+        );
         return;
       }
 
@@ -345,7 +360,9 @@ function fetchBrowsersFromRemote() {
 }
 
 export async function deleteBrowser(browserId) {
-  let browsers = await loadVariableFromLocalStorage(localStorageUserBrowsersKey);
+  let browsers = await loadVariableFromLocalStorage(
+    localStorageUserBrowsersKey
+  );
   browsers = browsers.filter((browser) => {
     return browser.id !== browserId;
   });
@@ -361,13 +378,16 @@ export function deleteBrowsersFromRemote(browersIds) {
       const response = await fetch(kosherBrowsersApiUrl, {
         method: "DELETE",
         headers: {
-          "Authorization": token
+          Authorization: token,
         },
-        body: JSON.stringify(browersIds)
+        body: JSON.stringify(browersIds),
       });
 
       if (response.status !== 200) {
-        reject("Server responded with non-OK status code on fetching browsers from remote: " + response.status)
+        reject(
+          "Server responded with non-OK status code on fetching browsers from remote: " +
+            response.status
+        );
         return;
       }
 
