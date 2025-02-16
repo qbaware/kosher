@@ -36,3 +36,9 @@ Kosher is a cross-browser extension that stores all your browser tabs into the c
 <img src="https://github.com/user-attachments/assets/62887404-742d-41e2-9110-ea46970c9874" width="350px" height="350px">
 
 <img src="https://github.com/user-attachments/assets/1dfc5037-fd31-4815-aa68-7ea2f78e6e16" width="350px" height="350px">
+
+## Note
+
+This repository is not actively maintained and I would consider it in a draft-ish state, although the backend functions and the frontend (the browser extension) as well.
+
+It still missing docs, a guide on how to connect it to Supabase (PostgreSQL, my choice of a SQL DB), how to deploy the backend services, how to run it fully locally, etc.
